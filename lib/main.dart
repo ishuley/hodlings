@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'asset.dart';
 
 void main() => runApp(
       const MaterialApp(
@@ -34,9 +35,30 @@ class MainScreen extends StatelessWidget {
   }
 }
 
-class AddNewAssetButton extends StatelessWidget {
+class AssetList extends StatefulWidget {
+  const AssetList({super.key});
+
+  @override
+  State<AssetList> createState() => _AssetListState();
+}
+
+class _AssetListState extends State<AssetList> {
+  List<Asset> assets = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class AddNewAssetButton extends StatefulWidget {
   const AddNewAssetButton({super.key});
 
+  @override
+  State<AddNewAssetButton> createState() => _AddNewAssetButtonState();
+}
+
+class _AddNewAssetButtonState extends State<AddNewAssetButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -65,6 +87,20 @@ class AddNewAssetButton extends StatelessWidget {
   }
 
   void onPressed() {}
+}
+
+class AddNewAssetScreen extends StatefulWidget {
+  const AddNewAssetScreen({super.key});
+
+  @override
+  State<AddNewAssetScreen> createState() => _AddNewAssetScreenState();
+}
+
+class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
 }
 
 class NetWorthButton extends StatefulWidget {
@@ -130,19 +166,5 @@ class _DrawerMenuState extends State<DrawerMenu> {
         child: ListView(
           children: const [],
         ));
-  }
-}
-
-class AssetList extends StatefulWidget {
-  const AssetList({super.key});
-
-  @override
-  State<AssetList> createState() => _AssetListState();
-}
-
-class _AssetListState extends State<AssetList> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }
