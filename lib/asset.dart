@@ -1,5 +1,3 @@
-import 'api.dart';
-
 abstract class Asset {
   String symbol;
   double value = 0;
@@ -27,7 +25,7 @@ abstract class Crypto extends Asset {
 
   @override
   double getPrice() {
-    return CryptoDataFeed.getCurrentPrice(symbol);
+    return 2.0;
   }
 }
 
@@ -40,7 +38,7 @@ class CryptoByAddress extends Crypto {
 
   @override
   double getQuantity() {
-    return ChainExplorer.getBalance(address, symbol);
+    return 2.0;
   }
 }
 
@@ -65,7 +63,7 @@ abstract class Stock extends Asset {
 
   @override
   double getPrice() {
-    return StockDataFeed.getCurrentPrice(symbol);
+    return 2.0;
   }
 }
 

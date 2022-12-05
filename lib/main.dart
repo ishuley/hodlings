@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'asset.dart';
+import 'add_new_asset_screen.dart';
 
 void main() => runApp(
-      const MaterialApp(
-        home: MainScreen(),
+      MaterialApp(
+        routes: {
+          '/': (context) => const MainScreen(),
+          '/addNewAsset': (context) => const AddNewAssetScreen(),
+        },
       ),
     );
 
@@ -62,44 +66,29 @@ class _AddNewAssetButtonState extends State<AddNewAssetButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        alignment: Alignment.bottomCenter,
-        child: Row(
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 75,
-                child: TextButton(
-                    onPressed: onPressed,
-                    style: const ButtonStyle(
-                      backgroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.black26),
-                      foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.white54),
-                    ),
-                    child: const Text(
-                      "+",
-                      textScaleFactor: 1.8,
-                    )),
+      alignment: Alignment.bottomCenter,
+      child: Row(children: [
+        Expanded(
+          child: SizedBox(
+            height: 75,
+            child: TextButton(
+              onPressed: onPressed,
+              style: const ButtonStyle(
+                backgroundColor:
+                    MaterialStatePropertyAll<Color>(Colors.black26),
+                foregroundColor:
+                    MaterialStatePropertyAll<Color>(Colors.white54),
               ),
+              child: const Icon(Icons.add),
             ),
-          ],
-        ));
+          ),
+        )
+      ]),
+    );
   }
 
-  void onPressed() {}
-}
-
-class AddNewAssetScreen extends StatefulWidget {
-  const AddNewAssetScreen({super.key});
-
-  @override
-  State<AddNewAssetScreen> createState() => _AddNewAssetScreenState();
-}
-
-class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
+  void onPressed() {
+    Navigator.pushNamed(context, '/addNewAsset');
   }
 }
 
