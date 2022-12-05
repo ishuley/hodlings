@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
+import 'api_service.dart';
+
 const List<String> stockList = <String>[
   'Manual Qty',
   'Transfer Agent',
   'Broker API'
 ];
 const List<String> cryptoList = <String>[
-  'Blockchain address',
+  'Blockchain Address',
   'Exchange API',
   'Manual Qty'
 ];
-const List<String> nftList = <String>['Blockchain Address', 'Manual qty'];
+const List<String> nftList = <String>['Blockchain Address', 'Manual Qty'];
 
 class AddNewAssetScreen extends StatefulWidget {
   const AddNewAssetScreen({super.key});
@@ -19,6 +21,11 @@ class AddNewAssetScreen extends StatefulWidget {
   @override
   State<AddNewAssetScreen> createState() => _AddNewAssetScreenState();
 }
+
+String currentValue = stockList.first;
+List<String> dataSourceDropdownValuesList = stockList;
+
+String currentAsset = "GameStop";
 
 class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   @override
@@ -35,8 +42,94 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
             child: Column(children: [
               assetTypeSelection(),
               dataSourcesDropdown(),
-              acceptCancelButtons()
+              chooseAssetDropdown(),
+              acceptCancelButtons(),
             ])));
+  }
+
+  int _assetSelection = 0;
+
+  Padding assetTypeSelection() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+          child: CupertinoSlidingSegmentedControl(
+        groupValue: _assetSelection,
+        onValueChanged: (int? choice) {
+          setState(() {
+            _assetSelection = choice!;
+            if (_assetSelection == 0) {
+              dataSourceDropdownValuesList = stockList;
+              currentValue = stockList.first;
+            }
+            if (_assetSelection == 1) {
+              dataSourceDropdownValuesList = cryptoList;
+              currentValue = cryptoList.first;
+            }
+            if (_assetSelection == 2) {
+              dataSourceDropdownValuesList = nftList;
+              currentValue = nftList.first;
+            }
+          });
+        },
+        backgroundColor: Colors.black38,
+        thumbColor: Colors.black,
+        children: const {
+          0: Text('Stocks', style: TextStyle(color: Colors.white)),
+          1: Text('Crypto', style: TextStyle(color: Colors.white)),
+          2: Text('NFTs', style: TextStyle(color: Colors.white)),
+        },
+      )),
+    );
+  }
+
+  Padding dataSourcesDropdown() {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: DropdownButton<String>(
+          focusColor: Colors.black,
+          onChanged: ((String? newValue) {
+            setState(() {
+              currentValue = newValue!;
+            });
+          }),
+          value: currentValue,
+          items: dataSourceDropdownValuesList
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          isExpanded: true,
+          style: const TextStyle(color: Colors.white),
+          dropdownColor: Colors.black,
+        ));
+  }
+
+  Padding chooseAssetDropdown() {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: DropdownButton<String>(
+          focusColor: Colors.black,
+          onChanged: ((String? newValue) {
+            setState(() {
+              currentAsset = newValue!;
+            });
+          }),
+          value: currentAsset,
+          items: APIService()
+              .getAssetList()
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          isExpanded: true,
+          style: const TextStyle(color: Colors.white),
+          dropdownColor: Colors.black,
+        ));
   }
 
   Expanded acceptCancelButtons() {
@@ -77,65 +170,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         ],
       )),
     );
-  }
-
-  int _assetSelection = 0;
-
-  String currentValue = stockList.first;
-  List<String> dropDownValue = stockList;
-
-  Padding assetTypeSelection() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Center(
-          child: CupertinoSlidingSegmentedControl(
-        groupValue: _assetSelection,
-        onValueChanged: (int? choice) {
-          setState(() {
-            _assetSelection = choice!;
-            if (_assetSelection == 0) {
-              dropDownValue = stockList;
-            }
-            if (_assetSelection == 1) {
-              dropDownValue = cryptoList;
-            }
-            if (_assetSelection == 2) {
-              dropDownValue = nftList;
-            }
-          });
-        },
-        backgroundColor: Colors.black38,
-        thumbColor: Colors.black,
-        children: const {
-          0: Text('Stocks', style: TextStyle(color: Colors.white)),
-          1: Text('Crypto', style: TextStyle(color: Colors.white)),
-          2: Text('NFTs', style: TextStyle(color: Colors.white)),
-        },
-      )),
-    );
-  }
-
-  Padding dataSourcesDropdown() {
-    return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: DropdownButton<String>(
-          focusColor: Colors.black,
-          value: dropDownValue.first,
-          onChanged: ((String? newValue) {
-            setState(() {
-              newValue = dropDownValue.first;
-            });
-          }),
-          items: dropDownValue.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-          isExpanded: true,
-          style: const TextStyle(color: Colors.white),
-          dropdownColor: Colors.black,
-        ));
   }
 
   void onAccept() {}
