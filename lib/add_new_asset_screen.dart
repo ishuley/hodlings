@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'api_service.dart';
 
-const List<String> stockList = <String>[
+const List<String> stockDataSourcesList = <String>[
   'Manual Qty',
   'Transfer Agent',
-  'Broker API'
+  'Broker API',
 ];
-const List<String> cryptoList = <String>[
+const List<String> cryptoDataSourcesList = <String>[
   'Blockchain Address',
   'Exchange API',
-  'Manual Qty'
+  'Manual Qty',
 ];
-const List<String> nftList = <String>['Blockchain Address', 'Manual Qty'];
+const List<String> nftDataSourcesList = <String>[
+  'Blockchain Address',
+  'Manual Qty',
+];
+const List<String> cashDataSourcesList = <String>[
+  'Manual Qty',
+];
 
 class AddNewAssetScreen extends StatefulWidget {
   const AddNewAssetScreen({super.key});
@@ -22,10 +27,11 @@ class AddNewAssetScreen extends StatefulWidget {
   State<AddNewAssetScreen> createState() => _AddNewAssetScreenState();
 }
 
-String currentValue = stockList.first;
-List<String> dataSourceDropdownValuesList = stockList;
+String currentDataSource = stockDataSourcesList.first;
+List<String> dataSourceDropdownValuesList = stockDataSourcesList;
 
-String currentAsset = "GameStop";
+String assetType = "stock";
+String _currentAssetName = "GameStop";
 
 class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   @override
@@ -58,18 +64,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         onValueChanged: (int? choice) {
           setState(() {
             _assetSelection = choice!;
-            if (_assetSelection == 0) {
-              dataSourceDropdownValuesList = stockList;
-              currentValue = stockList.first;
-            }
-            if (_assetSelection == 1) {
-              dataSourceDropdownValuesList = cryptoList;
-              currentValue = cryptoList.first;
-            }
-            if (_assetSelection == 2) {
-              dataSourceDropdownValuesList = nftList;
-              currentValue = nftList.first;
-            }
+            setDropdownsBasedOnAssetSelection();
+            _currentAssetName = APIService(assetType).getAssetList().first;
           });
         },
         backgroundColor: Colors.black38,
@@ -78,9 +74,49 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           0: Text('Stocks', style: TextStyle(color: Colors.white)),
           1: Text('Crypto', style: TextStyle(color: Colors.white)),
           2: Text('NFTs', style: TextStyle(color: Colors.white)),
+          3: Text('Cash', style: TextStyle(color: Colors.white)),
         },
       )),
     );
+  }
+
+  void setDropdownsBasedOnAssetSelection() {
+    if (_assetSelection == 0) {
+      setDropdownsToStock();
+    }
+    if (_assetSelection == 1) {
+      setDropdownsToCrypto();
+    }
+    if (_assetSelection == 2) {
+      setDropdownsToNFT();
+    }
+    if (_assetSelection == 3) {
+      setDropdownsToCash();
+    }
+  }
+
+  void setDropdownsToCash() {
+    dataSourceDropdownValuesList = cashDataSourcesList;
+    currentDataSource = cashDataSourcesList.first;
+    assetType = "cash";
+  }
+
+  void setDropdownsToNFT() {
+    dataSourceDropdownValuesList = nftDataSourcesList;
+    currentDataSource = nftDataSourcesList.first;
+    assetType = "nft";
+  }
+
+  void setDropdownsToCrypto() {
+    dataSourceDropdownValuesList = cryptoDataSourcesList;
+    currentDataSource = cryptoDataSourcesList.first;
+    assetType = "crypto";
+  }
+
+  void setDropdownsToStock() {
+    dataSourceDropdownValuesList = stockDataSourcesList;
+    currentDataSource = stockDataSourcesList.first;
+    assetType = "stock";
   }
 
   Padding dataSourcesDropdown() {
@@ -90,10 +126,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           focusColor: Colors.black,
           onChanged: ((String? newValue) {
             setState(() {
-              currentValue = newValue!;
+              currentDataSource = newValue!;
             });
           }),
-          value: currentValue,
+          value: currentDataSource,
           items: dataSourceDropdownValuesList
               .map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
@@ -114,11 +150,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           focusColor: Colors.black,
           onChanged: ((String? newValue) {
             setState(() {
-              currentAsset = newValue!;
+              _currentAssetName = newValue!;
             });
           }),
-          value: currentAsset,
-          items: APIService()
+          value: _currentAssetName,
+          items: APIService(assetType)
               .getAssetList()
               .map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
