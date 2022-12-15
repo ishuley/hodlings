@@ -20,18 +20,18 @@ const List<String> cashDataSourcesList = <String>[
   'Manual Qty',
 ];
 
+String _currentDataSource = stockDataSourcesList.first;
+List<String> dataSourceDropdownValuesList = stockDataSourcesList;
+String _assetType = "stock";
+String _currentAssetName = "GameStop";
+int _assetSelection = 0;
+
 class AddNewAssetScreen extends StatefulWidget {
   const AddNewAssetScreen({super.key});
 
   @override
   State<AddNewAssetScreen> createState() => _AddNewAssetScreenState();
 }
-
-String currentDataSource = stockDataSourcesList.first;
-List<String> dataSourceDropdownValuesList = stockDataSourcesList;
-
-String assetType = "stock";
-String _currentAssetName = "GameStop";
 
 class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   @override
@@ -45,17 +45,26 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         ),
         body: Container(
             color: Colors.grey[850],
-            child: Column(children: [
-              assetTypeSelection(),
-              dataSourcesDropdown(),
-              chooseAssetDropdown(),
-              acceptCancelButtons(),
+            child: Column(children: const [
+              AssetTypeSelection(),
+              DataSourceDropdown(),
+              AssetDropdown(),
+              DataSourceLabel(),
+              AcceptCancelButton(),
             ])));
   }
+}
 
-  int _assetSelection = 0;
+class AssetTypeSelection extends StatefulWidget {
+  const AssetTypeSelection({super.key});
 
-  Padding assetTypeSelection() {
+  @override
+  State<AssetTypeSelection> createState() => _AssetTypeSelectionState();
+}
+
+class _AssetTypeSelectionState extends State<AssetTypeSelection> {
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Center(
@@ -64,8 +73,27 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         onValueChanged: (int? choice) {
           setState(() {
             _assetSelection = choice!;
-            setDropdownsBasedOnAssetSelection();
-            _currentAssetName = APIService(assetType).getAssetList().first;
+            if (_assetSelection == 0) {
+              dataSourceDropdownValuesList = stockDataSourcesList;
+              _currentDataSource = stockDataSourcesList.first;
+              _assetType = "stock";
+            }
+            if (_assetSelection == 1) {
+              dataSourceDropdownValuesList = cryptoDataSourcesList;
+              _currentDataSource = cryptoDataSourcesList.first;
+              _assetType = "crypto";
+            }
+            if (_assetSelection == 2) {
+              dataSourceDropdownValuesList = nftDataSourcesList;
+              _currentDataSource = nftDataSourcesList.first;
+              _assetType = "nft";
+            }
+            if (_assetSelection == 3) {
+              dataSourceDropdownValuesList = cashDataSourcesList;
+              _currentDataSource = cashDataSourcesList.first;
+              _assetType = "cash";
+            }
+            _currentAssetName = APIService(_assetType).getAssetList().first;
           });
         },
         backgroundColor: Colors.black38,
@@ -79,62 +107,33 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       )),
     );
   }
+}
 
-  void setDropdownsBasedOnAssetSelection() {
-    if (_assetSelection == 0) {
-      setDropdownsToStock();
-    }
-    if (_assetSelection == 1) {
-      setDropdownsToCrypto();
-    }
-    if (_assetSelection == 2) {
-      setDropdownsToNFT();
-    }
-    if (_assetSelection == 3) {
-      setDropdownsToCash();
-    }
-  }
+class DataSourceDropdown extends StatefulWidget {
+  const DataSourceDropdown({super.key});
 
-  void setDropdownsToCash() {
-    dataSourceDropdownValuesList = cashDataSourcesList;
-    currentDataSource = cashDataSourcesList.first;
-    assetType = "cash";
-  }
+  @override
+  State<DataSourceDropdown> createState() => _DataSourceDropdownState();
+}
 
-  void setDropdownsToNFT() {
-    dataSourceDropdownValuesList = nftDataSourcesList;
-    currentDataSource = nftDataSourcesList.first;
-    assetType = "nft";
-  }
-
-  void setDropdownsToCrypto() {
-    dataSourceDropdownValuesList = cryptoDataSourcesList;
-    currentDataSource = cryptoDataSourcesList.first;
-    assetType = "crypto";
-  }
-
-  void setDropdownsToStock() {
-    dataSourceDropdownValuesList = stockDataSourcesList;
-    currentDataSource = stockDataSourcesList.first;
-    assetType = "stock";
-  }
-
-  Padding dataSourcesDropdown() {
+class _DataSourceDropdownState extends State<DataSourceDropdown> {
+  @override
+  Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: DropdownButton<String>(
           focusColor: Colors.black,
           onChanged: ((String? newValue) {
             setState(() {
-              currentDataSource = newValue!;
+              _currentDataSource = newValue!;
             });
           }),
-          value: currentDataSource,
+          value: _currentDataSource,
           items: dataSourceDropdownValuesList
-              .map<DropdownMenuItem<String>>((String value) {
+              .map<DropdownMenuItem<String>>((String dataSourceName) {
             return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
+              value: dataSourceName,
+              child: Text(dataSourceName),
             );
           }).toList(),
           isExpanded: true,
@@ -142,8 +141,18 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           dropdownColor: Colors.black,
         ));
   }
+}
 
-  Padding chooseAssetDropdown() {
+class AssetDropdown extends StatefulWidget {
+  const AssetDropdown({super.key});
+
+  @override
+  State<AssetDropdown> createState() => _AssetDropdownState();
+}
+
+class _AssetDropdownState extends State<AssetDropdown> {
+  @override
+  Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: DropdownButton<String>(
@@ -154,7 +163,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
             });
           }),
           value: _currentAssetName,
-          items: APIService(assetType)
+          items: APIService(_assetType)
               .getAssetList()
               .map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
@@ -167,8 +176,59 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           dropdownColor: Colors.black,
         ));
   }
+}
 
-  Expanded acceptCancelButtons() {
+class DataSourceLabel extends StatefulWidget {
+  const DataSourceLabel({super.key});
+
+  @override
+  State<DataSourceLabel> createState() => _DataSourceLabelState();
+}
+
+class _DataSourceLabelState extends State<DataSourceLabel> {
+  @override
+  Widget build(BuildContext context) {
+    if (_currentDataSource.endsWith("API")) {
+      return const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: Text("Read-only API Key: ",
+              style: TextStyle(color: Colors.white)),
+        ),
+      );
+    }
+    if (_currentDataSource.endsWith("Address")) {
+      return const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: Text("Blockchain address: ",
+              style: TextStyle(color: Colors.white)),
+        ),
+      );
+    }
+    return const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Align(
+        alignment: Alignment.bottomLeft,
+        child: Text("Enter quantity manually: ",
+            style: TextStyle(color: Colors.white)),
+      ),
+    );
+  }
+}
+
+class AcceptCancelButton extends StatefulWidget {
+  const AcceptCancelButton({super.key});
+
+  @override
+  State<AcceptCancelButton> createState() => _AcceptCancelButtonState();
+}
+
+class _AcceptCancelButtonState extends State<AcceptCancelButton> {
+  @override
+  Widget build(BuildContext context) {
     return Expanded(
       child: Center(
           child: Column(
