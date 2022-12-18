@@ -28,28 +28,36 @@ class AddNewAssetScreen extends StatefulWidget {
   State<AddNewAssetScreen> createState() => _AddNewAssetScreenState();
 }
 
+enum AssetType { stock, crypto, nft, cash }
+
+extension AssetTypeToString on AssetType {
+  String toAssetNameString() {
+    return toString().split('.').last;
+  }
+}
+
 class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   String currentDataSource = AddNewAssetScreen.stockDataSourcesList.first;
   List<String> dataSourceDropdownValues =
       AddNewAssetScreen.stockDataSourcesList;
-  String assetType = "stock";
+  AssetType assetType = AssetType.stock;
   String currentAssetName = "GameStop";
   int assetSelection = 0;
   String currentDataSourceLabel = "Enter quantity manually:";
 
   // This helper function chooses the correct data source list, which is a
   //hardcoded constant above
-  List<String> dataSourcesListByAssetType() {
-    if (assetType == "crypto") {
-      return AddNewAssetScreen.cryptoDataSourcesList;
+  List<String> setDataSourcesDropdownValues() {
+    switch (assetType) {
+      case AssetType.crypto:
+        return AddNewAssetScreen.cryptoDataSourcesList;
+      case AssetType.nft:
+        return AddNewAssetScreen.nftDataSourcesList;
+      case AssetType.cash:
+        return AddNewAssetScreen.cashDataSourcesList;
+      default:
+        return AddNewAssetScreen.stockDataSourcesList;
     }
-    if (assetType == "nft") {
-      return AddNewAssetScreen.nftDataSourcesList;
-    }
-    if (assetType == "cash") {
-      return AddNewAssetScreen.cashDataSourcesList;
-    }
-    return AddNewAssetScreen.stockDataSourcesList;
   }
 
   // This is used by the AssetType CupertinoSegmentedSelection widget as a
@@ -60,10 +68,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       () {
         assetSelection = currentAssetSelection;
         determineAssetTypeFromSelection(assetSelection);
-        dataSourceDropdownValues = dataSourcesListByAssetType();
+        dataSourceDropdownValues = setDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;
         // TODO make currentAssetName remember the last asset selected from a category after changing
-        currentAssetName = APIService(assetType).getAssetList().first;
+        currentAssetName =
+            APIService(assetType.toAssetNameString()).getAssetList().first;
         dataSourceChanged(currentDataSource);
       },
     );
@@ -71,17 +80,18 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
   // This translates an int into a word for the purposes of the AssetTypeSelection widget's legibility
   void determineAssetTypeFromSelection(int assetSelection) {
-    if (assetSelection == 0) {
-      assetType = "stock";
-    }
-    if (assetSelection == 1) {
-      assetType = "crypto";
-    }
-    if (assetSelection == 2) {
-      assetType = "nft";
-    }
-    if (assetSelection == 3) {
-      assetType = "cash";
+    switch (assetSelection) {
+      case 1:
+        assetType = AssetType.crypto;
+        break;
+      case 2:
+        assetType = AssetType.nft;
+        break;
+      case 3:
+        assetType = AssetType.cash;
+        break;
+      default:
+        assetType = AssetType.stock;
     }
   }
 
@@ -234,7 +244,7 @@ class DataSourceDropdown extends StatelessWidget {
 
 // This dropdown allows the user to specify a security to track
 class AssetDropdown extends StatelessWidget {
-  final String assetType;
+  final AssetType assetType;
   final String currentAssetName;
   final ValueChanged<String> assetDropdownChangedCallback;
 
@@ -255,8 +265,9 @@ class AssetDropdown extends StatelessWidget {
           assetDropdownChangedCallback(chosenAssetName!);
         }),
         value: currentAssetName,
-        items:
-            APIService(assetType).getAssetList().map<DropdownMenuItem<String>>(
+        items: APIService(assetType.toAssetNameString())
+            .getAssetList()
+            .map<DropdownMenuItem<String>>(
           (String value) {
             return DropdownMenuItem<String>(
               value: value,
