@@ -10,12 +10,12 @@ class AddNewAssetScreen extends StatefulWidget {
 
   static const stockDataSourcesList = <String>[
     'Manual Qty',
-    'Transfer Agent',
-    'Broker API',
+    // 'Transfer Agent',
+    // 'Broker API',
   ];
   static const cryptoDataSourcesList = <String>[
     'Blockchain Address',
-    'Exchange API',
+    // 'Exchange API',
     'Manual Qty',
   ];
   static const nftDataSourcesList = <String>[
@@ -24,7 +24,7 @@ class AddNewAssetScreen extends StatefulWidget {
   ];
   static const cashDataSourcesList = <String>[
     'Manual Qty',
-    'Bank API',
+    // 'Bank API',
   ];
 
   @override
@@ -242,7 +242,7 @@ class _AssetCategorySelectionState extends State<AssetCategorySelection> {
           children: const {
             0: Text('Stocks', style: TextStyle(color: Colors.white)),
             1: Text('Crypto', style: TextStyle(color: Colors.white)),
-            2: Text('NFTs', style: TextStyle(color: Colors.white)),
+            // 2: Text('NFTs', style: TextStyle(color: Colors.white)),
             3: Text('Cash', style: TextStyle(color: Colors.white)),
           },
         ),

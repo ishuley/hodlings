@@ -16,7 +16,6 @@ class _AcceptCancelButtonState extends State<AcceptCancelButton> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
                   child: OutlinedButton(
