@@ -50,6 +50,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   int qtyInput = 0;
   bool dataSourceScannable = false;
   String qrCodeResult = '';
+  TextInputType dataSourceTextFieldKeyboard =
+      const TextInputType.numberWithOptions(decimal: true);
 
   // This helper function chooses the correct data source list, which is a
   //hardcoded constant above
@@ -107,7 +109,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void dataSourceChanged(String dataSource) {
     setState(() {
       currentDataSource = dataSource;
-      currentDataSourceLabel = updateDataSourceForm();
+      updateDataSourceProperties();
+      currentDataSourceLabel = getDataSourceLabel();
       //TODO implement broker and exchange API support, then check if the source is an API, then ask which supported exchange or broker they wish to use
     });
   }
@@ -117,26 +120,40 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void assetDropdownChanged(String currentAssetName) {
     setState(() {
       this.currentAssetName = currentAssetName;
+      updateDataSourceProperties();
     });
+  }
+
+  void updateDataSourceProperties() {
+    if (currentDataSource.endsWith("API") ||
+        currentDataSource.endsWith("Address")) {
+      dataSourceScannable = true;
+      dataSourceTextFieldKeyboard = TextInputType.text;
+      return;
+    }
+    if (currentDataSource.endsWith("Qty") ||
+        currentDataSource.endsWith("Agent")) {
+      dataSourceScannable = false;
+      dataSourceTextFieldKeyboard =
+          const TextInputType.numberWithOptions(decimal: true);
+    }
   }
 
   // This provides the correct string for DataSourceLabel based on the
   //currently selected data source in DataSourceDropdown
-  String updateDataSourceForm() {
+  String getDataSourceLabel() {
     if (currentDataSource.endsWith("API")) {
-      dataSourceScannable = true;
       return "Enter Read-Only API Key: ";
     }
     if (currentDataSource.endsWith("Address")) {
-      dataSourceScannable = true;
       return "Enter blockchain address: ";
     }
-    if (currentDataSource.endsWith("Qty")) {
-      dataSourceScannable = false;
+    if (currentDataSource.endsWith("Qty") ||
+        currentDataSource.endsWith("Agent")) {
       return "Enter quantity manually: ";
     }
-    dataSourceScannable = false;
-    return "Enter quantity manually: ";
+    throw UnsupportedError(
+        "Unknown data source when getDataSourceLabel() is called.");
   }
 
   Future<void> qrIconPressed() async {
@@ -179,6 +196,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                 dataSourceScannable: dataSourceScannable,
                 qrIconPressedCallback: qrIconPressed,
                 qrCodeResult: qrCodeResult,
+                dataSourceTextFieldKeyboard: dataSourceTextFieldKeyboard,
               ),
               const AcceptCancelButton(),
             ],
@@ -335,10 +353,12 @@ class DataSourceTextField extends StatefulWidget {
     required this.dataSourceScannable,
     required this.qrIconPressedCallback,
     required this.qrCodeResult,
+    required this.dataSourceTextFieldKeyboard,
   });
   final bool dataSourceScannable;
   final VoidCallback qrIconPressedCallback;
   final String qrCodeResult;
+  final TextInputType dataSourceTextFieldKeyboard;
 
   @override
   State<DataSourceTextField> createState() => _DataSourceTextFieldState();
@@ -388,7 +408,7 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
                   ),
           ),
           style: const TextStyle(color: Colors.white),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          keyboardType: widget.dataSourceTextFieldKeyboard,
         ),
       ),
     );
