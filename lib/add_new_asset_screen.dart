@@ -128,7 +128,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     if (currentDataSource.endsWith("API") ||
         currentDataSource.endsWith("Address")) {
       dataSourceScannable = true;
-      dataSourceTextFieldKeyboard = TextInputType.text;
+      dataSourceTextFieldKeyboard = TextInputType.none;
       return;
     }
     if (currentDataSource.endsWith("Qty") ||
