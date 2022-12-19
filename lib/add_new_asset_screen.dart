@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'api_service.dart';
+import 'accept_cancel_button.dart';
 
 class AddNewAssetScreen extends StatefulWidget {
   const AddNewAssetScreen({super.key});
@@ -31,7 +34,7 @@ class AddNewAssetScreen extends StatefulWidget {
 enum AssetType { stock, crypto, nft, cash }
 
 extension AssetTypeToString on AssetType {
-  String toAssetNameString() {
+  String toAssetTypeString() {
     return toString().split('.').last;
   }
 }
@@ -44,6 +47,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   String currentAssetName = "GameStop";
   int assetSelection = 0;
   String currentDataSourceLabel = "Enter quantity manually:";
+  int qtyInput = 0;
+  bool dataSourceScannable = false;
+  String qrCodeResult = '';
 
   // This helper function chooses the correct data source list, which is a
   //hardcoded constant above
@@ -72,13 +78,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         currentDataSource = dataSourceDropdownValues.first;
         // TODO make currentAssetName remember the last asset selected from a category after changing
         currentAssetName =
-            APIService(assetType.toAssetNameString()).getAssetList().first;
+            APIService(assetType.toAssetTypeString()).getAssetList().first;
         dataSourceChanged(currentDataSource);
       },
     );
   }
 
-  // This translates an int into a word for the purposes of the AssetTypeSelection widget's legibility
+  // This translates an int into a word for the purposes of the
+  // AssetTypeSelection widget's legibility
   void determineAssetTypeFromSelection(int assetSelection) {
     switch (assetSelection) {
       case 1:
@@ -100,7 +107,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void dataSourceChanged(String dataSource) {
     setState(() {
       currentDataSource = dataSource;
-      currentDataSourceLabel = getDataSourceLabel();
+      currentDataSourceLabel = updateDataSourceForm();
       //TODO implement broker and exchange API support, then check if the source is an API, then ask which supported exchange or broker they wish to use
     });
   }
@@ -115,62 +122,83 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
   // This provides the correct string for DataSourceLabel based on the
   //currently selected data source in DataSourceDropdown
-  String getDataSourceLabel() {
+  String updateDataSourceForm() {
     if (currentDataSource.endsWith("API")) {
+      dataSourceScannable = true;
       return "Enter Read-Only API Key: ";
     }
     if (currentDataSource.endsWith("Address")) {
+      dataSourceScannable = true;
       return "Enter blockchain address: ";
     }
     if (currentDataSource.endsWith("Qty")) {
+      dataSourceScannable = false;
       return "Enter quantity manually: ";
     }
+    dataSourceScannable = false;
     return "Enter quantity manually: ";
+  }
+
+  Future<void> qrIconPressed() async {
+    String qrCode = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666', 'Cancel', false, ScanMode.QR);
+
+    if (!mounted) return;
+
+    setState(() {
+      qrCodeResult = qrCode;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Add New Asset"),
-        foregroundColor: Colors.white70,
-        centerTitle: true,
-        backgroundColor: Colors.grey[900],
-      ),
-      body: Container(
-        color: Colors.grey[850],
-        child: Column(
-          children: [
-            AssetCategorySelection(
-                assetSelection: assetSelection,
-                assetTypeChangedCallback: assetTypeChanged),
-            DataSourceDropdown(
-                currentDataSource: currentDataSource,
-                dataSourceDropdownValues: dataSourceDropdownValues,
-                dataSourceChangedCallback: dataSourceChanged),
-            AssetDropdown(
-                currentAssetName: currentAssetName,
-                assetType: assetType,
-                assetDropdownChangedCallback: assetDropdownChanged),
-            DataSourceLabel(
-              dataSourceLabel: currentDataSourceLabel,
-            ),
-            const AcceptCancelButton(),
-          ],
+    return KeyboardDismisser(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Add New Asset"),
+          foregroundColor: Colors.white70,
+          centerTitle: true,
+          backgroundColor: Colors.grey[900],
+        ),
+        body: Container(
+          color: Colors.grey[850],
+          child: Column(
+            children: [
+              AssetCategorySelection(
+                  assetTypeChangedCallback: assetTypeChanged),
+              DataSourceDropdown(
+                  currentDataSource: currentDataSource,
+                  dataSourceDropdownValues: dataSourceDropdownValues,
+                  dataSourceChangedCallback: dataSourceChanged),
+              AssetDropdown(
+                  currentAssetName: currentAssetName,
+                  assetType: assetType,
+                  assetDropdownChangedCallback: assetDropdownChanged),
+              DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
+              DataSourceTextField(
+                dataSourceScannable: dataSourceScannable,
+                qrIconPressedCallback: qrIconPressed,
+                qrCodeResult: qrCodeResult,
+              ),
+              const AcceptCancelButton(),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  void onQtyChanged() {}
 }
 
 // This is the rounded selection widget at the top labelled "Stocks Crypto NFTs Cash"
 class AssetCategorySelection extends StatefulWidget {
-  final int assetSelection;
+  // final int assetSelection;
   final ValueChanged<int> assetTypeChangedCallback;
-  const AssetCategorySelection(
-      {super.key,
-      required this.assetSelection,
-      required this.assetTypeChangedCallback});
+  const AssetCategorySelection({
+    super.key,
+    required this.assetTypeChangedCallback,
+  });
   @override
   State<AssetCategorySelection> createState() => _AssetCategorySelectionState();
 }
@@ -181,13 +209,12 @@ class _AssetCategorySelectionState extends State<AssetCategorySelection> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(12.0),
       child: Center(
         child: CupertinoSlidingSegmentedControl(
           groupValue: _assetSelection,
           onValueChanged: (int? choice) {
             widget.assetTypeChangedCallback(choice!);
-
             setState(() {
               _assetSelection = choice;
             });
@@ -265,7 +292,7 @@ class AssetDropdown extends StatelessWidget {
           assetDropdownChangedCallback(chosenAssetName!);
         }),
         value: currentAssetName,
-        items: APIService(assetType.toAssetNameString())
+        items: APIService(assetType.toAssetTypeString())
             .getAssetList()
             .map<DropdownMenuItem<String>>(
           (String value) {
@@ -302,63 +329,73 @@ class DataSourceLabel extends StatelessWidget {
   }
 }
 
-// This specifies whether user intends to back out, or accept the settings
-// and begin tracking the newly described asset
-class AcceptCancelButton extends StatefulWidget {
-  const AcceptCancelButton({super.key});
+class DataSourceTextField extends StatefulWidget {
+  const DataSourceTextField({
+    super.key,
+    required this.dataSourceScannable,
+    required this.qrIconPressedCallback,
+    required this.qrCodeResult,
+  });
+  final bool dataSourceScannable;
+  final VoidCallback qrIconPressedCallback;
+  final String qrCodeResult;
 
   @override
-  State<AcceptCancelButton> createState() => _AcceptCancelButtonState();
+  State<DataSourceTextField> createState() => _DataSourceTextFieldState();
 }
 
-class _AcceptCancelButtonState extends State<AcceptCancelButton> {
+class _DataSourceTextFieldState extends State<DataSourceTextField> {
+  final dataSourceInputController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    dataSourceInputController.addListener(
+      () {
+        setState(() {});
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: onAccept,
-                    style: const ButtonStyle(
-                      backgroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.black87),
-                      foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.white70),
-                    ),
-                    child: const Text(
-                      "Accept",
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: SizedBox(
+        height: 50.0,
+        child: TextField(
+          controller: dataSourceInputController,
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            fillColor: Colors.black38,
+            filled: true,
+            suffixIcon: dataSourceInputController.text.isEmpty
+                ? widget.dataSourceScannable
+                    ? IconButton(
+                        onPressed: onQRIconPressed,
+                        icon: const Icon(
+                          Icons.qr_code_scanner,
+                          color: Colors.white60,
+                        ),
+                      )
+                    : Container(width: 0)
+                : IconButton(
+                    onPressed: () => dataSourceInputController.clear(),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white60,
                     ),
                   ),
-                ),
-                Expanded(
-                  child: TextButton(
-                    onPressed: onCancel,
-                    style: const ButtonStyle(
-                      backgroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.black38),
-                      foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.white70),
-                    ),
-                    child: const Text("Cancel"),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
+          style: const TextStyle(color: Colors.white),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
         ),
       ),
     );
   }
 
-  void onAccept() {}
-
-  void onCancel() {
-    Navigator.pop(context);
+  void onQRIconPressed() {
+    widget.qrIconPressedCallback();
+    dataSourceInputController.text = widget.qrCodeResult;
   }
 }
