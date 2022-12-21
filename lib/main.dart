@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'asset.dart';
 import 'add_new_asset_screen.dart';
 
 void main() => runApp(
@@ -30,28 +29,12 @@ class MainScreen extends StatelessWidget {
             child: Column(
               children: const [
                 NetWorthButton(),
-                AssetList(),
+                ExampleAssetCard(),
                 AddNewAssetButton(),
               ],
             ),
           ),
         ));
-  }
-}
-
-class AssetList extends StatefulWidget {
-  const AssetList({super.key});
-
-  @override
-  State<AssetList> createState() => _AssetListState();
-}
-
-class _AssetListState extends State<AssetList> {
-  List<Asset> assets = [];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }
 
@@ -100,7 +83,7 @@ class NetWorthButton extends StatefulWidget {
 }
 
 class _NetWorthButtonState extends State<NetWorthButton> {
-  String netWorth = "1,000,000";
+  String netWorth = "0";
   String symbol = "USD";
   @override
   Widget build(BuildContext context) {

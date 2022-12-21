@@ -1,84 +1,48 @@
+import 'api_service.dart';
+
+enum AssetType { stock, crypto, nft, cash }
+
 abstract class Asset {
-  String symbol;
-  double value = 0;
-  double price = 0;
-  double quantity = 0;
+  String? name;
+  String? ticker;
 
-  Asset(this.symbol) {
-    price = getPrice();
+  double? getPrice();
+  double? getValue();
+  String? getNameFromTicker();
+}
+
+class Crypto implements Asset {
+  @override
+  String? name;
+
+  @override
+  String? ticker;
+  double? quantity;
+
+  Crypto(String this.ticker, double this.quantity) {
+    name = getNameFromTicker();
   }
-  void refreshData() {
-    price = getPrice();
-    quantity = getQuantity();
-    value = getValue();
+  Crypto.byWalletAddress(String this.ticker, String address) {
+    name = getNameFromTicker();
+    quantity = getQuantityByAddress(address);
   }
 
-  double getPrice();
-  double getQuantity();
+  @override
+  double? getPrice() {
+    return AssetDataAPI(AssetType.crypto).getPrice(ticker!);
+  }
+
+  @override
   double getValue() {
-    return price * quantity;
-  }
-}
-
-abstract class Crypto extends Asset {
-  Crypto(super.symbol);
-
-  @override
-  double getPrice() {
-    return 2.0;
-  }
-}
-
-class CryptoByAddress extends Crypto {
-  String address;
-
-  CryptoByAddress(this.address, super.symbol) {
-    quantity = getQuantity();
+    return (getPrice()! * quantity!);
   }
 
   @override
-  double getQuantity() {
-    return 2.0;
-  }
-}
-
-class CryptoByQTY extends Crypto {
-  double qty;
-  CryptoByQTY(super.symbol, this.qty) {
-    quantity = qty;
+  String getNameFromTicker() {
+    throw UnimplementedError();
   }
 
-  setQuantity(double qty) {
-    quantity = qty;
-  }
-
-  @override
-  double getQuantity() {
-    return quantity;
-  }
-}
-
-abstract class Stock extends Asset {
-  Stock(super.symbol);
-
-  @override
-  double getPrice() {
-    return 2.0;
-  }
-}
-
-class StockByQTY extends Stock {
-  double qty;
-  StockByQTY(super.symbol, this.qty) {
-    quantity = qty;
-  }
-
-  setQuantity(double qty) {
-    quantity = qty;
-  }
-
-  @override
-  double getQuantity() {
-    return quantity;
+  double? getQuantityByAddress(String address) {
+    return null;
   }
 }

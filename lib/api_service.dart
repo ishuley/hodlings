@@ -1,37 +1,27 @@
-class APIService {
-  String assetType;
-  APIService(this.assetType);
+import 'asset.dart';
 
-  List<String> getAssetList() {
-    if (assetType == "crypto") {
+class AssetDataAPI {
+  AssetType assetType;
+  AssetDataAPI(this.assetType);
+
+  List<String>? getAssetList() {
+    if (assetType == AssetType.crypto) {
       return CryptoAPI().getAssetList();
     }
-    if (assetType == "nft") {
-      return NftAPI().getAssetList();
+    if (assetType == AssetType.stock) {
+      return StockAPI().getAssetList();
     }
-    if (assetType == "cash") {
-      return CashAPI().getAssetList();
+    return null;
+  }
+
+  double? getPrice(String ticker) {
+    if (assetType == AssetType.crypto) {
+      return CryptoAPI().getPrice(ticker);
     }
-    return StockAPI().getAssetList();
-  }
-}
-
-class CashAPI {
-  List<String> getAssetList() {
-    return <String>[
-      "US Dollar",
-      "Euro",
-      "Georgian Lari",
-    ];
-  }
-}
-
-class StockAPI {
-  List<String> getAssetList() {
-    return <String>[
-      "GameStop",
-      "Other Stock",
-    ];
+    if (assetType == AssetType.stock) {
+      return StockAPI().getPrice(ticker);
+    }
+    return null;
   }
 }
 
@@ -43,14 +33,25 @@ class CryptoAPI {
       "Bitcoin Cash",
     ];
   }
+
+  double getPrice(String ticker) {
+    return 2.0;
+  }
+
+  String getName(String ticker) {
+    return "Ethereum";
+  }
 }
 
-class NftAPI {
+class StockAPI {
   List<String> getAssetList() {
     return <String>[
-      "Cyber Crew Card",
-      "A strapped banana brain ape",
-      "A Kira",
+      "GameStop",
+      "Other Stock",
     ];
+  }
+
+  double getPrice(String ticker) {
+    return 2.0;
   }
 }

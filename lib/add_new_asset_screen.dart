@@ -4,6 +4,7 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'api_service.dart';
 import 'accept_cancel_button.dart';
+import 'asset.dart';
 
 class AddNewAssetScreen extends StatefulWidget {
   const AddNewAssetScreen({super.key});
@@ -29,14 +30,6 @@ class AddNewAssetScreen extends StatefulWidget {
 
   @override
   State<AddNewAssetScreen> createState() => _AddNewAssetScreenState();
-}
-
-enum AssetType { stock, crypto, nft, cash }
-
-extension AssetTypeToString on AssetType {
-  String toAssetTypeString() {
-    return toString().split('.').last;
-  }
 }
 
 class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
@@ -79,8 +72,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         dataSourceDropdownValues = setDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;
         // TODO make currentAssetName remember the last asset selected from a category after changing
-        currentAssetName =
-            APIService(assetType.toAssetTypeString()).getAssetList().first;
+        currentAssetName = AssetDataAPI(assetType).getAssetList()!.first;
         dataSourceChanged(currentDataSource);
       },
     );
@@ -310,8 +302,8 @@ class AssetDropdown extends StatelessWidget {
           assetDropdownChangedCallback(chosenAssetName!);
         }),
         value: currentAssetName,
-        items: APIService(assetType.toAssetTypeString())
-            .getAssetList()
+        items: AssetDataAPI(assetType)
+            .getAssetList()!
             .map<DropdownMenuItem<String>>(
           (String value) {
             return DropdownMenuItem<String>(
