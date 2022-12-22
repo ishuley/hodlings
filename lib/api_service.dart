@@ -8,20 +8,14 @@ class AssetDataAPI {
     if (assetType == AssetType.crypto) {
       return CryptoAPI().getAssetList();
     }
-    if (assetType == AssetType.stock) {
-      return StockAPI().getAssetList();
-    }
-    return null;
+    return StockAPI().getAssetList();
   }
 
   double? getPrice(String ticker) {
     if (assetType == AssetType.crypto) {
       return CryptoAPI().getPrice(ticker);
     }
-    if (assetType == AssetType.stock) {
-      return StockAPI().getPrice(ticker);
-    }
-    return null;
+    return StockAPI().getPrice(ticker);
   }
 }
 

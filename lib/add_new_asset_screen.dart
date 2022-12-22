@@ -40,7 +40,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   String currentAssetName = "GameStop";
   int assetSelection = 0;
   String currentDataSourceLabel = "Enter quantity manually:";
-  int qtyInput = 0;
   bool dataSourceScannable = false;
   String qrCodeResult = '';
   TextInputType dataSourceTextFieldKeyboard =
@@ -62,8 +61,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   }
 
   // This is used by the AssetType CupertinoSegmentedSelection widget as a
-  //callback function to update all the fields to reflect a change in the asset
-  //type (i.e. stocks, crypto, nfts, cash)
+  // callback function to update all the fields to reflect a change in the asset
+  // type (i.e. stocks, crypto, nfts, cash)
   void assetTypeChanged(int currentAssetSelection) {
     setState(
       () {

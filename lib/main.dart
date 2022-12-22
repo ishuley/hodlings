@@ -10,8 +10,29 @@ void main() => runApp(
       ),
     );
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  String netWorth = "0";
+  String symbol = "USD";
+
+  void onNetWorthButtonPressed() {
+    setState(() {
+      // TODO rip out this placeholder code and make this screen update appropriately
+      if (netWorth == "1,000,000") {
+        netWorth = "1,000";
+        symbol = "ETH";
+      } else {
+        netWorth = "1,000,000";
+        symbol = "USD";
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +48,60 @@ class MainScreen extends StatelessWidget {
           color: Colors.grey[850],
           child: Center(
             child: Column(
-              children: const [
-                NetWorthButton(),
-                ExampleAssetCard(),
-                AddNewAssetButton(),
+              children: [
+                NetWorthButton(
+                  netWorth: netWorth,
+                  symbol: symbol,
+                  onNetWorthClickCallback: onNetWorthButtonPressed,
+                ),
+                // ExampleAssetCard(),
+                const AddNewAssetButton(),
               ],
             ),
           ),
         ));
+  }
+}
+
+class NetWorthButton extends StatefulWidget {
+  final String netWorth;
+  final String symbol;
+  final VoidCallback onNetWorthClickCallback;
+
+  const NetWorthButton(
+      {super.key,
+      required this.netWorth,
+      required this.symbol,
+      required this.onNetWorthClickCallback});
+
+  @override
+  State<NetWorthButton> createState() => _NetWorthButtonState();
+}
+
+class _NetWorthButtonState extends State<NetWorthButton> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 75,
+            child: TextButton(
+                onPressed: widget.onNetWorthClickCallback,
+                style: const ButtonStyle(
+                  backgroundColor:
+                      MaterialStatePropertyAll<Color>(Colors.black),
+                  foregroundColor:
+                      MaterialStatePropertyAll<Color>(Colors.white70),
+                ),
+                child: Text(
+                  "${widget.netWorth} ${widget.symbol}",
+                  textScaleFactor: 1.8,
+                )),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -72,54 +139,6 @@ class _AddNewAssetButtonState extends State<AddNewAssetButton> {
 
   void onPressed() {
     Navigator.pushNamed(context, '/addNewAsset');
-  }
-}
-
-class NetWorthButton extends StatefulWidget {
-  const NetWorthButton({super.key});
-
-  @override
-  State<NetWorthButton> createState() => _NetWorthButtonState();
-}
-
-class _NetWorthButtonState extends State<NetWorthButton> {
-  String netWorth = "0";
-  String symbol = "USD";
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 75,
-            child: TextButton(
-                onPressed: onPressed,
-                style: const ButtonStyle(
-                  backgroundColor:
-                      MaterialStatePropertyAll<Color>(Colors.black),
-                  foregroundColor:
-                      MaterialStatePropertyAll<Color>(Colors.white70),
-                ),
-                child: Text(
-                  "$netWorth $symbol",
-                  textScaleFactor: 1.8,
-                )),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void onPressed() {
-    setState(() {
-      if (netWorth == "1,000,000") {
-        netWorth = "1,000";
-        symbol = "ETH";
-      } else {
-        netWorth = "1,000,000";
-        symbol = "USD";
-      }
-    });
   }
 }
 

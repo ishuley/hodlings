@@ -8,7 +8,7 @@ abstract class Asset {
 
   double? getPrice();
   double? getValue();
-  String? getNameFromTicker();
+  String? getNameFromTicker(String ticker);
 }
 
 class Crypto implements Asset {
@@ -20,10 +20,10 @@ class Crypto implements Asset {
   double? quantity;
 
   Crypto(String this.ticker, double this.quantity) {
-    name = getNameFromTicker();
+    name = getNameFromTicker(ticker!);
   }
   Crypto.byWalletAddress(String this.ticker, String address) {
-    name = getNameFromTicker();
+    name = getNameFromTicker(ticker!);
     quantity = getQuantityByAddress(address);
   }
 
@@ -38,7 +38,7 @@ class Crypto implements Asset {
   }
 
   @override
-  String getNameFromTicker() {
+  String getNameFromTicker(String ticker) {
     throw UnimplementedError();
   }
 
