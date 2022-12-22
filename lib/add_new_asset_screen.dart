@@ -5,6 +5,7 @@ import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'api_service.dart';
 import 'accept_cancel_button.dart';
 import 'asset.dart';
+import 'package:search_choices/search_choices.dart';
 
 class AddNewAssetScreen extends StatefulWidget {
   const AddNewAssetScreen({super.key});
@@ -46,7 +47,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       const TextInputType.numberWithOptions(decimal: true);
 
   // This helper function chooses the correct data source list, which is a
-  //hardcoded constant above
+  // hardcoded constant above
   List<String> setDataSourcesDropdownValues() {
     switch (assetType) {
       case AssetType.crypto:
@@ -71,7 +72,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         dataSourceDropdownValues = setDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;
         // TODO make currentAssetName remember the last asset selected from a category after changing
-        currentAssetName = AssetDataAPI(assetType).getAssetList()!.first;
+        currentAssetName = AssetDataAPI(assetType).getAssetList().first;
         dataSourceChanged(currentDataSource);
       },
     );
@@ -258,7 +259,6 @@ class DataSourceDropdown extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: DropdownButton<String>(
-        focusColor: Colors.black,
         onChanged: ((String? selectedDataSource) {
           dataSourceChangedCallback(selectedDataSource!);
         }),
@@ -272,7 +272,7 @@ class DataSourceDropdown extends StatelessWidget {
         }).toList(),
         isExpanded: true,
         style: const TextStyle(color: Colors.white),
-        dropdownColor: Colors.black,
+        dropdownColor: Colors.grey[900],
       ),
     );
   }
@@ -293,27 +293,45 @@ class AssetDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: DropdownButton<String>(
-        focusColor: Colors.black,
-        onChanged: ((String? chosenAssetName) {
-          assetDropdownChangedCallback(chosenAssetName!);
-        }),
-        value: currentAssetName,
+    return Card(
+      color: Colors.grey[850],
+      child: SearchChoices.single(
         items: AssetDataAPI(assetType)
-            .getAssetList()!
+            .getAssetList()
             .map<DropdownMenuItem<String>>(
-          (String value) {
+          (String assetName) {
             return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
+              value: assetName,
+              child:
+                  Text(assetName, style: const TextStyle(color: Colors.white)),
             );
           },
         ).toList(),
-        isExpanded: true,
+        value: currentAssetName,
+        hint: Text(
+          currentAssetName,
+          style: const TextStyle(color: Colors.white),
+        ),
+        searchHint: const Text(
+          "Select asset",
+          style: TextStyle(color: Colors.white),
+        ),
         style: const TextStyle(color: Colors.white),
-        dropdownColor: Colors.black,
+        closeButton: TextButton(
+          onPressed: (() => {Navigator.pop(context)}),
+          child: const Text(
+            "Close",
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        menuBackgroundColor: Colors.grey[850],
+        iconEnabledColor: Colors.white,
+        iconDisabledColor: Colors.grey,
+        onChanged: ((String? chosenAssetName) {
+          assetDropdownChangedCallback(chosenAssetName!);
+        }),
+        isExpanded: true,
+        displayClearIcon: false,
       ),
     );
   }

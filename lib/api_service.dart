@@ -4,9 +4,12 @@ class AssetDataAPI {
   AssetType assetType;
   AssetDataAPI(this.assetType);
 
-  List<String>? getAssetList() {
+  List<String> getAssetList() {
     if (assetType == AssetType.crypto) {
       return CryptoAPI().getAssetList();
+    }
+    if (assetType == AssetType.cash) {
+      return CashAPI().getAssetList();
     }
     return StockAPI().getAssetList();
   }
@@ -15,13 +18,16 @@ class AssetDataAPI {
     if (assetType == AssetType.crypto) {
       return CryptoAPI().getPrice(ticker);
     }
+    if (assetType == AssetType.cash) {
+      return CashAPI().getPrice(ticker);
+    }
     return StockAPI().getPrice(ticker);
   }
 }
 
 class CryptoAPI {
   List<String> getAssetList() {
-    return <String>[
+    return [
       "Ethereum",
       "Monero",
       "Bitcoin Cash",
@@ -39,9 +45,23 @@ class CryptoAPI {
 
 class StockAPI {
   List<String> getAssetList() {
-    return <String>[
+    return [
       "GameStop",
       "Other Stock",
+    ];
+  }
+
+  double getPrice(String ticker) {
+    return 2.0;
+  }
+}
+
+class CashAPI {
+  List<String> getAssetList() {
+    return [
+      "United States Dollar",
+      "Euro",
+      "Georgian Lari",
     ];
   }
 
