@@ -19,7 +19,7 @@ class _AcceptCancelButtonState extends State<AcceptCancelButton> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: onAccept,
+                    onPressed: () => {},
                     style: const ButtonStyle(
                       backgroundColor:
                           MaterialStatePropertyAll<Color>(Colors.black87),
@@ -33,7 +33,7 @@ class _AcceptCancelButtonState extends State<AcceptCancelButton> {
                 ),
                 Expanded(
                   child: TextButton(
-                    onPressed: onCancel,
+                    onPressed: () => {Navigator.pop(context)},
                     style: const ButtonStyle(
                       backgroundColor:
                           MaterialStatePropertyAll<Color>(Colors.black38),
@@ -49,11 +49,5 @@ class _AcceptCancelButtonState extends State<AcceptCancelButton> {
         ),
       ),
     );
-  }
-
-  void onAccept() {}
-
-  void onCancel() {
-    Navigator.pop(context);
   }
 }

@@ -163,6 +163,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   Widget build(BuildContext context) {
     return KeyboardDismisser(
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         appBar: AppBar(
           title: const Text("Add New Asset"),
           foregroundColor: Colors.white70,
@@ -197,8 +198,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       ),
     );
   }
-
-  void onQtyChanged() {}
 }
 
 // This is the rounded selection widget at the top labelled "Stocks Crypto NFTs Cash"
