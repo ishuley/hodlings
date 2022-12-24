@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AcceptCancelButton extends StatelessWidget {
-  const AcceptCancelButton({super.key});
+  final VoidCallback acceptPushedCallback;
+  const AcceptCancelButton({super.key, required this.acceptPushedCallback});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +15,7 @@ class AcceptCancelButton extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => {},
+                    onPressed: acceptPushedCallback,
                     style: const ButtonStyle(
                       backgroundColor:
                           MaterialStatePropertyAll<Color>(Colors.black87),

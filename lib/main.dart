@@ -6,7 +6,6 @@ void main() => runApp(
       MaterialApp(
         routes: {
           '/': (context) => const MainScreen(),
-          '/addNewAsset': (context) => const AddNewAssetScreen(),
         },
       ),
     );
@@ -26,6 +25,23 @@ class _MainScreenState extends State<MainScreen> {
   void onNetWorthButtonPressed() {
     setState(() {
       // TODO make this screen update the vsSymbol appropriately
+    });
+  }
+
+  Future<void> addNewAssetScreen() async {
+    final AssetCard? newAssetCard = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AddNewAssetScreen(),
+        ));
+    if (newAssetCard != null) {
+      addToAssetList(newAssetCard);
+    }
+  }
+
+  void addToAssetList(AssetCard? newAssetCard) {
+    setState(() {
+      assetList.add(newAssetCard!);
     });
   }
 
@@ -49,10 +65,13 @@ class _MainScreenState extends State<MainScreen> {
                   vsSymbol: vsSymbol,
                   onNetWorthClickCallback: onNetWorthButtonPressed,
                 ),
-                AssetDisplay(
-                  assetList: assetList,
+                Expanded(
+                  child: AssetDisplay(
+                    assetList: assetList,
+                  ),
                 ),
-                const AddNewAssetButton(),
+                // AssetCard(asset: Crypto("Ethereum", 20), vsTicker: "USD"),
+                AddNewAssetButton(addNewAssetCallback: addNewAssetScreen),
               ],
             ),
           ),
@@ -97,7 +116,9 @@ class NetWorthButton extends StatelessWidget {
 }
 
 class AddNewAssetButton extends StatefulWidget {
-  const AddNewAssetButton({super.key});
+  final VoidCallback addNewAssetCallback;
+
+  const AddNewAssetButton({super.key, required this.addNewAssetCallback});
 
   @override
   State<AddNewAssetButton> createState() => _AddNewAssetButtonState();
@@ -113,7 +134,7 @@ class _AddNewAssetButtonState extends State<AddNewAssetButton> {
           child: SizedBox(
             height: 75,
             child: TextButton(
-              onPressed: onPressed,
+              onPressed: widget.addNewAssetCallback,
               style: const ButtonStyle(
                 backgroundColor:
                     MaterialStatePropertyAll<Color>(Colors.black26),
@@ -126,10 +147,6 @@ class _AddNewAssetButtonState extends State<AddNewAssetButton> {
         )
       ]),
     );
-  }
-
-  void onPressed() {
-    Navigator.pushNamed(context, '/addNewAsset');
   }
 }
 
@@ -148,6 +165,7 @@ class DrawerMenu extends StatelessWidget {
 
 class AssetDisplay extends StatelessWidget {
   final List<AssetCard> assetList;
+
   const AssetDisplay({super.key, required this.assetList});
 
   @override
@@ -156,19 +174,25 @@ class AssetDisplay extends StatelessWidget {
       return ListView.builder(
           itemCount: assetList.length,
           itemBuilder: (BuildContext context, int index) {
-            return assetList[index];
+            return Card(
+              color: Colors.white70,
+              child: assetList[index],
+            );
           });
-    }
-    return const SizedBox(
-      height: 30,
-      child: FractionallySizedBox(
-        widthFactor: 1,
-        child: Text(
-          "No assets entered yet",
-          style: TextStyle(color: Colors.white),
-          textAlign: TextAlign.center,
+    } else {
+      return const Align(
+        alignment: Alignment.center,
+        child: SizedBox(
+          child: FractionallySizedBox(
+            widthFactor: 1,
+            child: Text(
+              "No assets entered yet",
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 }

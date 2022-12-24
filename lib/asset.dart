@@ -11,7 +11,8 @@ abstract class Asset {
   double? getPrice();
   double? getValue();
   double? getMarketCap();
-  String? getNameFromTicker();
+  String? getName();
+  String? getTicker();
 }
 
 class Crypto implements Asset {
@@ -24,11 +25,11 @@ class Crypto implements Asset {
   @override
   double? quantity;
 
-  Crypto(String this.ticker, double this.quantity) {
-    name = getNameFromTicker();
+  Crypto(String this.name, double this.quantity) {
+    ticker = getTicker();
   }
-  Crypto.byWalletAddress(String this.ticker, String address) {
-    name = getNameFromTicker();
+  Crypto.byWalletAddress(String this.name, String address) {
+    ticker = getTicker();
     quantity = getQuantityByAddress(address)!;
   }
 
@@ -43,8 +44,8 @@ class Crypto implements Asset {
   }
 
   @override
-  String getNameFromTicker() {
-    throw UnimplementedError();
+  String getTicker() {
+    return "ETH";
   }
 
   double? getQuantityByAddress(String address) {
@@ -54,6 +55,11 @@ class Crypto implements Asset {
   @override
   double? getMarketCap() {
     return 1000000000000;
+  }
+
+  @override
+  String? getName() {
+    return 'Ethereum';
   }
 }
 
@@ -73,79 +79,72 @@ class AssetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(6.0),
+      padding: const EdgeInsets.all(12.0),
       child: FractionallySizedBox(
         widthFactor: 1,
-        child: OutlinedButton(
-          onPressed: () => {},
-          style: const ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll<Color>(Colors.black54),
-              foregroundColor: MaterialStatePropertyAll<Color>(Colors.white)),
-          onLongPress: () => {},
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        asset.ticker!,
-                        textScaleFactor: 1.6,
-                      ),
-                      Text(
-                        asset.getNameFromTicker()!,
-                        textScaleFactor: 0.75,
-                      ),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Qty: ",
-                      ),
-                      Text(asset.quantity!.toString())
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Price $vsTicker:"),
-                      Text(
-                        asset.getPrice().toString(),
-                      )
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        textAlign: TextAlign.center,
-                        "Total: ",
-                      ),
-                      Text(
-                        textAlign: TextAlign.center,
-                        asset.getValue()!.toString(),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Text(
-                      asset.getMarketCap().toString() + vsTicker,
-                      textScaleFactor: 0.75,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      asset.getTicker()!.toString(),
+                      textScaleFactor: 1.6,
                     ),
-                  )
-                ],
-              )
-            ],
-          ),
+                    Text(
+                      asset.getName()!,
+                      textScaleFactor: 0.8,
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Qty: ",
+                    ),
+                    Text(asset.quantity!.toString())
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Price $vsTicker:"),
+                    Text(
+                      asset.getPrice().toString(),
+                    )
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      textAlign: TextAlign.center,
+                      "Total: ",
+                    ),
+                    Text(
+                      textAlign: TextAlign.center,
+                      asset.getValue()!.toString(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Text(
+                    "Market Cap: ${asset.getMarketCap()} $vsTicker",
+                    textScaleFactor: 0.9,
+                  ),
+                )
+              ],
+            )
+          ],
         ),
       ),
     );

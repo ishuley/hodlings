@@ -45,6 +45,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   String qrCodeResult = '';
   TextInputType dataSourceTextFieldKeyboard =
       const TextInputType.numberWithOptions(decimal: true);
+  double manualQty = 0;
+  String blockchainAddress = "";
 
   // This helper function chooses the correct data source list, which is a
   // hardcoded constant above
@@ -161,6 +163,23 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     });
   }
 
+  void onAcceptButtonPressed() {
+    /// TODO replace this with code that actually builds the specified asset
+    AssetCard newAssetCard = AssetCard(
+      asset: Crypto("Ethereum", 20.0),
+      vsTicker: "USD",
+    );
+
+    popContextWithCard(newAssetCard);
+  }
+
+  Future<void> popContextWithCard(AssetCard newAssetCard) async {
+    Navigator.pop(
+      context,
+      newAssetCard,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return KeyboardDismisser(
@@ -193,7 +212,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                 qrCodeResult: qrCodeResult,
                 dataSourceTextFieldKeyboard: dataSourceTextFieldKeyboard,
               ),
-              const AcceptCancelButton(),
+              AcceptCancelButton(
+                acceptPushedCallback: onAcceptButtonPressed,
+              ),
             ],
           ),
         ),

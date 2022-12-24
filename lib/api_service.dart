@@ -14,14 +14,14 @@ class AssetDataAPI {
     return StockAPI().getAssetList();
   }
 
-  double? getPrice(String ticker) {
+  double? getPrice(String name) {
     if (assetType == AssetType.crypto) {
-      return CryptoAPI().getPrice(ticker);
+      return CryptoAPI().getPrice(name);
     }
     if (assetType == AssetType.cash) {
-      return CashAPI().getPrice(ticker);
+      return CashAPI().getPrice(name);
     }
-    return StockAPI().getPrice(ticker);
+    return StockAPI().getPrice(name);
   }
 }
 
@@ -38,8 +38,12 @@ class CryptoAPI {
     return 2.0;
   }
 
-  String getName(String ticker) {
+  String getName() {
     return "Ethereum";
+  }
+
+  String getTicker() {
+    return "ETH";
   }
 }
 
