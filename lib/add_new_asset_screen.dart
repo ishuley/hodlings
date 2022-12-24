@@ -120,7 +120,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     if (currentDataSource.endsWith("API") ||
         currentDataSource.endsWith("Address")) {
       dataSourceScannable = true;
-      dataSourceTextFieldKeyboard = TextInputType.none;
+      dataSourceTextFieldKeyboard = TextInputType
+          .none; // Nobody is going to want to type in an entire blockchain
+      // address by hand on a phone, so this disables the keyboard for that use
       return;
     }
     if (currentDataSource.endsWith("Qty") ||

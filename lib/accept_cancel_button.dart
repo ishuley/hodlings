@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 
-class AcceptCancelButton extends StatefulWidget {
+class AcceptCancelButton extends StatelessWidget {
   const AcceptCancelButton({super.key});
 
-  @override
-  State<AcceptCancelButton> createState() => _AcceptCancelButtonState();
-}
-
-class _AcceptCancelButtonState extends State<AcceptCancelButton> {
   @override
   Widget build(BuildContext context) {
     return Expanded(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_new_asset_screen.dart';
+import 'asset.dart';
 
 void main() => runApp(
       MaterialApp(
@@ -19,18 +20,12 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   String netWorth = "0";
-  String symbol = "USD";
+  String vsSymbol = "USD";
+  List<AssetCard> assetList = [];
 
   void onNetWorthButtonPressed() {
     setState(() {
-      // TODO rip out this placeholder code and make this screen update appropriately
-      if (netWorth == "1,000,000") {
-        netWorth = "1,000";
-        symbol = "ETH";
-      } else {
-        netWorth = "1,000,000";
-        symbol = "USD";
-      }
+      // TODO make this screen update the vsSymbol appropriately
     });
   }
 
@@ -51,10 +46,12 @@ class _MainScreenState extends State<MainScreen> {
               children: [
                 NetWorthButton(
                   netWorth: netWorth,
-                  symbol: symbol,
+                  vsSymbol: vsSymbol,
                   onNetWorthClickCallback: onNetWorthButtonPressed,
                 ),
-                // ExampleAssetCard(),
+                AssetDisplay(
+                  assetList: assetList,
+                ),
                 const AddNewAssetButton(),
               ],
             ),
@@ -63,22 +60,16 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class NetWorthButton extends StatefulWidget {
+class NetWorthButton extends StatelessWidget {
   final String netWorth;
-  final String symbol;
+  final String vsSymbol;
   final VoidCallback onNetWorthClickCallback;
-
   const NetWorthButton(
       {super.key,
       required this.netWorth,
-      required this.symbol,
+      required this.vsSymbol,
       required this.onNetWorthClickCallback});
 
-  @override
-  State<NetWorthButton> createState() => _NetWorthButtonState();
-}
-
-class _NetWorthButtonState extends State<NetWorthButton> {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -87,15 +78,15 @@ class _NetWorthButtonState extends State<NetWorthButton> {
           child: SizedBox(
             height: 75,
             child: TextButton(
-                onPressed: widget.onNetWorthClickCallback,
+                onPressed: onNetWorthClickCallback,
                 style: const ButtonStyle(
                   backgroundColor:
                       MaterialStatePropertyAll<Color>(Colors.black),
                   foregroundColor:
-                      MaterialStatePropertyAll<Color>(Colors.white70),
+                      MaterialStatePropertyAll<Color>(Colors.white),
                 ),
                 child: Text(
-                  "${widget.netWorth} ${widget.symbol}",
+                  "$netWorth $vsSymbol",
                   textScaleFactor: 1.8,
                 )),
           ),
@@ -142,14 +133,9 @@ class _AddNewAssetButtonState extends State<AddNewAssetButton> {
   }
 }
 
-class DrawerMenu extends StatefulWidget {
+class DrawerMenu extends StatelessWidget {
   const DrawerMenu({super.key});
 
-  @override
-  State<DrawerMenu> createState() => _DrawerMenuState();
-}
-
-class _DrawerMenuState extends State<DrawerMenu> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -157,5 +143,32 @@ class _DrawerMenuState extends State<DrawerMenu> {
         child: ListView(
           children: const [],
         ));
+  }
+}
+
+class AssetDisplay extends StatelessWidget {
+  final List<AssetCard> assetList;
+  const AssetDisplay({super.key, required this.assetList});
+
+  @override
+  Widget build(BuildContext context) {
+    if (assetList.isNotEmpty) {
+      return ListView.builder(
+          itemCount: assetList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return assetList[index];
+          });
+    }
+    return const SizedBox(
+      height: 30,
+      child: FractionallySizedBox(
+        widthFactor: 1,
+        child: Text(
+          "No assets entered yet",
+          style: TextStyle(color: Colors.white),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
   }
 }
