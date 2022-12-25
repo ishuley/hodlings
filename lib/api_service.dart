@@ -57,9 +57,9 @@ class CryptoAPI {
 }
 
 class StockAPI {
-  Future<List> getAssetNamesList() {
-    throw UnimplementedError();
-  }
+  final stockApiUrl = "";
+
+  Future<List<String>> getAssetNamesList() {}
 
   double getPrice(String ticker) {
     return 2.0;

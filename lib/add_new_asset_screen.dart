@@ -350,17 +350,17 @@ class AssetDropdown extends StatelessWidget {
         ),
         searchHint: const Text(
           "Select asset",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.black),
         ),
         style: const TextStyle(color: Colors.white),
         closeButton: TextButton(
           onPressed: (() => {Navigator.pop(context)}),
           child: const Text(
             "Close",
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.black),
           ),
         ),
-        menuBackgroundColor: Colors.grey[850],
+        menuBackgroundColor: Colors.grey[350],
         iconEnabledColor: Colors.white,
         iconDisabledColor: Colors.grey,
         onChanged: ((String? chosenAssetName) {
