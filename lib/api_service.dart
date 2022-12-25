@@ -1,17 +1,20 @@
+import 'dart:io';
+
 import 'asset.dart';
+import 'package:coingecko_api/coingecko_api.dart';
 
 class AssetDataAPI {
   AssetType assetType;
   AssetDataAPI(this.assetType);
 
-  List<String> getAssetList() {
+  Future<List> getAssetNamesList() {
     if (assetType == AssetType.crypto) {
-      return CryptoAPI().getAssetList();
+      return CryptoAPI().getAssetNamesList();
     }
     if (assetType == AssetType.cash) {
-      return CashAPI().getAssetList();
+      return CashAPI().getAssetNamesList();
     }
-    return StockAPI().getAssetList();
+    return StockAPI().getAssetNamesList();
   }
 
   double? getPrice(String name) {
@@ -26,12 +29,18 @@ class AssetDataAPI {
 }
 
 class CryptoAPI {
-  List<String> getAssetList() {
-    return [
-      "Ethereum",
-      "Monero",
-      "Bitcoin Cash",
-    ];
+  Future<List<String>> getAssetNamesList() async {
+    final api = CoinGeckoApi();
+    final result = await api.coins.listCoins(includePlatforms: true);
+    if (!result.isError) {
+      List<String> nameList = [];
+      for (var coinDetailsElement in result.data) {
+        nameList.add(coinDetailsElement.name);
+      }
+      return nameList;
+    } else {
+      throw const HttpException("Couldn't retrieve asset list from CoinGecko");
+    }
   }
 
   double getPrice(String ticker) {
@@ -48,11 +57,8 @@ class CryptoAPI {
 }
 
 class StockAPI {
-  List<String> getAssetList() {
-    return [
-      "GameStop",
-      "Other Stock",
-    ];
+  Future<List> getAssetNamesList() {
+    throw UnimplementedError();
   }
 
   double getPrice(String ticker) {
@@ -61,12 +67,8 @@ class StockAPI {
 }
 
 class CashAPI {
-  List<String> getAssetList() {
-    return [
-      "United States Dollar",
-      "Euro",
-      "Georgian Lari",
-    ];
+  Future<List> getAssetNamesList() {
+    throw UnimplementedError();
   }
 
   double getPrice(String ticker) {

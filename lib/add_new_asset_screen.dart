@@ -37,7 +37,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   String currentDataSource = AddNewAssetScreen.stockDataSourcesList.first;
   List<String> dataSourceDropdownValues =
       AddNewAssetScreen.stockDataSourcesList;
-  AssetType assetType = AssetType.stock;
+  AssetType assetType = AssetType.crypto;
   String currentAssetName = "GameStop";
   int assetSelection = 0;
   String currentDataSourceLabel = "Enter quantity manually:";
@@ -47,6 +47,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       const TextInputType.numberWithOptions(decimal: true);
   double manualQty = 0;
   String blockchainAddress = "";
+  List<String> assetNameList = [];
 
   // This helper function chooses the correct data source list, which is a
   // hardcoded constant above
@@ -63,18 +64,29 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
   }
 
+  Future<List<String>> getAssetNameList() async {
+    List<String>? assetNameList =
+        (await AssetDataAPI(assetType).getAssetNamesList()).cast<String>();
+    return assetNameList;
+  }
+
   // This is used by the AssetType CupertinoSegmentedSelection widget as a
   // callback function to update all the fields to reflect a change in the asset
   // type (i.e. stocks, crypto, nfts, cash)
-  void assetTypeChanged(int currentAssetSelection) {
+  void assetTypeChanged(int currentAssetSelection) async {
+    List<String> newAssetNameList = await getAssetNameList();
     setState(
       () {
+        // TODO store each asset type's lists in their own variable in memory so
+        // that an API call doesn't have to be executed everytime the asset
+        // type changes
+        assetNameList = newAssetNameList;
         assetSelection = currentAssetSelection;
         determineAssetTypeFromSelection(assetSelection);
         dataSourceDropdownValues = setDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;
         // TODO make currentAssetName remember the last asset selected from a category after changing
-        currentAssetName = AssetDataAPI(assetType).getAssetList().first;
+        currentAssetName = assetNameList.first;
         dataSourceChanged(currentDataSource);
       },
     );
@@ -204,7 +216,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
               AssetDropdown(
                   currentAssetName: currentAssetName,
                   assetType: assetType,
-                  assetDropdownChangedCallback: assetDropdownChanged),
+                  assetDropdownChangedCallback: assetDropdownChanged,
+                  assetNameList: assetNameList),
               DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
               DataSourceTextField(
                 dataSourceScannable: dataSourceScannable,
@@ -305,30 +318,31 @@ class AssetDropdown extends StatelessWidget {
   final AssetType assetType;
   final String currentAssetName;
   final ValueChanged<String> assetDropdownChangedCallback;
+  final List<String> assetNameList;
 
   const AssetDropdown({
     super.key,
     required this.assetType,
     required this.currentAssetName,
     required this.assetDropdownChangedCallback,
+    required this.assetNameList,
   });
+
+  List<DropdownMenuItem> mapListForDropdown() {
+    List<DropdownMenuItem> assetNameDropdownItemsList = [];
+    for (var element in assetNameList) {
+      assetNameDropdownItemsList
+          .add(DropdownMenuItem(value: element, child: Text(element)));
+    }
+    return assetNameDropdownItemsList;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       color: Colors.grey[850],
       child: SearchChoices.single(
-        items: AssetDataAPI(assetType)
-            .getAssetList()
-            .map<DropdownMenuItem<String>>(
-          (String assetName) {
-            return DropdownMenuItem<String>(
-              value: assetName,
-              child:
-                  Text(assetName, style: const TextStyle(color: Colors.white)),
-            );
-          },
-        ).toList(),
+        items: mapListForDropdown(),
         value: currentAssetName,
         hint: Text(
           currentAssetName,
