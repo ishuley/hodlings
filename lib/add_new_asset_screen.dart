@@ -272,7 +272,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                   currentAssetName: currentAssetName,
                   assetType: assetType,
                   assetDropdownChangedCallback: assetDropdownChanged,
-                  assetNameList: assetNamesAndTickers),
+                  assetSymbolNameList: assetNamesAndTickers),
               DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
               DataSourceTextField(
                 dataSourceScannable: dataSourceScannable,
@@ -373,19 +373,19 @@ class AssetDropdown extends StatelessWidget {
   final AssetType assetType;
   final String currentAssetName;
   final ValueChanged<String> assetDropdownChangedCallback;
-  final List<String> assetNameList;
+  final List<String> assetSymbolNameList;
 
   const AssetDropdown({
     super.key,
     required this.assetType,
     required this.currentAssetName,
     required this.assetDropdownChangedCallback,
-    required this.assetNameList,
+    required this.assetSymbolNameList,
   });
 
   List<DropdownMenuItem> mapListForDropdown() {
     List<DropdownMenuItem> assetNameDropdownItemsList = [];
-    for (var element in assetNameList) {
+    for (var element in assetSymbolNameList) {
       assetNameDropdownItemsList
           .add(DropdownMenuItem(value: element, child: Text(element)));
     }
