@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart';
 
-enum AssetType { stock, crypto, nft, cash }
+enum AssetType { stock, crypto, cash }
 
 abstract class Asset {
   String? name;

@@ -20,10 +20,6 @@ class AddNewAssetScreen extends StatefulWidget {
     // 'Exchange API',
     'Manual Qty',
   ];
-  static const nftDataSourcesList = <String>[
-    'Blockchain Address',
-    'Manual Qty',
-  ];
   static const cashDataSourcesList = <String>[
     'Manual Qty',
     // 'Bank API',
@@ -47,22 +43,23 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       const TextInputType.numberWithOptions(decimal: true);
   double manualQty = 0;
   String blockchainAddress = "";
+  List<String> stockAssetNamesAndTickers = [];
+  List<String> cryptoAssetNamesAndTickers = [];
+  List<String> cashAssetNamesAndTickers = [];
   List<String> assetNamesAndTickers = [];
 
   @override
   void initState() {
     super.initState();
-    assetTypeChanged(assetSelection);
+    setAssetNamesAndTickerListForAssetDropdown();
   }
 
   // This helper function chooses the correct data source list, which is a
   // hardcoded constant above
-  List<String> setDataSourcesDropdownValues() {
+  List<String> getDataSourcesDropdownValues() {
     switch (assetType) {
       case AssetType.crypto:
         return AddNewAssetScreen.cryptoDataSourcesList;
-      case AssetType.nft:
-        return AddNewAssetScreen.nftDataSourcesList;
       case AssetType.cash:
         return AddNewAssetScreen.cashDataSourcesList;
       default:
@@ -70,51 +67,84 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
   }
 
-  Future<List<Map<String, String>>> getAssetNameAndTickerMapList() async {
-    List<Map<String, String>>? assetNameAndTickerList =
-        (await AssetDataAPI(assetType).getAssetNamesAndTickersList()
+  void setAssetNamesAndTickerListForAssetDropdown() async {
+    for (AssetType assetCategory in AssetType.values) {
+      List<Map<String, String>> assetNameAndTickerMapList =
+          await getAssetNameAndTickerMapList(assetCategory);
+      setState(() {
+        if (assetCategory == AssetType.stock) {
+          stockAssetNamesAndTickers =
+              getAssetSymbolAndNamesListForAssetDropdownFromAPI(
+                  assetNameAndTickerMapList);
+
+          /// the next two lines happen because stock happens to be the first
+          /// AssetType displayed in the dropdown
+          assetNamesAndTickers = stockAssetNamesAndTickers;
+          currentAssetName = assetNamesAndTickers.first;
+        }
+        if (assetCategory == AssetType.crypto) {
+          cryptoAssetNamesAndTickers =
+              getAssetSymbolAndNamesListForAssetDropdownFromAPI(
+                  assetNameAndTickerMapList);
+        }
+        // if (assetType == AssetType.cash) {
+        //   cashAssetNamesAndTickers =
+        //       getAssetSymbolAndNamesListForAssetDropdownFromAPI(
+        //           assetNameAndTickerMapList);
+        // }
+      });
+    }
+  }
+
+  Future<List<Map<String, String>>> getAssetNameAndTickerMapList(
+      AssetType assetCategory) async {
+    List<Map<String, String>>? assetNameAndTickerMapList =
+        (await AssetDataAPI(assetCategory).getAssetNamesAndTickersList()
             as List<Map<String, String>>);
-    return assetNameAndTickerList;
+    return assetNameAndTickerMapList;
   }
 
-  // This is used by the AssetType CupertinoSegmentedSelection widget as a
-  // callback function to update all the fields to reflect a change in the asset
-  // type (i.e. stocks, crypto, nfts, cash)
-  void assetTypeChanged(int currentAssetSelection) async {
-    setState(() {
-      assetSelection = currentAssetSelection;
-      determineAssetTypeFromSelection(assetSelection);
-    });
-
-    List<String> newAssetListForDropdown = await getNewAssetNameAndTickerList();
-
-    setState(
-      () {
-        // TODO store each asset type's lists in their own variable in memory so
-        // that an API call doesn't have to be executed everytime the asset
-        // type changes
-        assetNamesAndTickers = newAssetListForDropdown;
-        dataSourceDropdownValues = setDataSourcesDropdownValues();
-        currentDataSource = dataSourceDropdownValues.first;
-        // TODO make currentAssetName remember the last asset selected from a category after changing
-        currentAssetName = assetNamesAndTickers.first;
-        dataSourceChanged(currentDataSource);
-      },
-    );
-  }
-
-  Future<List<String>> getNewAssetNameAndTickerList() async {
+  List<String> getAssetSymbolAndNamesListForAssetDropdownFromAPI(
+      List<Map<String, String>> assetNameAndTickerMapList) {
     List<Map<String, String>> newAssetNameAndTickerList =
-        await getAssetNameAndTickerMapList();
+        assetNameAndTickerMapList;
     List<String> newAssetListForDropdown = [];
     for (var assetNameAndTickerMap in newAssetNameAndTickerList) {
       assetNameAndTickerMap.forEach((key, value) {
         newAssetListForDropdown.add("$key - $value");
       });
     }
-
     newAssetListForDropdown.sort();
     return newAssetListForDropdown;
+  }
+
+  // This is used by the AssetType CupertinoSegmentedSelection widget as a
+  // callback function to update all the fields to reflect a change in the asset
+  // type (i.e. stocks, crypto, nfts, cash)
+  void assetTypeChanged(int currentAssetSelection) async {
+    setState(
+      () {
+        assetSelection = currentAssetSelection;
+        determineAssetTypeFromSelection(assetSelection);
+
+        if (assetType == AssetType.stock) {
+          assetNamesAndTickers = stockAssetNamesAndTickers;
+        }
+        if (assetType == AssetType.crypto) {
+          assetNamesAndTickers = cryptoAssetNamesAndTickers;
+        }
+
+        // if (assetType == AssetType.cash) {
+        //   newAssetListForDropdown = stockAssetNamesAndTickers;
+        // }
+        dataSourceDropdownValues = getDataSourcesDropdownValues();
+        currentDataSource = dataSourceDropdownValues.first;
+        // TODO make currentAssetName remember the last asset selected from a category after changing
+        currentAssetName = assetNamesAndTickers.first;
+
+        dataSourceChanged(currentDataSource);
+      },
+    );
   }
 
   // This translates an int into a word for the purposes of the
@@ -125,11 +155,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         assetType = AssetType.crypto;
         break;
       case 2:
-        assetType = AssetType.nft;
-        break;
-      case 3:
         assetType = AssetType.cash;
         break;
+      // case 3:
+      //   assetType = AssetType.nft;
+      //   break;
       default:
         assetType = AssetType.stock;
     }
@@ -294,8 +324,8 @@ class _AssetCategorySelectionState extends State<AssetCategorySelection> {
           children: const {
             0: Text('Stocks', style: TextStyle(color: Colors.white)),
             1: Text('Crypto', style: TextStyle(color: Colors.white)),
-            // 2: Text('NFTs', style: TextStyle(color: Colors.white)),
-            3: Text('Cash', style: TextStyle(color: Colors.white)),
+            2: Text('Cash', style: TextStyle(color: Colors.white)),
+            // 3: Text('Cash', style: TextStyle(color: Colors.white)),
           },
         ),
       ),
