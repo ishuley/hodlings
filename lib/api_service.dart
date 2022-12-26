@@ -1,20 +1,24 @@
-import 'dart:io';
+// ignore_for_file: unused_import
 
+import 'dart:convert';
+import 'dart:io';
 import 'asset.dart';
 import 'package:coingecko_api/coingecko_api.dart';
+import 'package:http/http.dart';
+import 'api_keys.dart';
 
 class AssetDataAPI {
   AssetType assetType;
   AssetDataAPI(this.assetType);
 
-  Future<List> getAssetNamesList() {
+  Future<List> getAssetNamesAndTickersList() {
     if (assetType == AssetType.crypto) {
-      return CryptoAPI().getAssetNamesList();
+      return CryptoAPI().getAssetNamesAndTickers();
     }
     if (assetType == AssetType.cash) {
-      return CashAPI().getAssetNamesList();
+      return CashAPI().getAssetNamesAndTickers();
     }
-    return StockAPI().getAssetNamesList();
+    return StockAPI().getAssetNamesAndTickers();
   }
 
   double? getPrice(String name) {
@@ -29,15 +33,16 @@ class AssetDataAPI {
 }
 
 class CryptoAPI {
-  Future<List<String>> getAssetNamesList() async {
+  Future<List<Map<String, String>>> getAssetNamesAndTickers() async {
     final api = CoinGeckoApi();
     final result = await api.coins.listCoins(includePlatforms: true);
     if (!result.isError) {
-      List<String> nameList = [];
+      List<Map<String, String>> cryptoNameAndTickerList = [];
       for (var coinDetailsElement in result.data) {
-        nameList.add(coinDetailsElement.name);
+        cryptoNameAndTickerList
+            .add({coinDetailsElement.symbol: coinDetailsElement.name});
       }
-      return nameList;
+      return cryptoNameAndTickerList;
     } else {
       throw const HttpException("Couldn't retrieve asset list from CoinGecko");
     }
@@ -57,9 +62,36 @@ class CryptoAPI {
 }
 
 class StockAPI {
-  final stockApiUrl = "";
+  final stockApiUrl = "api.marketstack.com";
 
-  Future<List<String>> getAssetNamesList() {}
+  Future<List<Map<String, String>>> getAssetNamesAndTickers() async {
+    var url = Uri.http(stockApiUrl, "/v1/tickers",
+        {"access_key": marketStackApiKey, "limit": "10000"});
+
+    var response = await get(url);
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      List<Map<String, String>> stockNamesAndTickers = [];
+      jsonResponse.forEach(
+        (key, value) {
+          if (key == 'data') {
+            for (var stockData in value) {
+              if (stockData['symbol'] != null && stockData['name'] != null) {
+                stockNamesAndTickers.add(
+                  {stockData['symbol']: stockData['name']},
+                );
+              }
+            }
+          }
+        },
+      );
+      return stockNamesAndTickers;
+    } else {
+      throw const HttpException(
+          "Couldn't retrieve asset list from MarketStack");
+    }
+  }
 
   double getPrice(String ticker) {
     return 2.0;
@@ -67,7 +99,7 @@ class StockAPI {
 }
 
 class CashAPI {
-  Future<List> getAssetNamesList() {
+  Future<List> getAssetNamesAndTickers() {
     throw UnimplementedError();
   }
 

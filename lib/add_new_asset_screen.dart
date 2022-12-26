@@ -37,8 +37,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   String currentDataSource = AddNewAssetScreen.stockDataSourcesList.first;
   List<String> dataSourceDropdownValues =
       AddNewAssetScreen.stockDataSourcesList;
-  AssetType assetType = AssetType.crypto;
-  String currentAssetName = "GameStop";
+  AssetType assetType = AssetType.stock;
+  String currentAssetName = "";
   int assetSelection = 0;
   String currentDataSourceLabel = "Enter quantity manually:";
   bool dataSourceScannable = false;
@@ -47,7 +47,13 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       const TextInputType.numberWithOptions(decimal: true);
   double manualQty = 0;
   String blockchainAddress = "";
-  List<String> assetNameList = [];
+  List<String> assetNamesAndTickers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    assetTypeChanged(assetSelection);
+  }
 
   // This helper function chooses the correct data source list, which is a
   // hardcoded constant above
@@ -64,32 +70,51 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
   }
 
-  Future<List<String>> getAssetNameList() async {
-    List<String>? assetNameList =
-        (await AssetDataAPI(assetType).getAssetNamesList()).cast<String>();
-    return assetNameList;
+  Future<List<Map<String, String>>> getAssetNameAndTickerMapList() async {
+    List<Map<String, String>>? assetNameAndTickerList =
+        (await AssetDataAPI(assetType).getAssetNamesAndTickersList()
+            as List<Map<String, String>>);
+    return assetNameAndTickerList;
   }
 
   // This is used by the AssetType CupertinoSegmentedSelection widget as a
   // callback function to update all the fields to reflect a change in the asset
   // type (i.e. stocks, crypto, nfts, cash)
   void assetTypeChanged(int currentAssetSelection) async {
-    List<String> newAssetNameList = await getAssetNameList();
+    setState(() {
+      assetSelection = currentAssetSelection;
+      determineAssetTypeFromSelection(assetSelection);
+    });
+
+    List<String> newAssetListForDropdown = await getNewAssetNameAndTickerList();
+
     setState(
       () {
         // TODO store each asset type's lists in their own variable in memory so
         // that an API call doesn't have to be executed everytime the asset
         // type changes
-        assetNameList = newAssetNameList;
-        assetSelection = currentAssetSelection;
-        determineAssetTypeFromSelection(assetSelection);
+        assetNamesAndTickers = newAssetListForDropdown;
         dataSourceDropdownValues = setDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;
         // TODO make currentAssetName remember the last asset selected from a category after changing
-        currentAssetName = assetNameList.first;
+        currentAssetName = assetNamesAndTickers.first;
         dataSourceChanged(currentDataSource);
       },
     );
+  }
+
+  Future<List<String>> getNewAssetNameAndTickerList() async {
+    List<Map<String, String>> newAssetNameAndTickerList =
+        await getAssetNameAndTickerMapList();
+    List<String> newAssetListForDropdown = [];
+    for (var assetNameAndTickerMap in newAssetNameAndTickerList) {
+      assetNameAndTickerMap.forEach((key, value) {
+        newAssetListForDropdown.add("$key - $value");
+      });
+    }
+
+    newAssetListForDropdown.sort();
+    return newAssetListForDropdown;
   }
 
   // This translates an int into a word for the purposes of the
@@ -217,7 +242,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                   currentAssetName: currentAssetName,
                   assetType: assetType,
                   assetDropdownChangedCallback: assetDropdownChanged,
-                  assetNameList: assetNameList),
+                  assetNameList: assetNamesAndTickers),
               DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
               DataSourceTextField(
                 dataSourceScannable: dataSourceScannable,
@@ -346,7 +371,7 @@ class AssetDropdown extends StatelessWidget {
         value: currentAssetName,
         hint: Text(
           currentAssetName,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.black),
         ),
         searchHint: const Text(
           "Select asset",
