@@ -79,6 +79,19 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
+class DrawerMenu extends StatelessWidget {
+  const DrawerMenu({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+        backgroundColor: Colors.grey[850],
+        child: ListView(
+          children: const [],
+        ));
+  }
+}
+
 class NetWorthButton extends StatelessWidget {
   final String netWorth;
   final String vsSymbol;
@@ -115,6 +128,40 @@ class NetWorthButton extends StatelessWidget {
   }
 }
 
+class AssetDisplay extends StatelessWidget {
+  final List<AssetCard> assetList;
+
+  const AssetDisplay({super.key, required this.assetList});
+
+  @override
+  Widget build(BuildContext context) {
+    if (assetList.isNotEmpty) {
+      return ListView.builder(
+          itemCount: assetList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+              color: Colors.white70,
+              child: assetList[index],
+            );
+          });
+    } else {
+      return const Align(
+        alignment: Alignment.center,
+        child: SizedBox(
+          child: FractionallySizedBox(
+            widthFactor: 1,
+            child: Text(
+              "No assets entered yet",
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+}
+
 class AddNewAssetButton extends StatefulWidget {
   final VoidCallback addNewAssetCallback;
 
@@ -147,52 +194,5 @@ class _AddNewAssetButtonState extends State<AddNewAssetButton> {
         )
       ]),
     );
-  }
-}
-
-class DrawerMenu extends StatelessWidget {
-  const DrawerMenu({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-        backgroundColor: Colors.grey[850],
-        child: ListView(
-          children: const [],
-        ));
-  }
-}
-
-class AssetDisplay extends StatelessWidget {
-  final List<AssetCard> assetList;
-
-  const AssetDisplay({super.key, required this.assetList});
-
-  @override
-  Widget build(BuildContext context) {
-    if (assetList.isNotEmpty) {
-      return ListView.builder(
-          itemCount: assetList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Card(
-              color: Colors.white70,
-              child: assetList[index],
-            );
-          });
-    } else {
-      return const Align(
-        alignment: Alignment.center,
-        child: SizedBox(
-          child: FractionallySizedBox(
-            widthFactor: 1,
-            child: Text(
-              "No assets entered yet",
-              style: TextStyle(color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      );
-    }
   }
 }

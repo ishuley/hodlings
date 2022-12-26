@@ -225,7 +225,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   }
 
   void onAcceptButtonPressed() {
-    /// TODO replace this with code that actually builds the specified asset
+    /// TODO Replace this with code that actually builds the specified asset.
     AssetCard newAssetCard = AssetCard(
       asset: Crypto("Ethereum", 20.0),
       vsTicker: "USD",
