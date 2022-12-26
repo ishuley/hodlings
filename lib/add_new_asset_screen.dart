@@ -45,8 +45,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   String blockchainAddress = "";
   List<String> stockAssetNamesAndTickers = [];
   List<String> cryptoAssetNamesAndTickers = [];
-  List<String> cashAssetNamesAndTickers = [];
-  List<String> assetNamesAndTickers = [];
+  // List<String> cashAssetNamesAndTickers = [];
 
   @override
   void initState() {
@@ -76,11 +75,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           stockAssetNamesAndTickers =
               getAssetSymbolAndNamesListForAssetDropdownFromAPI(
                   assetNameAndTickerMapList);
-
-          /// the next two lines happen because stock happens to be the first
-          /// AssetType displayed in the dropdown
-          assetNamesAndTickers = stockAssetNamesAndTickers;
-          currentAssetName = assetNamesAndTickers.first;
         }
         if (assetCategory == AssetType.crypto) {
           cryptoAssetNamesAndTickers =
@@ -92,6 +86,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         //       getAssetSymbolAndNamesListForAssetDropdownFromAPI(
         //           assetNameAndTickerMapList);
         // }
+
+        currentAssetName = chooseSymbolAndNameListBasedOnAssetType().first;
       });
     }
   }
@@ -108,14 +104,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       List<Map<String, String>> assetNameAndTickerMapList) {
     List<Map<String, String>> newAssetNameAndTickerList =
         assetNameAndTickerMapList;
-    List<String> newAssetListForDropdown = [];
+    List<String> newAssetSymbolNameListForDropdown = [];
     for (var assetNameAndTickerMap in newAssetNameAndTickerList) {
       assetNameAndTickerMap.forEach((key, value) {
-        newAssetListForDropdown.add("$key - $value");
+        newAssetSymbolNameListForDropdown.add("$key - $value");
       });
     }
-    newAssetListForDropdown.sort();
-    return newAssetListForDropdown;
+    newAssetSymbolNameListForDropdown.sort();
+    return newAssetSymbolNameListForDropdown;
   }
 
   // This is used by the AssetType CupertinoSegmentedSelection widget as a
@@ -128,19 +124,18 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         determineAssetTypeFromSelection(assetSelection);
 
         if (assetType == AssetType.stock) {
-          assetNamesAndTickers = stockAssetNamesAndTickers;
+          currentAssetName = stockAssetNamesAndTickers.first;
         }
         if (assetType == AssetType.crypto) {
-          assetNamesAndTickers = cryptoAssetNamesAndTickers;
+          currentAssetName = cryptoAssetNamesAndTickers.first;
         }
 
         // if (assetType == AssetType.cash) {
-        //   newAssetListForDropdown = stockAssetNamesAndTickers;
+        //   currentAssetName = cashAssetNamesAndTickers;
         // }
         dataSourceDropdownValues = getDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;
         // TODO make currentAssetName remember the last asset selected from a category after changing
-        currentAssetName = assetNamesAndTickers.first;
 
         dataSourceChanged(currentDataSource);
       },
@@ -247,6 +242,17 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     );
   }
 
+  List<String> chooseSymbolAndNameListBasedOnAssetType() {
+    switch (assetType) {
+      case AssetType.crypto:
+        return cryptoAssetNamesAndTickers;
+      // case AssetType.cash:
+      //   return cashAssetNamesAndTickers;
+      default:
+        return stockAssetNamesAndTickers;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return KeyboardDismisser(
@@ -269,10 +275,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                   dataSourceDropdownValues: dataSourceDropdownValues,
                   dataSourceChangedCallback: dataSourceChanged),
               AssetDropdown(
-                  currentAssetName: currentAssetName,
-                  assetType: assetType,
-                  assetDropdownChangedCallback: assetDropdownChanged,
-                  assetSymbolNameList: assetNamesAndTickers),
+                currentAssetName: currentAssetName,
+                assetType: assetType,
+                assetDropdownChangedCallback: assetDropdownChanged,
+                assetSymbolNameList: chooseSymbolAndNameListBasedOnAssetType(),
+              ),
               DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
               DataSourceTextField(
                 dataSourceScannable: dataSourceScannable,
@@ -385,9 +392,9 @@ class AssetDropdown extends StatelessWidget {
 
   List<DropdownMenuItem> mapListForDropdown() {
     List<DropdownMenuItem> assetNameDropdownItemsList = [];
-    for (var element in assetSymbolNameList) {
-      assetNameDropdownItemsList
-          .add(DropdownMenuItem(value: element, child: Text(element)));
+    for (var symbolNameString in assetSymbolNameList) {
+      assetNameDropdownItemsList.add(DropdownMenuItem(
+          value: symbolNameString, child: Text(symbolNameString)));
     }
     return assetNameDropdownItemsList;
   }
