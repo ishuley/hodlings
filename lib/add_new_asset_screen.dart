@@ -110,7 +110,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         newAssetSymbolNameListForDropdown.add("$key - $value");
       });
     }
-    newAssetSymbolNameListForDropdown.sort();
     return newAssetSymbolNameListForDropdown;
   }
 
