@@ -372,7 +372,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Triggered by a callback function passed into [DataSourceTextField] to
   /// indicate that the user would like to enter data by scanning a QR code.
   /// This is likely for a blockchain address or an exchange API that is too
-  /// unwieldy to key in by hand.
+  /// long to key in by hand.
   Future<void> qrIconPressed() async {
     String qrCode = await FlutterBarcodeScanner.scanBarcode(
         '#ff6666', 'Cancel', false, ScanMode.QR);
@@ -517,7 +517,11 @@ class _AssetTypeSelectionState extends State<AssetTypeSelection> {
   }
 }
 
-// This is the dropdown associated with the data source, which is specific to each Asset category
+/// A [DropdownButton] menu where the user selects their quantity source.
+///
+/// Quanity can be specified manually, through a blockchain address that
+/// automatically keeps itself updated, or when implemented, a Read-only
+/// exchange API key.
 class DataSourceDropdown extends StatelessWidget {
   final String currentDataSource;
   final List<String> dataSourceDropdownValues;
@@ -554,7 +558,12 @@ class DataSourceDropdown extends StatelessWidget {
   }
 }
 
-// This dropdown allows the user to specify a security to track
+/// A [SearchChoices] object that lets the user specify the desired [Asset].
+///
+/// [Asset]s come from a different API for each possible [AssetType].
+/// [SearchChoices] is a type of [DropdownButton] that permits the user to
+/// search for the desired [Asset] in addition to clicking on it as a
+/// conventional [DropdownButton].
 class AssetDropdown extends StatelessWidget {
   final AssetType assetType;
   final String currentAssetName;
@@ -614,7 +623,10 @@ class AssetDropdown extends StatelessWidget {
   }
 }
 
-// This is a label to explain the purpose of the textbox that occurs after in the UI
+/// A simple [Text] object to label the [DataSourceTextField].
+///
+/// Instructs the user what to enter in the [DataSourceTextField] directly
+/// beneath this widget.
 class DataSourceLabel extends StatelessWidget {
   const DataSourceLabel({super.key, required this.dataSourceLabel});
 
@@ -633,6 +645,10 @@ class DataSourceLabel extends StatelessWidget {
   }
 }
 
+/// Enter the source of user's [Asset] quantity data and other related data.
+///
+/// Can accept a manual entry, a blackchain address, or later, an exchange API
+/// key.
 class DataSourceTextField extends StatefulWidget {
   const DataSourceTextField({
     super.key,
