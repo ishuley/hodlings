@@ -6,20 +6,46 @@ import 'api_service.dart';
 import 'accept_cancel_button.dart';
 import 'asset.dart';
 import 'package:search_choices/search_choices.dart';
+import 'main.dart';
 
+/// Screen where the user specifies a new [Asset] to be added to an [AssetCard].
+///
+/// Displays a form to specify an asset and quantitiy or a source for a
+/// quantity to be added to the portfolio and tracked, which is the primary
+/// purpose for this app.
 class AddNewAssetScreen extends StatefulWidget {
   const AddNewAssetScreen({super.key});
 
+  /// The types of input possible for a given asset category.
+  ///
+  /// These possible data sources lists here represent ways the user can input
+  /// how many of a given asset they own, which one is used is based on what the
+  /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
+  /// will only rarely change, if ever.
   static const stockDataSourcesList = <String>[
     'Manual Qty',
     // 'Transfer Agent',
     // 'Broker API',
   ];
+
+  /// The types of input possible for a given asset category.
+  ///
+  /// These possible data sources lists here represent ways the user can input
+  /// how many of a given asset they own, which one is used is based on what the
+  /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
+  /// will only rarely change, if ever.
   static const cryptoDataSourcesList = <String>[
     'Blockchain Address',
     // 'Exchange API',
     'Manual Qty',
   ];
+
+  /// The types of input possible for a given asset category.
+  ///
+  /// These possible data sources lists here represent ways the user can input
+  /// how many of a given asset they own, which one is used is based on what the
+  /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
+  /// will only rarely change, if ever.
   static const cashDataSourcesList = <String>[
     'Manual Qty',
     // 'Bank API',
@@ -30,68 +56,159 @@ class AddNewAssetScreen extends StatefulWidget {
 }
 
 class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
+  /// The currently selected data source.
+  ///
+  /// Stores the current single asset displayed in [DataSourceDropdown]
+  /// by default (ie, Manual Qty, Blockchain Address, etc...).
   String currentDataSource = AddNewAssetScreen.stockDataSourcesList.first;
+
+  /// List of [DataSourceDropdown] options.
+  ///
+  /// Defaults to stocks because because that's the arbitrarily chosen default
+  /// [assetType] selected in [AssetTypeSelection].
   List<String> dataSourceDropdownValues =
       AddNewAssetScreen.stockDataSourcesList;
-  AssetType assetType = AssetType.stock;
-  String currentAssetName = "";
+
+  /// [int] indicating which asset type is selected in [AssetTypeSelection].
+  ///
+  /// Immediately gets converted into an [AssetType] enum and stored in
+  /// [assetType] for readability reasons.
   int assetSelection = 0;
+
+  /// The currently selected asset type.
+  ///
+  /// Enum from Asset.dart representing which type of asset is currently
+  /// selected by [AssetTypeSelection]. Also tells main.dart which API is
+  /// needed to retrieve each individual asset's price.
+  AssetType assetType = AssetType.stock;
+
+  /// Stores the currently selected asset from [AssetDropdown].
+  ///
+  /// This is passed back to the main.dart to tell the program which asset's
+  /// price it needs to retrieve from the API.
+  String currentlySelectedAsset = "";
+
+  /// This label identifies what is supposed to go in [DataSourceDropdown].
+  ///
+  /// Stock is the default [assetType] so the default data source (chosen
+  /// arbitrarily) is coincidentally manual entry, until API functionality is
+  /// added.
   String currentDataSourceLabel = "Enter quantity manually:";
+
+  /// Indicates if the current data source makes sense to input with a QR code.
+  ///
+  /// If [currentDataSource] is scannable, then the implication is that they
+  /// want to enter an API key or a blockchain address, and nobody wants to key
+  /// those in by hand. They will either scan a QR code or paste the data.
+  /// Therefore if this property is true, I throw up a QR code icon and
+  /// disable the keyboard.
   bool dataSourceScannable = false;
+
+  /// QR code scan results.
+  ///
+  /// This property stores the result of a QR code scan, initiated from
+  /// clicking the icon in [DataSourceTextField]. This data should either be a
+  /// blockchain address or an API key once that gets implemented.
   String qrCodeResult = '';
+
+  /// The type of keyboard that should be associated with a given [TextField].
+  ///
+  /// This stores the currently needed type of keyboard necessary to enter data
+  /// about quantity into [DataSourceTextField] or to specify an asset in
+  /// [AssetDropdown].
   TextInputType dataSourceTextFieldKeyboard =
       const TextInputType.numberWithOptions(decimal: true);
-  double manualQty = 0;
-  String blockchainAddress = "";
+
+  /// Lists of strings to be converted into [DropdownMenuItem]s for
+  /// [AssetDropdown].
+  ///
+  /// I chose to store the String Lists for each asset category in their own
+  /// lists to increase speed in switching between them, at the cost of memory.
+  /// This makes changing the value of [AssetTypeSelection] much faster
+  /// because [AssetDropdown] does not need to execute an API call every single
+  /// time.
   List<String> stockAssetNamesAndTickers = [];
+
+  /// Lists of strings to be converted into [DropdownMenuItem]s for
+  /// [AssetDropdown].
+  ///
+  /// I chose to store the String Lists for each asset category in their own
+  /// lists to increase speed in switching between them, at the cost of memory.
+  /// This makes changing the value of [AssetTypeSelection] much faster
+  /// because [AssetDropdown] does not need to execute an API call every single
+  /// time.
   List<String> cryptoAssetNamesAndTickers = [];
+
+  /// Lists of strings to be converted into [DropdownMenuItem]s for
+  /// [AssetDropdown].
+  ///
+  /// I chose to store the String Lists for each asset category in their own
+  /// lists to increase speed in switching between them, at the cost of memory.
+  /// This makes changing the value of [AssetTypeSelection] much faster
+  /// because [AssetDropdown] does not need to execute an API call every single
+  /// time.
   // List<String> cashAssetNamesAndTickers = [];
 
+  /// Determines whether the necessary API data is loaded.
+  ///
+  /// When loading [AddNewAssetScreen] the API call or persistent data
+  /// retrieval, as the case may be, sometimes takes a few seconds, so this
+  /// boolean tells the app whether to throw up a progress indicator to let the
+  /// user know that it is thinking and hasn't crashed.
+  bool showProgressIndicator = true;
+
+  /// Assigns the default asset values to [AssetDropdown].
+  ///
+  /// It is necessary to do this here for the first time because the
+  /// callback function that [AssetDropdown] under normal circumstances is
+  /// linked to clicking [AssetTypeSelection]. The logic happens in a different
+  /// method because it requires an asynchronous API call.
   @override
   void initState() {
     super.initState();
     setAssetNamesAndTickerListForAssetDropdown();
   }
 
-  // This helper function chooses the correct data source list, which is a
-  // hardcoded constant above
-  List<String> getDataSourcesDropdownValues() {
-    switch (assetType) {
-      case AssetType.crypto:
-        return AddNewAssetScreen.cryptoDataSourcesList;
-      case AssetType.cash:
-        return AddNewAssetScreen.cashDataSourcesList;
-      default:
-        return AddNewAssetScreen.stockDataSourcesList;
-    }
-  }
-
+  /// Assigns a list of [AssetDropdown] choices to the appropriate variable.
+  ///
+  /// Called upon initialization of the program to establish the default
+  /// choices for [AssetDropdown], based on API data.
+  /// [getAssetNameAndTickerMapList] gets the raw data from the appropriate
+  /// API, and [parseAssetNameAndTickerMapListIntoDropdownMenuItems] converts
+  /// it into a format appropriate for [AssetDropdown] to use.
   void setAssetNamesAndTickerListForAssetDropdown() async {
-    for (AssetType assetCategory in AssetType.values) {
+    for (AssetType assetType in AssetType.values) {
       List<Map<String, String>> assetNameAndTickerMapList =
-          await getAssetNameAndTickerMapList(assetCategory);
+          await getAssetNameAndTickerMapList(assetType);
       setState(() {
-        if (assetCategory == AssetType.stock) {
+        if (assetType == AssetType.stock) {
           stockAssetNamesAndTickers =
-              getAssetSymbolAndNamesListForAssetDropdownFromAPI(
+              parseAssetNameAndTickerMapListIntoDropdownMenuItems(
                   assetNameAndTickerMapList);
         }
-        if (assetCategory == AssetType.crypto) {
+        if (assetType == AssetType.crypto) {
           cryptoAssetNamesAndTickers =
-              getAssetSymbolAndNamesListForAssetDropdownFromAPI(
+              parseAssetNameAndTickerMapListIntoDropdownMenuItems(
                   assetNameAndTickerMapList);
         }
         // if (assetType == AssetType.cash) {
         //   cashAssetNamesAndTickers =
-        //       getAssetSymbolAndNamesListForAssetDropdownFromAPI(
+        //       parseAssetNameAndTickerMapListIntoDropdownMenuItems(
         //           assetNameAndTickerMapList);
         // }
 
-        currentAssetName = chooseSymbolAndNameListBasedOnAssetType().first;
+        currentlySelectedAsset =
+            chooseSymbolAndNameListBasedOnAssetType().first;
       });
     }
   }
 
+  /// Retrieves a list of [Map] objects corresponding to individual assets.
+  ///
+  /// Each [Map] object encapsulates the details of a single asset. This
+  /// method retrieves a list of such objects to be parsed into something that
+  /// [AssetDropdown] can use for its [DropdownMenuItem]s, after being parsed
+  /// by [parseAssetNameAndTickerMapListIntoDropdownMenuItems].
   Future<List<Map<String, String>>> getAssetNameAndTickerMapList(
       AssetType assetCategory) async {
     List<Map<String, String>>? assetNameAndTickerMapList =
@@ -100,7 +217,12 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     return assetNameAndTickerMapList;
   }
 
-  List<String> getAssetSymbolAndNamesListForAssetDropdownFromAPI(
+  /// Parses API data into a list of strings for [AssetDropdown]'s options.
+  ///
+  /// [AssetDropdown] accepts a list of strings which it converts into
+  /// [DropdownMenuItem]s for the user to search and identify which asset they
+  /// wish to track. This method
+  List<String> parseAssetNameAndTickerMapListIntoDropdownMenuItems(
       List<Map<String, String>> assetNameAndTickerMapList) {
     List<Map<String, String>> newAssetNameAndTickerList =
         assetNameAndTickerMapList;
@@ -113,9 +235,29 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     return newAssetSymbolNameListForDropdown;
   }
 
-  // This is used by the AssetType CupertinoSegmentedSelection widget as a
-  // callback function to update all the fields to reflect a change in the asset
-  // type (i.e. stocks, crypto, nfts, cash)
+  /// Chooses the correct data source list.
+  ///
+  /// The data source lists are hardcoded constants that describe the user's
+  /// choices for inputting the qunatity of the asset owned or tracked.
+  /// It returns the appropriate data source depending on the current
+  /// [assetType]. For an example, see any of the corresponding properties
+  /// like [AddNewAssetScreen.stockDataSourcesList].
+  List<String> getDataSourcesDropdownValues() {
+    switch (assetType) {
+      case AssetType.crypto:
+        return AddNewAssetScreen.cryptoDataSourcesList;
+      case AssetType.cash:
+        return AddNewAssetScreen.cashDataSourcesList;
+      default:
+        return AddNewAssetScreen.stockDataSourcesList;
+    }
+  }
+
+  /// Resets the data source and assets upon a change of [assetType].
+  ///
+  /// Changes the [DataSourceDropdown] and the [currentlySelectedAsset] in
+  /// [AssetDropdown] to reflect the fact that the user changed the [assetType]
+  /// using [AssetTypeSelection].
   void assetTypeChanged(int currentAssetSelection) async {
     setState(
       () {
@@ -123,10 +265,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         determineAssetTypeFromSelection(assetSelection);
 
         if (assetType == AssetType.stock) {
-          currentAssetName = stockAssetNamesAndTickers.first;
+          currentlySelectedAsset = stockAssetNamesAndTickers.first;
         }
         if (assetType == AssetType.crypto) {
-          currentAssetName = cryptoAssetNamesAndTickers.first;
+          currentlySelectedAsset = cryptoAssetNamesAndTickers.first;
         }
 
         // if (assetType == AssetType.cash) {
@@ -141,8 +283,23 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     );
   }
 
-  // This translates an int into a word for the purposes of the
-  // AssetTypeSelection widget's legibility
+  /// Triggered by the onChange listener through a callback function in [DataSourceDropdown].
+  ///
+  /// Sets the current data source to a passed in String that comes from the
+  /// current user-selected value in [DataSourceDropdown].
+  void dataSourceChanged(String dataSource) {
+    setState(() {
+      currentDataSource = dataSource;
+      updateDataSourceScannabilityAndKeyboardType();
+      currentDataSourceLabel = getDataSourceLabel();
+      //TODO implement broker and exchange API support, then check if the source is an API, then ask which supported exchange or broker they wish to use
+    });
+  }
+
+  /// Translates a passed in int [assetSelection] into a corresponding enum value.
+  ///
+  /// This is primarily for the legibility of code within [AssetTypeSelection]
+  /// and other relevant widgets, as well as the API service and Asset files.
   void determineAssetTypeFromSelection(int assetSelection) {
     switch (assetSelection) {
       case 1:
@@ -159,27 +316,22 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
   }
 
-  // This is called by the DataSourceDropdown's callback function to update
-  // the current data source and label in the other widgets
-  void dataSourceChanged(String dataSource) {
-    setState(() {
-      currentDataSource = dataSource;
-      updateDataSourceProperties();
-      currentDataSourceLabel = getDataSourceLabel();
-      //TODO implement broker and exchange API support, then check if the source is an API, then ask which supported exchange or broker they wish to use
-    });
-  }
-
-  // This is called by the callback function that triggers when the dropdown
-  //corresponding to specific securities (AssetDropdown) is changed.
+  /// Triggered by the onChange listener by a callback function occuring within
+  /// [AssetDropdown].
+  ///
+  /// Sets the [currentlySelectedAsset] when the user changes it.
   void assetDropdownChanged(String currentAssetName) {
     setState(() {
-      this.currentAssetName = currentAssetName;
-      updateDataSourceProperties();
+      currentlySelectedAsset = currentAssetName;
     });
   }
 
-  void updateDataSourceProperties() {
+  /// Sets properties related to the [currentDataSource].
+  ///
+  /// Sets [dataSourceScannable] to indicate whether an option to scan a QR
+  /// code should exist,and sets the keyboard type to whichever is most
+  /// appropriate for the type of data to be entered.
+  void updateDataSourceScannabilityAndKeyboardType() {
     if (currentDataSource.endsWith("API") ||
         currentDataSource.endsWith("Address")) {
       dataSourceScannable = true;
@@ -196,8 +348,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
   }
 
-  // This provides the correct string for DataSourceLabel based on the
-  //currently selected data source in DataSourceDropdown
+  /// Determines how to label the data source input text field.
+  ///
+  /// Provides a [String] used by [DataSourceLabel] to inform the user what kind
+  /// of data source is currently selected by [DataSourceDropdown]
   String getDataSourceLabel() {
     if (currentDataSource.endsWith("API")) {
       return "Enter Read-Only API Key: ";
@@ -213,6 +367,12 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         "Unknown data source when getDataSourceLabel() is called.");
   }
 
+  /// Called when the user presses the QR code icon.
+  ///
+  /// Triggered by a callback function passed into [DataSourceTextField] to
+  /// indicate that the user would like to enter data by scanning a QR code.
+  /// This is likely for a blockchain address or an exchange API that is too
+  /// unwieldy to key in by hand.
   Future<void> qrIconPressed() async {
     String qrCode = await FlutterBarcodeScanner.scanBarcode(
         '#ff6666', 'Cancel', false, ScanMode.QR);
@@ -224,6 +384,13 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     });
   }
 
+  /// Indicates that the fields in [AddNewAssetScreen] are ready to submit.
+  ///
+  /// Triggered by a callback function passed into [AcceptCancelButton] to
+  /// indicate that the user is satisfied with the asset and quantities
+  /// specified, and is read to add the data to their portfolio. This function
+  /// creates a new [AssetCard] object with the specified data, and passes it
+  /// back to [MainScreen] by "popping" it along with the context.
   void onAcceptButtonPressed() {
     /// TODO Replace this with code that actually builds the specified asset.
     AssetCard newAssetCard = AssetCard(
@@ -234,6 +401,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     popContextWithCard(newAssetCard);
   }
 
+  /// Pops the context and newly created [AssetCard] back to [MainScreen].
+  ///
+  /// Destroys [AddNewAssetScreen] and sends the relevant data back to the
+  /// parent, [MainScreen] for processing.
   Future<void> popContextWithCard(AssetCard newAssetCard) async {
     Navigator.pop(
       context,
@@ -241,6 +412,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     );
   }
 
+  /// Chooses the correct list of strings for use in [AssetDropdown].
+  ///
+  /// All three lists of dropdown options were created alongside
+  /// [AddNewAssetScreen] itself, therefore the already existing list need only
+  /// be referenced by [AssetDropdown].
   List<String> chooseSymbolAndNameListBasedOnAssetType() {
     switch (assetType) {
       case AssetType.crypto:
@@ -267,14 +443,13 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           color: Colors.grey[850],
           child: Column(
             children: [
-              AssetCategorySelection(
-                  assetTypeChangedCallback: assetTypeChanged),
+              AssetTypeSelection(assetTypeChangedCallback: assetTypeChanged),
               DataSourceDropdown(
                   currentDataSource: currentDataSource,
                   dataSourceDropdownValues: dataSourceDropdownValues,
                   dataSourceChangedCallback: dataSourceChanged),
               AssetDropdown(
-                currentAssetName: currentAssetName,
+                currentAssetName: currentlySelectedAsset,
                 assetType: assetType,
                 assetDropdownChangedCallback: assetDropdownChanged,
                 assetSymbolNameList: chooseSymbolAndNameListBasedOnAssetType(),
@@ -297,19 +472,22 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   }
 }
 
-// This is the rounded selection widget at the top labelled "Stocks Crypto NFTs Cash"
-class AssetCategorySelection extends StatefulWidget {
+/// The rounded selection widget at the top of [AddNewAssetScreen].
+///
+/// Labeled "Stocks | Crypto | Cash" this widget lets the user select which
+/// [AssetType] to add to their portfolio.
+class AssetTypeSelection extends StatefulWidget {
   // final int assetSelection;
   final ValueChanged<int> assetTypeChangedCallback;
-  const AssetCategorySelection({
+  const AssetTypeSelection({
     super.key,
     required this.assetTypeChangedCallback,
   });
   @override
-  State<AssetCategorySelection> createState() => _AssetCategorySelectionState();
+  State<AssetTypeSelection> createState() => _AssetTypeSelectionState();
 }
 
-class _AssetCategorySelectionState extends State<AssetCategorySelection> {
+class _AssetTypeSelectionState extends State<AssetTypeSelection> {
   int _assetSelection = 0;
 
   @override
@@ -331,7 +509,7 @@ class _AssetCategorySelectionState extends State<AssetCategorySelection> {
             0: Text('Stocks', style: TextStyle(color: Colors.white)),
             1: Text('Crypto', style: TextStyle(color: Colors.white)),
             2: Text('Cash', style: TextStyle(color: Colors.white)),
-            // 3: Text('Cash', style: TextStyle(color: Colors.white)),
+            // 3: Text('NFT', style: TextStyle(color: Colors.white)),
           },
         ),
       ),
@@ -369,6 +547,8 @@ class DataSourceDropdown extends StatelessWidget {
         isExpanded: true,
         style: const TextStyle(color: Colors.white),
         dropdownColor: Colors.grey[900],
+        iconEnabledColor: Colors.white,
+        iconDisabledColor: Colors.grey,
       ),
     );
   }

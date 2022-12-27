@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'add_new_asset_screen.dart';
 
+/// A set of buttons at the bottom of [AddNewAssetScreen].
+///
+/// "Accept" indicates that the user would like to add the selected asset and
+/// quantity to their portfolio, and calls the appropriate callback,
+/// [onAcceptButtonPressed]. Cancel backs out by popping the context
+/// through the Navigator.
 class AcceptCancelButton extends StatelessWidget {
   final VoidCallback acceptPushedCallback;
   const AcceptCancelButton({super.key, required this.acceptPushedCallback});

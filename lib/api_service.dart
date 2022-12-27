@@ -66,7 +66,7 @@ class StockAPI {
 
   Future<List<Map<String, String>>> getAssetNamesAndTickers() async {
     var url = Uri.http(stockApiUrl, "/v1/tickers",
-        {"access_key": marketStackApiKey, "limit": "10000"});
+        {"access_key": stockDataApiKey, "limit": "10000"});
 
     var response = await get(url);
 
