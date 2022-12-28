@@ -274,7 +274,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
   }
 
-  /// Resets the data source and assets upon a change of [assetType].
+  /// Resets the data source and assets when [assetType] changes.
   ///
   /// Changes the [DataSourceDropdown] and the [currentlySelectedAsset] in
   /// [AssetDropdown] to reflect the fact that the user changed the [assetType]
