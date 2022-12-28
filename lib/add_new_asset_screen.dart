@@ -180,25 +180,43 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     for (AssetType assetType in AssetType.values) {
       List<Map<String, String>> assetNameAndTickerMapList =
           await getAssetNameAndTickerMapList(assetType);
+
       setState(() {
+        /// currentlySelectedAsset is only specified here for stocks because it
+        /// changes if the assetType changes, and the default assetType is
+        /// stocks.
         if (assetType == AssetType.stock) {
-          stockAssetNamesAndTickers =
-              parseAssetNameAndTickerMapListIntoDropdownMenuItems(
-                  assetNameAndTickerMapList);
+          if (assetNameAndTickerMapList.isEmpty) {
+            stockAssetNamesAndTickers = [];
+            currentlySelectedAsset = "Apologies, the list failed to load.";
+          }
+          if (assetNameAndTickerMapList.isNotEmpty) {
+            stockAssetNamesAndTickers =
+                parseAssetNameAndTickerMapListIntoDropdownMenuItems(
+                    assetNameAndTickerMapList);
+            currentlySelectedAsset = stockAssetNamesAndTickers.first;
+          }
         }
         if (assetType == AssetType.crypto) {
-          cryptoAssetNamesAndTickers =
-              parseAssetNameAndTickerMapListIntoDropdownMenuItems(
-                  assetNameAndTickerMapList);
+          if (assetNameAndTickerMapList.isEmpty) {
+            cryptoAssetNamesAndTickers = [];
+          }
+          if (assetNameAndTickerMapList.isNotEmpty) {
+            cryptoAssetNamesAndTickers =
+                parseAssetNameAndTickerMapListIntoDropdownMenuItems(
+                    assetNameAndTickerMapList);
+          }
         }
         if (assetType == AssetType.cash) {
-          cashAssetNamesAndTickers =
-              parseAssetNameAndTickerMapListIntoDropdownMenuItems(
-                  assetNameAndTickerMapList);
+          if (assetNameAndTickerMapList.isEmpty) {
+            cashAssetNamesAndTickers = [];
+          }
+          if (assetNameAndTickerMapList.isNotEmpty) {
+            cashAssetNamesAndTickers =
+                parseAssetNameAndTickerMapListIntoDropdownMenuItems(
+                    assetNameAndTickerMapList);
+          }
         }
-
-        currentlySelectedAsset =
-            chooseSymbolAndNameListBasedOnAssetType().first;
       });
     }
   }
@@ -264,14 +282,26 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         assetSelection = currentAssetSelection;
         determineAssetTypeFromSelection(assetSelection);
 
-        if (assetType == AssetType.stock) {
+        if (assetType == AssetType.stock &&
+            stockAssetNamesAndTickers.isNotEmpty) {
           currentlySelectedAsset = stockAssetNamesAndTickers.first;
         }
-        if (assetType == AssetType.crypto) {
+        if (stockAssetNamesAndTickers.isEmpty) {
+          currentlySelectedAsset = "Apologies, the list failed to load.";
+        }
+        if (assetType == AssetType.crypto &&
+            cryptoAssetNamesAndTickers.isNotEmpty) {
           currentlySelectedAsset = cryptoAssetNamesAndTickers.first;
         }
-        if (assetType == AssetType.cash) {
+        if (cryptoAssetNamesAndTickers.isEmpty) {
+          currentlySelectedAsset = "Apologies, the list failed to load.";
+        }
+        if (assetType == AssetType.cash &&
+            cashAssetNamesAndTickers.isNotEmpty) {
           currentlySelectedAsset = cashAssetNamesAndTickers.first;
+        }
+        if (cashAssetNamesAndTickers.isEmpty) {
+          currentlySelectedAsset = "Apologies, the list failed to load.";
         }
         dataSourceDropdownValues = getDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;

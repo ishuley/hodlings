@@ -44,7 +44,7 @@ class CryptoAPI {
       }
       return cryptoNameAndTickerList;
     } else {
-      throw const HttpException("Couldn't retrieve asset list from CoinGecko");
+      return [];
     }
   }
 
@@ -69,7 +69,6 @@ class StockAPI {
         {"access_key": stockDataApiKey, "limit": "10000"});
 
     var response = await get(url);
-
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
       List<Map<String, String>> stockNamesAndTickers = [];
@@ -88,8 +87,7 @@ class StockAPI {
       );
       return stockNamesAndTickers;
     } else {
-      throw const HttpException(
-          "Couldn't retrieve asset list from MarketStack");
+      return [];
     }
   }
 
@@ -118,8 +116,7 @@ class CashAPI {
       }
       return currencyNamesAndTickers;
     } else {
-      throw HttpException(
-          "Couldn't retrieve asset list from exchangeRatesAPI (statusCode was ${response.statusCode}");
+      return [];
     }
   }
 
