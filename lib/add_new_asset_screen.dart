@@ -166,7 +166,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   @override
   void initState() {
     super.initState();
-    setAssetNamesAndTickerListForAssetDropdown();
+    initAssetNamesAndTickerListForAssetDropdown();
   }
 
   /// Assigns a list of [AssetDropdown] choices to the appropriate variable.
@@ -176,7 +176,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// [getAssetNameAndTickerMapList] gets the raw data from the appropriate
   /// API, and [parseAssetNameAndTickerMapListIntoDropdownMenuItems] converts
   /// it into a format appropriate for [AssetDropdown] to use.
-  void setAssetNamesAndTickerListForAssetDropdown() async {
+  void initAssetNamesAndTickerListForAssetDropdown() async {
     for (AssetType assetType in AssetType.values) {
       List<Map<String, String>> assetNameAndTickerMapList =
           await getAssetNameAndTickerMapList(assetType);
@@ -194,6 +194,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
             stockAssetNamesAndTickers =
                 parseAssetNameAndTickerMapListIntoDropdownMenuItems(
                     assetNameAndTickerMapList);
+            stockAssetNamesAndTickers.sort();
             currentlySelectedAsset = stockAssetNamesAndTickers.first;
           }
         }
@@ -205,6 +206,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
             cryptoAssetNamesAndTickers =
                 parseAssetNameAndTickerMapListIntoDropdownMenuItems(
                     assetNameAndTickerMapList);
+            cryptoAssetNamesAndTickers.sort();
           }
         }
         if (assetType == AssetType.cash) {
@@ -215,6 +217,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
             cashAssetNamesAndTickers =
                 parseAssetNameAndTickerMapListIntoDropdownMenuItems(
                     assetNameAndTickerMapList);
+            cashAssetNamesAndTickers.sort();
           }
         }
       });
