@@ -99,11 +99,31 @@ class StockAPI {
 }
 
 class CashAPI {
-  Future<List> getAssetNamesAndTickers() {
-    throw UnimplementedError();
+  final currencyApiUrl = "api.apilayer.com";
+
+  Future<List> getAssetNamesAndTickers() async {
+    var url = Uri.https(currencyApiUrl, "/currency_data/list",
+        {"apikey": currencyExchangeDataApiKey});
+    var response = await get(url);
+    if (response.statusCode == 200) {
+      List<Map<String, String>> currencyNamesAndTickers = [];
+
+      var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (jsonResponse['success'] == true) {
+        Map<String, dynamic> currencyList = jsonResponse['currencies'];
+        currencyList.forEach((key, value) {
+          currencyNamesAndTickers.add({key: value});
+        });
+      }
+      return currencyNamesAndTickers;
+    } else {
+      throw HttpException(
+          "Couldn't retrieve asset list from exchangeRatesAPI (statusCode was ${response.statusCode}");
+    }
   }
 
   double getPrice(String ticker) {
-    return 2.0;
+    return 1.0;
   }
 }

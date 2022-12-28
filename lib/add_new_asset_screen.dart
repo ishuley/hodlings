@@ -147,7 +147,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// This makes changing the value of [AssetTypeSelection] much faster
   /// because [AssetDropdown] does not need to execute an API call every single
   /// time.
-  // List<String> cashAssetNamesAndTickers = [];
+  List<String> cashAssetNamesAndTickers = [];
 
   /// Determines whether the necessary API data is loaded.
   ///
@@ -191,11 +191,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
               parseAssetNameAndTickerMapListIntoDropdownMenuItems(
                   assetNameAndTickerMapList);
         }
-        // if (assetType == AssetType.cash) {
-        //   cashAssetNamesAndTickers =
-        //       parseAssetNameAndTickerMapListIntoDropdownMenuItems(
-        //           assetNameAndTickerMapList);
-        // }
+        if (assetType == AssetType.cash) {
+          cashAssetNamesAndTickers =
+              parseAssetNameAndTickerMapListIntoDropdownMenuItems(
+                  assetNameAndTickerMapList);
+        }
 
         currentlySelectedAsset =
             chooseSymbolAndNameListBasedOnAssetType().first;
@@ -270,10 +270,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         if (assetType == AssetType.crypto) {
           currentlySelectedAsset = cryptoAssetNamesAndTickers.first;
         }
-
-        // if (assetType == AssetType.cash) {
-        //   currentAssetName = cashAssetNamesAndTickers;
-        // }
+        if (assetType == AssetType.cash) {
+          currentlySelectedAsset = cashAssetNamesAndTickers.first;
+        }
         dataSourceDropdownValues = getDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;
         // TODO make currentAssetName remember the last asset selected from a category after changing
@@ -421,8 +420,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     switch (assetType) {
       case AssetType.crypto:
         return cryptoAssetNamesAndTickers;
-      // case AssetType.cash:
-      //   return cashAssetNamesAndTickers;
+      case AssetType.cash:
+        return cashAssetNamesAndTickers;
       default:
         return stockAssetNamesAndTickers;
     }
