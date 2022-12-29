@@ -76,12 +76,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   List<String> dataSourceDropdownValues =
       AddNewAssetScreen.stockDataSourcesList;
 
-  /// [int] indicating which asset type is selected in [AssetTypeSelection].
-  ///
-  /// Immediately gets converted into an [AssetType] enum and stored in
-  /// [assetType] for readability reasons.
-  int assetSelection = 0;
-
   /// The currently selected asset type.
   ///
   /// Enum from Asset.dart representing which type of asset is currently
@@ -192,37 +186,45 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         /// changes if the assetType changes, and the default assetType is
         /// stocks.
         if (assetNameAndTickerMapList.isEmpty) {
-          if (assetType == AssetType.stock) {
-            stockAssetNamesAndTickers = [];
-            currentlySelectedAsset =
-                "Apologies, the list somehow failed to load.";
-          }
-          if (assetType == AssetType.crypto) {
-            cryptoAssetNamesAndTickers = [];
-          }
-          if (assetType == AssetType.cash) {
-            cashAssetNamesAndTickers = [];
-          }
+          initializeAnEmptyAssetListWithAnErrorMessageIfItsTheDefaultAssetType(
+              assetType);
         }
-
         if (assetNameAndTickerMapList.isNotEmpty) {
           List<String> assetNamesAndTickers =
               parseAssetNameAndTickerMapListIntoStrings(
                   assetNameAndTickerMapList);
           assetNamesAndTickers.sort();
-
-          if (assetType == AssetType.stock) {
-            stockAssetNamesAndTickers = assetNamesAndTickers;
-            currentlySelectedAsset = stockAssetNamesAndTickers.first;
-          }
-          if (assetType == AssetType.crypto) {
-            cryptoAssetNamesAndTickers = assetNamesAndTickers;
-          }
-          if (assetType == AssetType.cash) {
-            cashAssetNamesAndTickers = assetNamesAndTickers;
-          }
+          initializeAnAssetListWithApiData(assetType, assetNamesAndTickers);
         }
       });
+    }
+  }
+
+  void initializeAnAssetListWithApiData(
+      AssetType assetType, List<String> assetNamesAndTickers) {
+    if (assetType == AssetType.stock) {
+      stockAssetNamesAndTickers = assetNamesAndTickers;
+      currentlySelectedAsset = stockAssetNamesAndTickers.first;
+    }
+    if (assetType == AssetType.crypto) {
+      cryptoAssetNamesAndTickers = assetNamesAndTickers;
+    }
+    if (assetType == AssetType.cash) {
+      cashAssetNamesAndTickers = assetNamesAndTickers;
+    }
+  }
+
+  void initializeAnEmptyAssetListWithAnErrorMessageIfItsTheDefaultAssetType(
+      AssetType assetType) {
+    if (assetType == AssetType.stock) {
+      stockAssetNamesAndTickers = [];
+      currentlySelectedAsset = "Apologies, the list somehow failed to load.";
+    }
+    if (assetType == AssetType.crypto) {
+      cryptoAssetNamesAndTickers = [];
+    }
+    if (assetType == AssetType.cash) {
+      cashAssetNamesAndTickers = [];
     }
   }
 
@@ -284,8 +286,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void assetTypeChanged(int currentAssetSelection) async {
     setState(
       () {
-        assetSelection = currentAssetSelection;
-        determineAssetTypeFromSelection(assetSelection);
+        assetType = determineAssetTypeFromSelection(currentAssetSelection);
 
         List<String> currentAssetList =
             chooseAssetDropdownMenuItemsBasedOnAssetType();
@@ -322,19 +323,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   /// This is primarily for the legibility of code within [AssetTypeSelection]
   /// and other relevant widgets, as well as the API service and Asset files.
-  void determineAssetTypeFromSelection(int assetSelection) {
+  AssetType determineAssetTypeFromSelection(int assetSelection) {
     switch (assetSelection) {
       case 1:
-        assetType = AssetType.crypto;
-        break;
+        return AssetType.crypto;
       case 2:
-        assetType = AssetType.cash;
-        break;
-      // case 3:
-      //   assetType = AssetType.nft;
-      //   break;
+        return AssetType.cash;
       default:
-        assetType = AssetType.stock;
+        return AssetType.stock;
     }
   }
 
@@ -500,7 +496,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 /// Labeled "Stocks | Crypto | Cash" this widget lets the user select which
 /// [AssetType] to add to their portfolio.
 class AssetTypeSelection extends StatefulWidget {
-  // final int assetSelection;
   final ValueChanged<int> assetTypeChangedCallback;
   const AssetTypeSelection({
     super.key,
