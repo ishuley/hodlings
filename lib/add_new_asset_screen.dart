@@ -1,3 +1,4 @@
+// ignore_for_file: unused_import
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -7,6 +8,12 @@ import 'accept_cancel_button.dart';
 import 'asset.dart';
 import 'package:search_choices/search_choices.dart';
 import 'main.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
+// "Ticker" and "symbol" mean the same thing throughout this program. They
+// both refer to the 3-5 character identifier used to identify securities, for
+// example, "ETH" is Ethereum's ticker/symbol.
 
 /// Screen where the user specifies a new [Asset] to be added to an [AssetCard].
 ///
@@ -174,50 +181,45 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Called upon initialization of the program to establish the default
   /// choices for [AssetDropdown], based on API data.
   /// [getAssetNameAndTickerMapList] gets the raw data from the appropriate
-  /// API, and [parseAssetNameAndTickerMapListIntoDropdownMenuItems] converts
+  /// API, and [parseAssetNameAndTickerMapListIntoStrings] converts
   /// it into a format appropriate for [AssetDropdown] to use.
   void initAssetNamesAndTickerListForAssetDropdown() async {
     for (AssetType assetType in AssetType.values) {
       List<Map<String, String>> assetNameAndTickerMapList =
           await getAssetNameAndTickerMapList(assetType);
-
       setState(() {
-        /// currentlySelectedAsset is only specified here for stocks because it
+        /// currentlySelectedAsset is only specified for stocks because it
         /// changes if the assetType changes, and the default assetType is
         /// stocks.
-        if (assetType == AssetType.stock) {
-          if (assetNameAndTickerMapList.isEmpty) {
+        if (assetNameAndTickerMapList.isEmpty) {
+          if (assetType == AssetType.stock) {
             stockAssetNamesAndTickers = [];
-            currentlySelectedAsset = "Apologies, the list failed to load.";
+            currentlySelectedAsset =
+                "Apologies, the list somehow failed to load.";
           }
-          if (assetNameAndTickerMapList.isNotEmpty) {
-            stockAssetNamesAndTickers =
-                parseAssetNameAndTickerMapListIntoDropdownMenuItems(
-                    assetNameAndTickerMapList);
-            stockAssetNamesAndTickers.sort();
-            currentlySelectedAsset = stockAssetNamesAndTickers.first;
-          }
-        }
-        if (assetType == AssetType.crypto) {
-          if (assetNameAndTickerMapList.isEmpty) {
+          if (assetType == AssetType.crypto) {
             cryptoAssetNamesAndTickers = [];
           }
-          if (assetNameAndTickerMapList.isNotEmpty) {
-            cryptoAssetNamesAndTickers =
-                parseAssetNameAndTickerMapListIntoDropdownMenuItems(
-                    assetNameAndTickerMapList);
-            cryptoAssetNamesAndTickers.sort();
-          }
-        }
-        if (assetType == AssetType.cash) {
-          if (assetNameAndTickerMapList.isEmpty) {
+          if (assetType == AssetType.cash) {
             cashAssetNamesAndTickers = [];
           }
-          if (assetNameAndTickerMapList.isNotEmpty) {
-            cashAssetNamesAndTickers =
-                parseAssetNameAndTickerMapListIntoDropdownMenuItems(
-                    assetNameAndTickerMapList);
-            cashAssetNamesAndTickers.sort();
+        }
+
+        if (assetNameAndTickerMapList.isNotEmpty) {
+          List<String> assetNamesAndTickers =
+              parseAssetNameAndTickerMapListIntoStrings(
+                  assetNameAndTickerMapList);
+          assetNamesAndTickers.sort();
+
+          if (assetType == AssetType.stock) {
+            stockAssetNamesAndTickers = assetNamesAndTickers;
+            currentlySelectedAsset = stockAssetNamesAndTickers.first;
+          }
+          if (assetType == AssetType.crypto) {
+            cryptoAssetNamesAndTickers = assetNamesAndTickers;
+          }
+          if (assetType == AssetType.cash) {
+            cashAssetNamesAndTickers = assetNamesAndTickers;
           }
         }
       });
@@ -229,7 +231,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Each [Map] object encapsulates the details of a single asset. This
   /// method retrieves a list of such objects to be parsed into something that
   /// [AssetDropdown] can use for its [DropdownMenuItem]s, after being parsed
-  /// by [parseAssetNameAndTickerMapListIntoDropdownMenuItems].
+  /// by [parseAssetNameAndTickerMapListIntoStrings].
   Future<List<Map<String, String>>> getAssetNameAndTickerMapList(
       AssetType assetCategory) async {
     List<Map<String, String>>? assetNameAndTickerMapList =
@@ -243,7 +245,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// [AssetDropdown] accepts a list of strings which it converts into
   /// [DropdownMenuItem]s for the user to search and identify which asset they
   /// wish to track. This method
-  List<String> parseAssetNameAndTickerMapListIntoDropdownMenuItems(
+  List<String> parseAssetNameAndTickerMapListIntoStrings(
       List<Map<String, String>> assetNameAndTickerMapList) {
     List<Map<String, String>> newAssetNameAndTickerList =
         assetNameAndTickerMapList;
@@ -276,7 +278,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
   /// Resets the data source and assets when [assetType] changes.
   ///
-  /// Changes the [DataSourceDropdown] and the [currentlySelectedAsset] in
+  /// Changes the [DataSourceDropdown], and the [currentlySelectedAsset] in
   /// [AssetDropdown] to reflect the fact that the user changed the [assetType]
   /// using [AssetTypeSelection].
   void assetTypeChanged(int currentAssetSelection) async {
@@ -285,27 +287,16 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         assetSelection = currentAssetSelection;
         determineAssetTypeFromSelection(assetSelection);
 
-        if (assetType == AssetType.stock &&
-            stockAssetNamesAndTickers.isNotEmpty) {
-          currentlySelectedAsset = stockAssetNamesAndTickers.first;
+        List<String> currentAssetList =
+            chooseAssetDropdownMenuItemsBasedOnAssetType();
+        if (currentAssetList.isNotEmpty) {
+          currentlySelectedAsset = currentAssetList.first;
         }
-        if (stockAssetNamesAndTickers.isEmpty) {
-          currentlySelectedAsset = "Apologies, the list failed to load.";
+        if (currentAssetList.isEmpty) {
+          currentlySelectedAsset =
+              "Apologies, the list somehow failed to load.";
         }
-        if (assetType == AssetType.crypto &&
-            cryptoAssetNamesAndTickers.isNotEmpty) {
-          currentlySelectedAsset = cryptoAssetNamesAndTickers.first;
-        }
-        if (cryptoAssetNamesAndTickers.isEmpty) {
-          currentlySelectedAsset = "Apologies, the list failed to load.";
-        }
-        if (assetType == AssetType.cash &&
-            cashAssetNamesAndTickers.isNotEmpty) {
-          currentlySelectedAsset = cashAssetNamesAndTickers.first;
-        }
-        if (cashAssetNamesAndTickers.isEmpty) {
-          currentlySelectedAsset = "Apologies, the list failed to load.";
-        }
+
         dataSourceDropdownValues = getDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;
         // TODO make currentAssetName remember the last asset selected from a category after changing
@@ -315,7 +306,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     );
   }
 
-  /// Triggered by the onChange listener through a callback function in [DataSourceDropdown].
+  /// Triggered by the onChange listener in [DataSourceDropdown].
   ///
   /// Sets the current data source to a passed in String that comes from the
   /// current user-selected value in [DataSourceDropdown].
@@ -409,7 +400,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     String qrCode = await FlutterBarcodeScanner.scanBarcode(
         '#ff6666', 'Cancel', false, ScanMode.QR);
 
-    if (!mounted) return;
+    // if (!mounted) return; // TODO remove this entire line if nothing breaks
 
     setState(() {
       qrCodeResult = qrCode;
@@ -449,7 +440,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// All three lists of dropdown options were created alongside
   /// [AddNewAssetScreen] itself, therefore the already existing list need only
   /// be referenced by [AssetDropdown].
-  List<String> chooseSymbolAndNameListBasedOnAssetType() {
+  List<String> chooseAssetDropdownMenuItemsBasedOnAssetType() {
     switch (assetType) {
       case AssetType.crypto:
         return cryptoAssetNamesAndTickers;
@@ -484,7 +475,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                 currentAssetName: currentlySelectedAsset,
                 assetType: assetType,
                 assetDropdownChangedCallback: assetDropdownChanged,
-                assetSymbolNameList: chooseSymbolAndNameListBasedOnAssetType(),
+                assetSymbolNameList:
+                    chooseAssetDropdownMenuItemsBasedOnAssetType(),
               ),
               DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
               DataSourceTextField(
@@ -751,5 +743,65 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
   void onQRIconPressed() {
     widget.qrIconPressedCallback();
     dataSourceInputController.text = widget.qrCodeResult;
+  }
+}
+
+/// Presistent storage for the lists of selectable assets.
+///
+/// The [DropdownMenuItem]s used by [AssetDropdown] come from an API call,
+/// which is expensive for a poor dev like me. I choose to make the API calls
+/// once, then provide a [DrawerMenu.RefreshAssetsButton] to let the user
+/// manually refresh them in the event a new security comes along that is not
+/// yet listed. This class encapsulates the necessary persistent storage logic.
+class AssetListStorage {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  Future<File> get _stockAssetListFile async {
+    final path = await _localPath;
+    return File('$path/stockAssetList.json');
+  }
+
+  Future<File> get _cryptoAssetListFile async {
+    final path = await _localPath;
+    return File('$path/cryptoAssetList.json');
+  }
+
+  Future<File> get _cashAssetListFile async {
+    final path = await _localPath;
+    return File('$path/cashAssetList.json');
+  }
+
+  Future<List<String>> readAssetList(AssetType assetType) async {
+    try {
+      final file = await chooseAssetFile(assetType);
+      final contents = await file.readAsString();
+      return contents.split(",");
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<File> writeAssetList(
+      List<String> assetList, AssetType assetType) async {
+    final file = await chooseAssetFile(assetType);
+
+    for (String assetSymbolAndName in assetList) {
+      file.writeAsString("$assetSymbolAndName,", mode: FileMode.append);
+    }
+    return file;
+  }
+
+  Future<File> chooseAssetFile(AssetType assetType) async {
+    switch (assetType) {
+      case AssetType.crypto:
+        return await _cryptoAssetListFile;
+      case AssetType.cash:
+        return await _cashAssetListFile;
+      default:
+        return _stockAssetListFile;
+    }
   }
 }

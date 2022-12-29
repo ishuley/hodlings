@@ -38,9 +38,8 @@ class CryptoAPI {
     final result = await api.coins.listCoins(includePlatforms: true);
     if (!result.isError) {
       List<Map<String, String>> cryptoNameAndTickerList = [];
-      for (var coinDetailsElement in result.data) {
-        cryptoNameAndTickerList
-            .add({coinDetailsElement.symbol: coinDetailsElement.name});
+      for (var cryptoDetails in result.data) {
+        cryptoNameAndTickerList.add({cryptoDetails.symbol: cryptoDetails.name});
       }
       return cryptoNameAndTickerList;
     } else {
