@@ -182,12 +182,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       List<Map<String, String>> assetNameAndTickerMapList =
           await getAssetNameAndTickerMapList(assetType);
       setState(() {
-        /// currentlySelectedAsset is only specified for stocks because it
-        /// changes if the assetType changes, and the default assetType is
-        /// stocks.
         if (assetNameAndTickerMapList.isEmpty) {
-          initializeAnEmptyAssetListWithAnErrorMessageIfItsTheDefaultAssetType(
-              assetType);
+          initializeAnEmptyAssetList(assetType);
         }
         if (assetNameAndTickerMapList.isNotEmpty) {
           List<String> assetNamesAndTickers =
@@ -214,8 +210,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
   }
 
-  void initializeAnEmptyAssetListWithAnErrorMessageIfItsTheDefaultAssetType(
-      AssetType assetType) {
+  /// Initializes [AssetDropdown]'s [DropdownMenuItem]s with empty lists.
+  ///
+  /// In the event an appropriate list can't be found, we use an empty list so
+  /// that the program can move forward with the other [assetType] options.
+  /// currentlySelectedAsset is only specified for stocks because it
+  /// changes if the [assetType] changes, and [assetTypeChanged] handles the
+  /// error message in that situation.
+  void initializeAnEmptyAssetList(AssetType assetType) {
     if (assetType == AssetType.stock) {
       stockAssetNamesAndTickers = [];
       currentlySelectedAsset = "Apologies, the list somehow failed to load.";
