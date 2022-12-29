@@ -42,9 +42,8 @@ class CryptoAPI {
         cryptoNameAndTickerList.add({cryptoDetails.symbol: cryptoDetails.name});
       }
       return cryptoNameAndTickerList;
-    } else {
-      return [];
     }
+    return [];
   }
 
   double getPrice(String ticker) {
@@ -85,9 +84,8 @@ class StockAPI {
         },
       );
       return stockNamesAndTickers;
-    } else {
-      return [];
     }
+    return [];
   }
 
   double getPrice(String ticker) {
@@ -114,9 +112,8 @@ class CashAPI {
         });
       }
       return currencyNamesAndTickers;
-    } else {
-      return [];
     }
+    return [];
   }
 
   double getPrice(String ticker) {

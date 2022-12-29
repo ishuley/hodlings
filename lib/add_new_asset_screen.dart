@@ -315,7 +315,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       currentDataSource = dataSource;
       updateDataSourceScannabilityAndKeyboardType();
       currentDataSourceLabel = getDataSourceLabel();
-      //TODO implement broker and exchange API support, then check if the source is an API, then ask which supported exchange or broker they wish to use
     });
   }
 
