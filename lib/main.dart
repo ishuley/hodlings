@@ -144,21 +144,20 @@ class AssetDisplay extends StatelessWidget {
               child: assetList[index],
             );
           });
-    } else {
-      return const Align(
-        alignment: Alignment.center,
-        child: SizedBox(
-          child: FractionallySizedBox(
-            widthFactor: 1,
-            child: Text(
-              "No assets entered yet",
-              style: TextStyle(color: Colors.white),
-              textAlign: TextAlign.center,
-            ),
+    }
+    return const Align(
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: FractionallySizedBox(
+          widthFactor: 1,
+          child: Text(
+            "No assets entered yet",
+            style: TextStyle(color: Colors.white),
+            textAlign: TextAlign.center,
           ),
         ),
-      );
-    }
+      ),
+    );
   }
 }
 
