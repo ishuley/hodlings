@@ -265,7 +265,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Chooses the correct data source list.
   ///
   /// The data source lists are hardcoded constants that describe the user's
-  /// choices for inputting the qunatity of the asset owned or tracked.
+  /// choices for inputting the quantity of the asset to track.
   /// It returns the appropriate data source depending on the current
   /// [assetType]. For an example, see any of the corresponding properties
   /// like [AddNewAssetScreen.stockDataSourcesList].
