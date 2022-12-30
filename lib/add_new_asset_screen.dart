@@ -200,6 +200,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
   }
 
+  /// Retrieves and parses a list of tickers and their names from the API.
+  ///
+  /// Gets a [List] of [Map] objects from the API and parses them into a list
+  /// [String]s appropriate for use in [AssetDropdown].
   Future<List<String>> retrieveAssetListFromApi(AssetType assetType) async {
     List<Map<String, String>> assetNameAndTickerMapList =
         await getAssetNameAndTickerMapListFromApi(assetType);
@@ -213,6 +217,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     return [];
   }
 
+  /// Attempts to retrieve an asset list from persistent storage.
+  ///
+  /// To save on API calls, [initAssetNamesAndTickerListForAssetDropdown]
+  /// first checks persistent storage to see if the needed list has already
+  /// been downloaded, and if so uses that instead.
   Future<List<String>> getSavedAssetList(
       AssetListStorage storage, AssetType assetType) async {
     List<String> assetListFromStorage = await storage.readAssetList(assetType);
@@ -222,6 +231,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     return [];
   }
 
+  /// Initializes the lists that [AssetDropdown] if any are to be found.
+  ///
+  /// After persistent storage and the API is checked for a suitable list,
+  /// the objects representing those lists in memory are initialized for the
+  /// first time if either exist.
   void initializeAnAssetListWithSavedOrApiData(
       List<String> assetNamesAndTickers, AssetType assetType) {
     if (assetType == AssetType.stock) {
@@ -259,9 +273,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Retrieves a list of [Map] objects corresponding to individual assets.
   ///
   /// Each [Map] object encapsulates the details of a single asset. This
-  /// method retrieves a list of such objects to be parsed into something that
-  /// [AssetDropdown] can use for its [DropdownMenuItem]s, after being parsed
-  /// by [parseAssetNameAndTickerMapListIntoStrings].
+  /// method retrieves a list of those objects to be parsed by
+  /// [parseAssetNameAndTickerMapListIntoStrings] into something that
+  /// [AssetDropdown] can use for its [DropdownMenuItem]s.
   Future<List<Map<String, String>>> getAssetNameAndTickerMapListFromApi(
       AssetType assetType) async {
     List<Map<String, String>>? assetNameAndTickerMapList =
@@ -274,7 +288,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   /// [AssetDropdown] accepts a list of strings which it converts into
   /// [DropdownMenuItem]s for the user to search and identify which asset they
-  /// wish to track. This method
+  /// wish to track. This method takes a Map result from an API and converts it
+  /// into that list.
   List<String> parseAssetNameAndTickerMapListIntoStrings(
       List<Map<String, String>> assetNameAndTickerMapList) {
     List<Map<String, String>> newAssetNameAndTickerList =
