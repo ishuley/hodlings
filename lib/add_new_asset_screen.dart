@@ -180,8 +180,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void initAssetNamesAndTickerListForAssetDropdown() async {
     AssetListStorage storage = AssetListStorage();
     for (AssetType thisAssetType in AssetType.values) {
-      List<String> assetNamesAndTickers = [];
-      assetNamesAndTickers = await getSavedAssetList(storage, thisAssetType);
+      List<String> assetNamesAndTickers =
+          await getSavedAssetList(storage, thisAssetType);
       if (assetNamesAndTickers.isNotEmpty) {
         setState(() {
           initializeAnAssetListWithApiData(thisAssetType, assetNamesAndTickers);
@@ -191,11 +191,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       if (assetNamesAndTickers.isEmpty) {
         List<Map<String, String>> assetNameAndTickerMapList =
             await getAssetNameAndTickerMapList(thisAssetType);
+        assetNamesAndTickers = parseAssetNameAndTickerMapListIntoStrings(
+            assetNameAndTickerMapList);
+        assetNamesAndTickers.sort();
         setState(() {
           if (assetNameAndTickerMapList.isNotEmpty) {
-            assetNamesAndTickers = parseAssetNameAndTickerMapListIntoStrings(
-                assetNameAndTickerMapList);
-            assetNamesAndTickers.sort();
             initializeAnAssetListWithApiData(
                 thisAssetType, assetNamesAndTickers);
           }
@@ -210,14 +210,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
   Future<List<String>> getSavedAssetList(
       AssetListStorage storage, AssetType thisAssetType) async {
-    try {
-      List<String> assetListFromStorage =
-          await storage.readAssetList(thisAssetType);
-      if (assetListFromStorage.isNotEmpty) {
-        return assetListFromStorage;
-      }
-    } catch (e) {
-      return [];
+    List<String> assetListFromStorage =
+        await storage.readAssetList(thisAssetType);
+    if (assetListFromStorage.isNotEmpty) {
+      return assetListFromStorage;
     }
     return [];
   }
@@ -801,27 +797,21 @@ class AssetListStorage {
     try {
       final File file = await chooseAssetFile(assetType);
 
-      file.readAsString().then(
-        (value) {
-          if (value.isNotEmpty) {
-            result = value.split(';');
-          }
-        },
-      );
+      result = await file.readAsLines();
     } catch (e) {
       return result;
     }
     return result;
   }
 
-  Future<File> writeAssetList(
+  Future<void> writeAssetList(
       List<String> assetList, AssetType thisAssetType) async {
-    final file = await chooseAssetFile(thisAssetType);
+    File file = await chooseAssetFile(thisAssetType);
 
     for (String assetSymbolAndName in assetList) {
-      file.writeAsString("$assetSymbolAndName;", mode: FileMode.append);
+      file = await file.writeAsString("$assetSymbolAndName\n",
+          mode: FileMode.append);
     }
-    return file;
   }
 
   Future<File> chooseAssetFile(AssetType assetType) async {
