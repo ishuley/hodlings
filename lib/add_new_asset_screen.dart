@@ -174,52 +174,56 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   /// Called upon initialization of the program to establish the default
   /// choices for [AssetDropdown], based on API data.
-  /// [getAssetNameAndTickerMapList] gets the raw data from the appropriate
+  /// [getAssetNameAndTickerMapListFromApi] gets the raw data from the appropriate
   /// API, and [parseAssetNameAndTickerMapListIntoStrings] converts
   /// it into a format appropriate for [AssetDropdown] to use.
   void initAssetNamesAndTickerListForAssetDropdown() async {
-    AssetListStorage storage = AssetListStorage();
-    for (AssetType thisAssetType in AssetType.values) {
+    AssetListStorage assetListStorage = AssetListStorage();
+
+    for (AssetType assetType in AssetType.values) {
       List<String> assetNamesAndTickers =
-          await getSavedAssetList(storage, thisAssetType);
-      if (assetNamesAndTickers.isNotEmpty) {
-        setState(() {
-          initializeAnAssetListWithApiData(thisAssetType, assetNamesAndTickers);
-        });
-        continue;
-      }
+          await getSavedAssetList(assetListStorage, assetType);
+
       if (assetNamesAndTickers.isEmpty) {
-        List<Map<String, String>> assetNameAndTickerMapList =
-            await getAssetNameAndTickerMapList(thisAssetType);
-        assetNamesAndTickers = parseAssetNameAndTickerMapListIntoStrings(
-            assetNameAndTickerMapList);
-        assetNamesAndTickers.sort();
-        setState(() {
-          if (assetNameAndTickerMapList.isNotEmpty) {
-            initializeAnAssetListWithApiData(
-                thisAssetType, assetNamesAndTickers);
-          }
-          if (assetNameAndTickerMapList.isEmpty) {
-            initializeAnEmptyAssetList(thisAssetType);
-          }
-        });
-        storage.writeAssetList(assetNamesAndTickers, thisAssetType);
+        assetNamesAndTickers = await retrieveAssetListFromApi(assetType);
+        assetListStorage.writeAssetList(assetNamesAndTickers, assetType);
       }
+      setState(() {
+        if (assetNamesAndTickers.isNotEmpty) {
+          initializeAnAssetListWithSavedOrApiData(
+              assetNamesAndTickers, assetType);
+        }
+        if (assetNamesAndTickers.isEmpty) {
+          initializeAnEmptyAssetList(assetType);
+        }
+      });
     }
   }
 
+  Future<List<String>> retrieveAssetListFromApi(AssetType assetType) async {
+    List<Map<String, String>> assetNameAndTickerMapList =
+        await getAssetNameAndTickerMapListFromApi(assetType);
+    if (assetNameAndTickerMapList.isNotEmpty) {
+      List<String> assetNamesAndTickers =
+          parseAssetNameAndTickerMapListIntoStrings(assetNameAndTickerMapList);
+      assetNamesAndTickers.sort();
+
+      return assetNamesAndTickers;
+    }
+    return [];
+  }
+
   Future<List<String>> getSavedAssetList(
-      AssetListStorage storage, AssetType thisAssetType) async {
-    List<String> assetListFromStorage =
-        await storage.readAssetList(thisAssetType);
+      AssetListStorage storage, AssetType assetType) async {
+    List<String> assetListFromStorage = await storage.readAssetList(assetType);
     if (assetListFromStorage.isNotEmpty) {
       return assetListFromStorage;
     }
     return [];
   }
 
-  void initializeAnAssetListWithApiData(
-      AssetType assetType, List<String> assetNamesAndTickers) {
+  void initializeAnAssetListWithSavedOrApiData(
+      List<String> assetNamesAndTickers, AssetType assetType) {
     if (assetType == AssetType.stock) {
       stockAssetNamesAndTickers = assetNamesAndTickers;
       currentlySelectedAsset = assetNamesAndTickers.first;
@@ -258,10 +262,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// method retrieves a list of such objects to be parsed into something that
   /// [AssetDropdown] can use for its [DropdownMenuItem]s, after being parsed
   /// by [parseAssetNameAndTickerMapListIntoStrings].
-  Future<List<Map<String, String>>> getAssetNameAndTickerMapList(
-      AssetType thisAssetType) async {
+  Future<List<Map<String, String>>> getAssetNameAndTickerMapListFromApi(
+      AssetType assetType) async {
     List<Map<String, String>>? assetNameAndTickerMapList =
-        await AssetDataAPI(thisAssetType).getAssetNamesAndTickersList()
+        await AssetDataAPI(assetType).getAssetNamesAndTickersList()
             as List<Map<String, String>>;
     return assetNameAndTickerMapList;
   }
@@ -805,8 +809,8 @@ class AssetListStorage {
   }
 
   Future<void> writeAssetList(
-      List<String> assetList, AssetType thisAssetType) async {
-    File file = await chooseAssetFile(thisAssetType);
+      List<String> assetList, AssetType assetType) async {
+    File file = await chooseAssetFile(assetType);
 
     for (String assetSymbolAndName in assetList) {
       file = await file.writeAsString("$assetSymbolAndName\n",
