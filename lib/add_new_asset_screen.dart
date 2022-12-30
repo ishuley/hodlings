@@ -179,37 +179,47 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// it into a format appropriate for [AssetDropdown] to use.
   void initAssetNamesAndTickerListForAssetDropdown() async {
     AssetListStorage storage = AssetListStorage();
-    for (AssetType assetType in AssetType.values) {
-      await checkForSavedAssetListAndInitializeIfExists(storage, assetType);
-      if (chooseAssetDropdownMenuItemsBasedOnAssetType().isNotEmpty) {
+    for (AssetType thisAssetType in AssetType.values) {
+      List<String> assetNamesAndTickers = [];
+      assetNamesAndTickers = await getSavedAssetList(storage, thisAssetType);
+      if (assetNamesAndTickers.isNotEmpty) {
+        setState(() {
+          initializeAnAssetListWithApiData(thisAssetType, assetNamesAndTickers);
+        });
         continue;
       }
-      List<Map<String, String>> assetNameAndTickerMapList =
-          await getAssetNameAndTickerMapList(assetType);
-      setState(() {
-        if (assetNameAndTickerMapList.isEmpty) {
-          initializeAnEmptyAssetList(assetType);
-        }
-        if (assetNameAndTickerMapList.isNotEmpty) {
-          List<String> assetNamesAndTickers =
-              parseAssetNameAndTickerMapListIntoStrings(
-                  assetNameAndTickerMapList);
-          assetNamesAndTickers.sort();
-          initializeAnAssetListWithApiData(assetType, assetNamesAndTickers);
-          storage.writeAssetList(assetNamesAndTickers, assetType);
-        }
-      });
+      if (assetNamesAndTickers.isEmpty) {
+        List<Map<String, String>> assetNameAndTickerMapList =
+            await getAssetNameAndTickerMapList(thisAssetType);
+        setState(() {
+          if (assetNameAndTickerMapList.isNotEmpty) {
+            assetNamesAndTickers = parseAssetNameAndTickerMapListIntoStrings(
+                assetNameAndTickerMapList);
+            assetNamesAndTickers.sort();
+            initializeAnAssetListWithApiData(
+                thisAssetType, assetNamesAndTickers);
+          }
+          if (assetNameAndTickerMapList.isEmpty) {
+            initializeAnEmptyAssetList(thisAssetType);
+          }
+        });
+        storage.writeAssetList(assetNamesAndTickers, thisAssetType);
+      }
     }
   }
 
-  Future<void> checkForSavedAssetListAndInitializeIfExists(
-      AssetListStorage storage, AssetType assetType) async {
-    List<String> assetListFromStorage = await storage.readAssetList(assetType);
-    if (assetListFromStorage.isNotEmpty) {
-      setState(() {
-        initializeAnAssetListWithApiData(assetType, assetListFromStorage);
-      });
+  Future<List<String>> getSavedAssetList(
+      AssetListStorage storage, AssetType thisAssetType) async {
+    try {
+      List<String> assetListFromStorage =
+          await storage.readAssetList(thisAssetType);
+      if (assetListFromStorage.isNotEmpty) {
+        return assetListFromStorage;
+      }
+    } catch (e) {
+      return [];
     }
+    return [];
   }
 
   void initializeAnAssetListWithApiData(
@@ -253,10 +263,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// [AssetDropdown] can use for its [DropdownMenuItem]s, after being parsed
   /// by [parseAssetNameAndTickerMapListIntoStrings].
   Future<List<Map<String, String>>> getAssetNameAndTickerMapList(
-      AssetType assetCategory) async {
+      AssetType thisAssetType) async {
     List<Map<String, String>>? assetNameAndTickerMapList =
-        (await AssetDataAPI(assetCategory).getAssetNamesAndTickersList()
-            as List<Map<String, String>>);
+        await AssetDataAPI(thisAssetType).getAssetNamesAndTickersList()
+            as List<Map<String, String>>;
     return assetNameAndTickerMapList;
   }
 
@@ -767,40 +777,49 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
 /// yet listed. This class encapsulates the necessary persistent storage logic.
 class AssetListStorage {
   Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
+    final directory = await getApplicationSupportDirectory();
     return directory.path;
   }
 
   Future<File> get _stockAssetListFile async {
     final path = await _localPath;
-    return File('$path/stockAssetList.json');
+    return File('$path/stockAssetList.txt');
   }
 
   Future<File> get _cryptoAssetListFile async {
     final path = await _localPath;
-    return File('$path/cryptoAssetList.json');
+    return File('$path/cryptoAssetList.txt');
   }
 
   Future<File> get _cashAssetListFile async {
     final path = await _localPath;
-    return File('$path/cashAssetList.json');
+    return File('$path/cashAssetList.txt');
   }
 
   Future<List<String>> readAssetList(AssetType assetType) async {
-    final file = await chooseAssetFile(assetType);
-    final contents = await file.readAsString();
-    if (contents.isNotEmpty) {
-      return contents.split("\n");
+    List<String> result = [];
+    try {
+      final File file = await chooseAssetFile(assetType);
+
+      file.readAsString().then(
+        (value) {
+          if (value.isNotEmpty) {
+            result = value.split(';');
+          }
+        },
+      );
+    } catch (e) {
+      return result;
     }
-    return [];
+    return result;
   }
 
   Future<File> writeAssetList(
-      List<String> assetList, AssetType assetType) async {
-    final file = await chooseAssetFile(assetType);
+      List<String> assetList, AssetType thisAssetType) async {
+    final file = await chooseAssetFile(thisAssetType);
 
     for (String assetSymbolAndName in assetList) {
-      file.writeAsString("$assetSymbolAndName\n", mode: FileMode.append);
+      file.writeAsString("$assetSymbolAndName;", mode: FileMode.append);
     }
     return file;
   }
@@ -812,7 +831,7 @@ class AssetListStorage {
       case AssetType.cash:
         return await _cashAssetListFile;
       default:
-        return _stockAssetListFile;
+        return await _stockAssetListFile;
     }
   }
 }
