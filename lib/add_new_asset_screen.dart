@@ -186,12 +186,12 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
       if (assetNamesAndTickers.isEmpty) {
         assetNamesAndTickers = await retrieveAssetListFromApi(assetType);
-        assetListStorage.writeAssetList(assetNamesAndTickers, assetType);
       }
       setState(() {
         if (assetNamesAndTickers.isNotEmpty) {
           initializeAnAssetListWithSavedOrApiData(
               assetNamesAndTickers, assetType);
+          assetListStorage.writeAssetList(assetNamesAndTickers, assetType);
         }
         if (assetNamesAndTickers.isEmpty) {
           initializeAnEmptyAssetList(assetType);
