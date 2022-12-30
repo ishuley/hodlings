@@ -178,7 +178,12 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// API, and [parseAssetNameAndTickerMapListIntoStrings] converts
   /// it into a format appropriate for [AssetDropdown] to use.
   void initAssetNamesAndTickerListForAssetDropdown() async {
+    AssetListStorage storage = AssetListStorage();
     for (AssetType assetType in AssetType.values) {
+      await checkForSavedAssetListAndInitializeIfExists(storage, assetType);
+      if (chooseAssetDropdownMenuItemsBasedOnAssetType().isNotEmpty) {
+        continue;
+      }
       List<Map<String, String>> assetNameAndTickerMapList =
           await getAssetNameAndTickerMapList(assetType);
       setState(() {
@@ -191,7 +196,18 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                   assetNameAndTickerMapList);
           assetNamesAndTickers.sort();
           initializeAnAssetListWithApiData(assetType, assetNamesAndTickers);
+          storage.writeAssetList(assetNamesAndTickers, assetType);
         }
+      });
+    }
+  }
+
+  Future<void> checkForSavedAssetListAndInitializeIfExists(
+      AssetListStorage storage, AssetType assetType) async {
+    List<String> assetListFromStorage = await storage.readAssetList(assetType);
+    if (assetListFromStorage.isNotEmpty) {
+      setState(() {
+        initializeAnAssetListWithApiData(assetType, assetListFromStorage);
       });
     }
   }
@@ -200,7 +216,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       AssetType assetType, List<String> assetNamesAndTickers) {
     if (assetType == AssetType.stock) {
       stockAssetNamesAndTickers = assetNamesAndTickers;
-      currentlySelectedAsset = stockAssetNamesAndTickers.first;
+      currentlySelectedAsset = assetNamesAndTickers.first;
     }
     if (assetType == AssetType.crypto) {
       cryptoAssetNamesAndTickers = assetNamesAndTickers;
@@ -771,13 +787,12 @@ class AssetListStorage {
   }
 
   Future<List<String>> readAssetList(AssetType assetType) async {
-    try {
-      final file = await chooseAssetFile(assetType);
-      final contents = await file.readAsString();
-      return contents.split(",");
-    } catch (e) {
-      return [];
+    final file = await chooseAssetFile(assetType);
+    final contents = await file.readAsString();
+    if (contents.isNotEmpty) {
+      return contents.split("\n");
     }
+    return [];
   }
 
   Future<File> writeAssetList(
@@ -785,7 +800,7 @@ class AssetListStorage {
     final file = await chooseAssetFile(assetType);
 
     for (String assetSymbolAndName in assetList) {
-      file.writeAsString("$assetSymbolAndName,", mode: FileMode.append);
+      file.writeAsString("$assetSymbolAndName\n", mode: FileMode.append);
     }
     return file;
   }
