@@ -281,8 +281,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         assetNameAndTickerMapList;
     List<String> newAssetSymbolNameListForDropdown = [];
     for (var assetNameAndTickerMap in newAssetNameAndTickerList) {
-      assetNameAndTickerMap.forEach((key, value) {
-        newAssetSymbolNameListForDropdown.add("$key - $value");
+      assetNameAndTickerMap.forEach((ticker, assetName) {
+        ticker = ticker.toUpperCase();
+        newAssetSymbolNameListForDropdown.add("$ticker - $assetName");
       });
     }
     return newAssetSymbolNameListForDropdown;
