@@ -189,7 +189,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       }
       setState(() {
         if (assetNamesAndTickers.isNotEmpty) {
-          initializeAnAssetListWithSavedOrApiData(
+          initializeAnAssetListWithSavedDataOrApiData(
               assetNamesAndTickers, assetType);
           assetListStorage.writeAssetList(assetNamesAndTickers, assetType);
         }
@@ -236,7 +236,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// After persistent storage and the API is checked for a suitable list,
   /// the objects representing those lists in memory are initialized for the
   /// first time if either exist.
-  void initializeAnAssetListWithSavedOrApiData(
+  void initializeAnAssetListWithSavedDataOrApiData(
       List<String> assetNamesAndTickers, AssetType assetType) {
     if (assetType == AssetType.stock) {
       stockAssetNamesAndTickers = assetNamesAndTickers;
@@ -358,8 +358,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void dataSourceChanged(String dataSource) {
     setState(() {
       currentDataSource = dataSource;
-      updateDataSourceScannabilityAndKeyboardType();
-      currentDataSourceLabel = getDataSourceLabel();
+      updateDataSourceScanability();
+      updateDataSourceKeyboardType();
+      updateDataSourceLabel();
     });
   }
 
@@ -388,15 +389,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     });
   }
 
-  /// Sets properties related to the [currentDataSource].
+  /// Updates [currentDataSource]'s onscreen keyboard type.
   ///
-  /// Sets [dataSourceScannable] to indicate whether an option to scan a QR
-  /// code should exist,and sets the keyboard type to whichever is most
-  /// appropriate for the type of data to be entered.
-  void updateDataSourceScannabilityAndKeyboardType() {
+  /// Sets the keyboard type to whichever is most appropriate for the type of
+  /// data to be entered. Numeric keyboard to entere a quantity, and disables
+  /// it entirely if it's a blockchain address or a QR code.
+  void updateDataSourceKeyboardType() {
     if (currentDataSource.endsWith("API") ||
         currentDataSource.endsWith("Address")) {
-      dataSourceScannable = true;
       dataSourceTextFieldKeyboard = TextInputType
           .none; // Nobody is going to want to type in an entire blockchain
       // address by hand on a phone, so this disables the keyboard for that use
@@ -404,26 +404,41 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
     if (currentDataSource.endsWith("Qty") ||
         currentDataSource.endsWith("Agent")) {
-      dataSourceScannable = false;
       dataSourceTextFieldKeyboard =
           const TextInputType.numberWithOptions(decimal: true);
     }
   }
 
-  /// Determines how to label the data source input text field.
+  /// Sets scannability property related to the [currentDataSource].
   ///
-  /// Provides a [String] used by [DataSourceLabel] to inform the user what kind
-  /// of data source is currently selected by [DataSourceDropdown]
-  String getDataSourceLabel() {
-    if (currentDataSource.endsWith("API")) {
-      return "Enter Read-Only API Key: ";
-    }
-    if (currentDataSource.endsWith("Address")) {
-      return "Enter blockchain address: ";
+  /// Sets [dataSourceScannable] to indicate whether an option to scan a QR
+  /// code should exist given the type of data source.
+  void updateDataSourceScanability() {
+    if (currentDataSource.endsWith("API") ||
+        currentDataSource.endsWith("Address")) {
+      dataSourceScannable = true;
+      return;
     }
     if (currentDataSource.endsWith("Qty") ||
         currentDataSource.endsWith("Agent")) {
-      return "Enter quantity manually: ";
+      dataSourceScannable = false;
+    }
+  }
+
+  /// Updates the current the data source input text field's label.
+  ///
+  /// Provides a [String] used by [DataSourceLabel] to inform the user what kind
+  /// of data source is currently selected by [DataSourceDropdown]
+  void updateDataSourceLabel() {
+    if (currentDataSource.endsWith("API")) {
+      currentDataSourceLabel = "Enter Read-Only API Key: ";
+    }
+    if (currentDataSource.endsWith("Address")) {
+      currentDataSourceLabel = "Enter blockchain address: ";
+    }
+    if (currentDataSource.endsWith("Qty") ||
+        currentDataSource.endsWith("Agent")) {
+      currentDataSourceLabel = "Enter quantity manually: ";
     }
     throw UnsupportedError(
         "Unknown data source when getDataSourceLabel() is called.");
