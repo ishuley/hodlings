@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore: unused_import
 import 'api_service.dart';
 
 enum AssetType { stock, crypto, cash }
@@ -35,7 +36,9 @@ class Crypto implements Asset {
 
   @override
   double? getPrice() {
-    return AssetDataAPI(AssetType.crypto).getPrice(ticker!);
+    return null;
+
+    // return AssetDataAPI(AssetType.crypto).getPrice(ticker!);
   }
 
   @override
@@ -112,7 +115,10 @@ class AssetCard extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Price $vsTicker:"),
+                    Text(
+                      "Price ($vsTicker):",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Text(
                       asset.getPrice().toString(),
                     )
@@ -121,9 +127,9 @@ class AssetCard extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       textAlign: TextAlign.center,
-                      "Total: ",
+                      "Total ($vsTicker): ",
                     ),
                     Text(
                       textAlign: TextAlign.center,
