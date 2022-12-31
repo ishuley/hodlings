@@ -156,7 +156,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// retrieval, as the case may be, sometimes takes a few seconds, so this
   /// boolean tells the app whether to throw up a progress indicator to let the
   /// user know that it is thinking and hasn't crashed.
-  bool showProgressIndicator = true;
+  bool progressIndicatorVisible = true;
 
   /// Assigns the default asset values to [AssetDropdown].
   ///
@@ -198,6 +198,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         }
       });
     }
+    setState(() {
+      progressIndicatorVisible = !progressIndicatorVisible;
+    });
   }
 
   /// Retrieves and parses a list of tickers and their names from the API.
@@ -517,32 +520,45 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           backgroundColor: Colors.grey[900],
         ),
         body: Container(
-          color: Colors.grey[850],
-          child: Column(
-            children: [
-              AssetTypeSelection(assetTypeChangedCallback: assetTypeChanged),
-              DataSourceDropdown(
-                  currentDataSource: currentDataSource,
-                  dataSourceDropdownValues: dataSourceDropdownValues,
-                  dataSourceChangedCallback: dataSourceChanged),
-              AssetDropdown(
-                currentAssetName: currentlySelectedAsset,
-                assetType: assetType,
-                assetDropdownChangedCallback: assetDropdownChanged,
-                assetSymbolNameList:
-                    chooseAssetDropdownMenuItemsBasedOnAssetType(),
-              ),
-              DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
-              DataSourceTextField(
-                dataSourceScannable: dataSourceScannable,
-                qrIconPressedCallback: qrIconPressed,
-                qrCodeResult: qrCodeResult,
-                dataSourceTextFieldKeyboard: dataSourceTextFieldKeyboard,
-              ),
-              AcceptCancelButton(
-                acceptPushedCallback: onAcceptButtonPressed,
-              ),
-            ],
+          color: Colors.black54,
+          child: Center(
+            child: progressIndicatorVisible
+                ? const CircularProgressIndicator.adaptive(
+                    backgroundColor: Colors.black,
+                    strokeWidth: 10.0,
+                  )
+                : Container(
+                    color: Colors.grey[850],
+                    child: Column(
+                      children: [
+                        AssetTypeSelection(
+                            assetTypeChangedCallback: assetTypeChanged),
+                        DataSourceDropdown(
+                            currentDataSource: currentDataSource,
+                            dataSourceDropdownValues: dataSourceDropdownValues,
+                            dataSourceChangedCallback: dataSourceChanged),
+                        AssetDropdown(
+                          currentAssetName: currentlySelectedAsset,
+                          assetType: assetType,
+                          assetDropdownChangedCallback: assetDropdownChanged,
+                          assetSymbolNameList:
+                              chooseAssetDropdownMenuItemsBasedOnAssetType(),
+                        ),
+                        DataSourceLabel(
+                            dataSourceLabel: currentDataSourceLabel),
+                        DataSourceTextField(
+                          dataSourceScannable: dataSourceScannable,
+                          qrIconPressedCallback: qrIconPressed,
+                          qrCodeResult: qrCodeResult,
+                          dataSourceTextFieldKeyboard:
+                              dataSourceTextFieldKeyboard,
+                        ),
+                        AcceptCancelButton(
+                          acceptPushedCallback: onAcceptButtonPressed,
+                        ),
+                      ],
+                    ),
+                  ),
           ),
         ),
       ),
