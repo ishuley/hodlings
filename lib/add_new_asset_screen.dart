@@ -214,10 +214,45 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       List<String> assetNamesAndTickers =
           parseAssetNameAndTickerMapListIntoStrings(assetNameAndTickerMapList);
       assetNamesAndTickers.sort();
+      rearrangeAssetListToMyPersonalConvenience(
+          assetType, assetNamesAndTickers);
 
       return assetNamesAndTickers;
     }
     return [];
+  }
+
+  void rearrangeAssetListToMyPersonalConvenience(
+      AssetType assetType, List<String> assetNamesAndTickers) {
+    if (assetType == AssetType.stock) {
+      int gmeIndex = assetNamesAndTickers.indexOf(
+          "GME - GAMESTOP CORP"); // TODO correct the spelling once the API lets you start pinging it again
+      assetNamesAndTickers.insert(0, assetNamesAndTickers.removeAt(gmeIndex));
+    }
+    if (assetType == AssetType.crypto) {
+      int ethIndex = assetNamesAndTickers.indexOf("ETH - Ethereum");
+      assetNamesAndTickers.insert(0, assetNamesAndTickers.removeAt(ethIndex));
+      int xmrIndex = assetNamesAndTickers.indexOf("XMR - Monero");
+      assetNamesAndTickers.insert(1, assetNamesAndTickers.removeAt(xmrIndex));
+      int lrcIndex = assetNamesAndTickers.indexOf("LRC - Loopring");
+      assetNamesAndTickers.insert(2, assetNamesAndTickers.removeAt(lrcIndex));
+      int imxIndex = assetNamesAndTickers.indexOf("IMX - ImmutableX");
+      assetNamesAndTickers.insert(3, assetNamesAndTickers.removeAt(imxIndex));
+      int mkrIndex = assetNamesAndTickers.indexOf("MKR - Maker");
+      assetNamesAndTickers.insert(4, assetNamesAndTickers.removeAt(mkrIndex));
+      int bchIndex = assetNamesAndTickers.indexOf("BCH - Bitcoin Cash");
+      assetNamesAndTickers.insert(5, assetNamesAndTickers.removeAt(bchIndex));
+    }
+    if (assetType == AssetType.cash) {
+      int usdIndex = assetNamesAndTickers.indexOf("USD - United States Dollar");
+      assetNamesAndTickers.insert(0, assetNamesAndTickers.removeAt(usdIndex));
+      int cadIndex = assetNamesAndTickers.indexOf("CAD - Canadian Dollar");
+      assetNamesAndTickers.insert(1, assetNamesAndTickers.removeAt(cadIndex));
+      int eurIndex = assetNamesAndTickers.indexOf("EUR - Euro");
+      assetNamesAndTickers.insert(2, assetNamesAndTickers.removeAt(eurIndex));
+      int uyuIndex = assetNamesAndTickers.indexOf("UYU - Uruguayan Peso");
+      assetNamesAndTickers.insert(3, assetNamesAndTickers.removeAt(uyuIndex));
+    }
   }
 
   /// Attempts to retrieve an asset list from persistent storage.
@@ -457,7 +492,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     String qrCode = await FlutterBarcodeScanner.scanBarcode(
         '#ff6666', 'Cancel', false, ScanMode.QR);
 
-    // if (!mounted) return; // TODO remove this entire line if nothing breaks
+    // if (!mounted) return; // TODO remove this entire line if nothing breaks when you finally get to test your QR code scanner
 
     setState(() {
       qrCodeResult = qrCode;
