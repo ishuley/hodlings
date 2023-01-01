@@ -5,65 +5,60 @@ import 'api_service.dart';
 enum AssetType { stock, crypto, cash }
 
 abstract class Asset {
-  String? name;
-  String? ticker;
-  double? quantity;
+  final String assetFieldData;
+  late String name;
+  late String ticker;
 
-  double? getPrice();
-  double? getValue();
-  double? getMarketCap();
-  String? getName();
-  String? getTicker();
+  Asset(this.assetFieldData) {
+    List splitAssetFieldData = assetFieldData.split(" - ");
+    ticker = splitAssetFieldData.elementAt(0);
+    name = splitAssetFieldData.elementAt(1);
+  }
+
+  double quantity = 0;
+
+  Future<double?> getPrice({required String vsTicker}) {
+    throw UnimplementedError(
+        "This should never get called because Asset is an abstract class. Initialize the object as one of it's subclasses, Stock, Crypto, Cash, NFT, etc.");
+  }
+
+  Future<double?> getMarketCap({required String vsTicker}) {
+    throw UnimplementedError(
+        "This should never get called because Asset is an abstract class. Initialize the object as one of it's subclasses, Stock, Crypto, Cash, NFT, etc.");
+  }
 }
 
-class Crypto implements Asset {
-  @override
-  String? name;
+class Crypto extends Asset {
+  late double qty;
 
   @override
-  String? ticker;
-
-  @override
-  double? quantity;
-
-  Crypto(String this.name, double this.quantity) {
-    ticker = getTicker();
+  Crypto(super.assetFieldData, {required double qty}) {
+    quantity = qty;
   }
-  Crypto.byWalletAddress(String this.name, String address) {
-    ticker = getTicker();
-    quantity = getQuantityByAddress(address)!;
+  Crypto.byAddress(super.assetFieldData, String address) {
+    quantity = getQuantityFromBlockchainAddress(address);
   }
 
   @override
-  double? getPrice() {
-    return null;
-
-    // return AssetDataAPI(AssetType.crypto).getPrice(ticker!);
+  Future<double?> getPrice({required String vsTicker}) async {
+    return await AssetAPI(AssetType.crypto).getPrice(ticker, vsTicker);
   }
 
   @override
-  double getValue() {
-    return (getPrice()! * quantity!);
+  Future<double?> getMarketCap({required String vsTicker}) async =>
+      await AssetAPI(AssetType.crypto)
+          .getMarketCap(ticker: ticker, vsTicker: vsTicker);
+  double getQuantityFromBlockchainAddress(String address) {
+    return 2.0;
   }
+}
 
-  @override
-  String getTicker() {
-    return "ETH";
-  }
+class Stock extends Asset {
+  Stock(super.assetFieldData);
+}
 
-  double? getQuantityByAddress(String address) {
-    return 100.0;
-  }
-
-  @override
-  double? getMarketCap() {
-    return 1000000000000;
-  }
-
-  @override
-  String? getName() {
-    return 'Ethereum';
-  }
+class Cash extends Asset {
+  Cash(super.assetFieldData);
 }
 
 /// This is the class that creates the cards that display the information about
@@ -73,11 +68,10 @@ class AssetCard extends StatelessWidget {
   final Asset asset;
   final String vsTicker;
 
-  const AssetCard({
-    super.key,
-    required this.asset,
-    required this.vsTicker,
-  });
+  Future<double?> get totalValue async =>
+      (await asset.getPrice(vsTicker: vsTicker))! * asset.quantity;
+
+  const AssetCard({super.key, required this.asset, required this.vsTicker});
 
   @override
   Widget build(BuildContext context) {
@@ -94,11 +88,11 @@ class AssetCard extends StatelessWidget {
                 Column(
                   children: [
                     Text(
-                      asset.getTicker()!.toString(),
+                      asset.ticker,
                       textScaleFactor: 1.6,
                     ),
                     Text(
-                      asset.getName()!,
+                      asset.name,
                       textScaleFactor: 0.8,
                     ),
                   ],
@@ -109,7 +103,7 @@ class AssetCard extends StatelessWidget {
                     const Text(
                       "Qty: ",
                     ),
-                    Text(asset.quantity!.toString())
+                    Text(asset.quantity.toString())
                   ],
                 ),
                 Column(
@@ -120,7 +114,7 @@ class AssetCard extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      asset.getPrice().toString(),
+                      asset.getPrice(vsTicker: vsTicker).toString(),
                     )
                   ],
                 ),
@@ -133,7 +127,7 @@ class AssetCard extends StatelessWidget {
                     ),
                     Text(
                       textAlign: TextAlign.center,
-                      asset.getValue()!.toString(),
+                      totalValue.toString(),
                     ),
                   ],
                 ),
@@ -144,7 +138,7 @@ class AssetCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Text(
-                    "Market Cap: ${asset.getMarketCap()} $vsTicker",
+                    "Market Cap: ${asset.getMarketCap(vsTicker: vsTicker)} $vsTicker",
                     textScaleFactor: 0.9,
                   ),
                 )

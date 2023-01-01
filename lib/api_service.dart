@@ -1,22 +1,15 @@
-// ignore_for_file: unused_import
-
 import 'dart:convert';
-import 'dart:io';
 import 'package:coingecko_api/coingecko_result.dart';
-import 'package:coingecko_api/data/coin.dart';
 import 'package:coingecko_api/data/coin_short.dart';
 import 'package:coingecko_api/data/market.dart';
-import 'package:coingecko_api/data/market_data.dart';
-import 'package:coingecko_api/data/price_info.dart';
-
 import 'asset.dart';
 import 'package:coingecko_api/coingecko_api.dart';
 import 'package:http/http.dart';
 import 'api_keys.dart';
 
-class AssetDataAPI {
+class AssetAPI {
   AssetType assetType;
-  AssetDataAPI(this.assetType);
+  AssetAPI(this.assetType);
 
   Future<List?> getAssetNamesAndTickersList() {
     if (assetType == AssetType.crypto) {
@@ -33,9 +26,21 @@ class AssetDataAPI {
       return await CryptoAPI().getPrice(symbol, vsCurrencySymbol);
     }
     if (assetType == AssetType.cash) {
-      return CashAPI().getPrice(symbol);
+      return CashAPI().getPrice(symbol, vsCurrencySymbol);
     }
-    return StockAPI().getPrice(symbol);
+    return StockAPI().getPrice(symbol, vsCurrencySymbol);
+  }
+
+  Future<double?> getMarketCap(
+      {required String ticker, required String vsTicker}) {
+    switch (assetType) {
+      case AssetType.crypto:
+        return CryptoAPI().getMarketCap(ticker, vsTicker);
+      case AssetType.cash:
+        return CashAPI().getMarketCap(ticker, vsTicker);
+      default:
+        return StockAPI().getMarketCap(ticker, vsTicker);
+    }
   }
 }
 
@@ -108,16 +113,18 @@ class StockAPI {
     return [];
   }
 
-  double getPrice(String ticker) {
+  double getPrice(String ticker, String vsTicker) {
     return 2.0;
   }
+
+  getMarketCap(String ticker, String vsTicker) {}
 }
 
 class CashAPI {
   final currencyApiUrl = "api.apilayer.com";
 
   Future<List> getAssetNamesAndTickers() async {
-    Uri url = Uri.https(currencyApiUrl, "/currency_data/list",
+    Uri url = Uri.https(currencyApiUrl, "/exchangerates_data/symbols",
         {"apikey": currencyExchangeDataApiKey});
     Response response = await get(url);
     if (response.statusCode == 200) {
@@ -127,7 +134,7 @@ class CashAPI {
           jsonDecode(response.body) as Map<String, dynamic>;
 
       if (jsonResponse['success'] == true) {
-        Map<String, dynamic> currencyList = jsonResponse['currencies'];
+        Map<String, dynamic> currencyList = jsonResponse['symbols'];
         currencyList.forEach((key, value) {
           currencyNamesAndTickers.add({key: value});
         });
@@ -137,7 +144,9 @@ class CashAPI {
     return [];
   }
 
-  double getPrice(String ticker) {
+  double getPrice(String ticker, String vsTicker) {
     return 1.0;
   }
+
+  getMarketCap(String ticker, String vsTicker) {}
 }

@@ -226,7 +226,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       AssetType assetType, List<String> assetNamesAndTickers) {
     if (assetType == AssetType.stock) {
       int gmeIndex = assetNamesAndTickers.indexOf(
-          "GME - GAMESTOP CORP"); // TODO correct the spelling once the API lets you start pinging it again
+          "GME - Gamestop Corporation - Class A"); // TODO correct the spelling once the API lets you start pinging it again
       assetNamesAndTickers.insert(0, assetNamesAndTickers.removeAt(gmeIndex));
     }
     if (assetType == AssetType.crypto) {
@@ -317,7 +317,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   Future<List<Map<String, String>>> getAssetNameAndTickerMapListFromApi(
       AssetType assetType) async {
     List<Map<String, String>>? assetNameAndTickerMapList =
-        await AssetDataAPI(assetType).getAssetNamesAndTickersList()
+        await AssetAPI(assetType).getAssetNamesAndTickersList()
             as List<Map<String, String>>;
     return assetNameAndTickerMapList;
   }
@@ -508,9 +508,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// back to [MainScreen] by "popping" it along with the context.
   void onAcceptButtonPressed() {
     /// TODO Replace this with code that actually builds the specified asset.
+
     AssetCard newAssetCard = AssetCard(
-      asset: Crypto("Ethereum", 20.0),
-      vsTicker: "USD",
+      asset: Crypto("ETH - Ethereum", qty: 2),
+      vsTicker: 'USD',
     );
 
     popContextWithCard(newAssetCard);
