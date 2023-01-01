@@ -12,23 +12,25 @@ class AssetAPI {
   AssetAPI(this.assetType);
 
   Future<List?> getAssetNamesAndTickersList() {
-    if (assetType == AssetType.crypto) {
-      return CryptoAPI().getAssetNamesAndTickers();
+    switch (assetType) {
+      case AssetType.crypto:
+        return CryptoAPI().getAssetNamesAndTickers();
+      case AssetType.cash:
+        return CashAPI().getAssetNamesAndTickers();
+      default:
+        return StockAPI().getAssetNamesAndTickers();
     }
-    if (assetType == AssetType.cash) {
-      return CashAPI().getAssetNamesAndTickers();
-    }
-    return StockAPI().getAssetNamesAndTickers();
   }
 
   Future<double?> getPrice(String symbol, String vsCurrencySymbol) async {
-    if (assetType == AssetType.crypto) {
-      return await CryptoAPI().getPrice(symbol, vsCurrencySymbol);
+    switch (assetType) {
+      case AssetType.crypto:
+        return await CryptoAPI().getPrice(symbol, vsCurrencySymbol);
+      case AssetType.cash:
+        return CashAPI().getPrice(symbol, vsCurrencySymbol);
+      default:
+        return StockAPI().getPrice(symbol, vsCurrencySymbol);
     }
-    if (assetType == AssetType.cash) {
-      return CashAPI().getPrice(symbol, vsCurrencySymbol);
-    }
-    return StockAPI().getPrice(symbol, vsCurrencySymbol);
   }
 
   Future<double?> getMarketCap(
