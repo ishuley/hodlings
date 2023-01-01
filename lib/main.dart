@@ -18,7 +18,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  String netWorth = "0";
+  double netWorth = 0;
   String vsSymbol = "USD";
   List<AssetCard> assetList = [];
 
@@ -35,14 +35,19 @@ class _MainScreenState extends State<MainScreen> {
           builder: (context) => const AddNewAssetScreen(),
         ));
     if (newAssetCard != null) {
-      addToAssetList(newAssetCard);
+      setState(() {
+        incrementNetWorth(newAssetCard.totalValue);
+        addToAssetList(newAssetCard);
+      });
     }
   }
 
+  void incrementNetWorth(double incrementAmount) {
+    netWorth += incrementAmount;
+  }
+
   void addToAssetList(AssetCard? newAssetCard) {
-    setState(() {
-      assetList.add(newAssetCard!);
-    });
+    assetList.add(newAssetCard!);
   }
 
   @override
@@ -61,7 +66,7 @@ class _MainScreenState extends State<MainScreen> {
             child: Column(
               children: [
                 NetWorthButton(
-                  netWorth: netWorth,
+                  netWorth: netWorth.toString(),
                   vsSymbol: vsSymbol,
                   onNetWorthClickCallback: onNetWorthButtonPressed,
                 ),
