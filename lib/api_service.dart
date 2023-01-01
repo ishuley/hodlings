@@ -13,35 +13,35 @@ class AssetAPI {
 
   Future<List?> getAssetNamesAndTickersList() {
     switch (assetType) {
+      case AssetType.stock:
+        return StockAPI().getAssetNamesAndTickers();
       case AssetType.crypto:
         return CryptoAPI().getAssetNamesAndTickers();
       case AssetType.cash:
         return CashAPI().getAssetNamesAndTickers();
-      default:
-        return StockAPI().getAssetNamesAndTickers();
     }
   }
 
   Future<double?> getPrice(String symbol, String vsCurrencySymbol) async {
     switch (assetType) {
+      case AssetType.stock:
+        return StockAPI().getPrice(symbol, vsCurrencySymbol);
       case AssetType.crypto:
         return await CryptoAPI().getPrice(symbol, vsCurrencySymbol);
       case AssetType.cash:
         return CashAPI().getPrice(symbol, vsCurrencySymbol);
-      default:
-        return StockAPI().getPrice(symbol, vsCurrencySymbol);
     }
   }
 
   Future<double?> getMarketCap(
       {required String ticker, required String vsTicker}) {
     switch (assetType) {
+      case AssetType.stock:
+        return StockAPI().getMarketCap(ticker, vsTicker);
       case AssetType.crypto:
         return CryptoAPI().getMarketCap(ticker, vsTicker);
       case AssetType.cash:
         return CashAPI().getMarketCap(ticker, vsTicker);
-      default:
-        return StockAPI().getMarketCap(ticker, vsTicker);
     }
   }
 }

@@ -35,7 +35,7 @@ class Crypto extends Asset {
   Crypto(super.assetFieldData, {required double qty}) {
     quantity = qty;
   }
-  Crypto.byAddress(super.assetFieldData, String address) {
+  Crypto.byAddress(super.assetFieldData, {required String address}) {
     quantity = getQuantityFromBlockchainAddress(address);
   }
 
@@ -48,6 +48,7 @@ class Crypto extends Asset {
   Future<double?> getMarketCap({required String vsTicker}) async =>
       await AssetAPI(AssetType.crypto)
           .getMarketCap(ticker: ticker, vsTicker: vsTicker);
+
   double getQuantityFromBlockchainAddress(String address) {
     return 2.0;
   }
@@ -68,10 +69,15 @@ class AssetCard extends StatelessWidget {
   final Asset asset;
   final String vsTicker;
 
-  Future<double?> get totalValue async =>
-      (await asset.getPrice(vsTicker: vsTicker))! * asset.quantity;
+  final double price;
 
-  const AssetCard({super.key, required this.asset, required this.vsTicker});
+  double get totalValue => price * asset.quantity;
+
+  const AssetCard(
+      {super.key,
+      required this.asset,
+      required this.vsTicker,
+      required this.price});
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +96,7 @@ class AssetCard extends StatelessWidget {
                     Text(
                       asset.ticker,
                       textScaleFactor: 1.6,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       asset.name,
@@ -111,11 +118,8 @@ class AssetCard extends StatelessWidget {
                   children: [
                     Text(
                       "Price ($vsTicker):",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Text(
-                      asset.getPrice(vsTicker: vsTicker).toString(),
-                    )
+                    Text(price.toString()),
                   ],
                 ),
                 Column(
@@ -124,10 +128,12 @@ class AssetCard extends StatelessWidget {
                     Text(
                       textAlign: TextAlign.center,
                       "Total ($vsTicker): ",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       textAlign: TextAlign.center,
                       totalValue.toString(),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -148,5 +154,10 @@ class AssetCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String retrievePrice() {
+    double? price = asset.getPrice(vsTicker: vsTicker) as double?;
+    return price.toString();
   }
 }
