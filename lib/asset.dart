@@ -94,12 +94,11 @@ class AssetCard extends StatelessWidget {
                 children: [
                   Text(
                     asset.ticker,
-                    textScaleFactor: 1.6,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 22),
                   ),
                   Text(
                     asset.name,
-                    textScaleFactor: 0.8,
                   ),
                 ],
               ),
@@ -141,10 +140,10 @@ class AssetCard extends StatelessWidget {
           Row(
             children: [
               Padding(
-                padding: const EdgeInsets.all(5.0),
+                padding: const EdgeInsets.only(top: 7),
                 child: Text(
                   marketCapString,
-                  textScaleFactor: 0.9,
+                  style: const TextStyle(fontSize: 12),
                 ),
               )
             ],

@@ -157,7 +157,9 @@ class AssetDisplay extends StatelessWidget {
           widthFactor: 1,
           child: Text(
             "No assets entered yet",
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(
+              color: Colors.white,
+            ),
             textAlign: TextAlign.center,
           ),
         ),
