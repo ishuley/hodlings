@@ -99,6 +99,7 @@ class AssetCard extends StatelessWidget {
                   ),
                   Text(
                     asset.name,
+                    style: const TextStyle(fontSize: 10),
                   ),
                 ],
               ),
