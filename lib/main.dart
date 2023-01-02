@@ -152,17 +152,12 @@ class AssetDisplay extends StatelessWidget {
     }
     return const Align(
       alignment: Alignment.center,
-      child: SizedBox(
-        child: FractionallySizedBox(
-          widthFactor: 1,
-          child: Text(
-            "No assets entered yet",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
+      child: Text(
+        "No assets entered yet",
+        style: TextStyle(
+          color: Colors.white,
         ),
+        textAlign: TextAlign.center,
       ),
     );
   }
