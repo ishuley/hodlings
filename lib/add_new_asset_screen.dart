@@ -233,11 +233,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   /// Not financial advice.
   ///
-  /// Please direct register all your stocks directly with their company
-  /// assigned transfer agent so that institutions won't have the ability to
-  /// point to them as "locates" to serve as collateral and infinitely
-  /// rehypothecate your shares to be used against you in the name of liquidity.
-  ///
   /// Thank you for auditing my code. I am sincerely grateful.
   ///
   void rearrangeAssetListToMyPersonalConvenience(
@@ -555,13 +550,13 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                 asset: Crypto.byAddress(currentlySelectedAsset,
                     address: dataSourceInputController.text),
                 vsTicker: currentVsTicker,
-                price: price!,
+                price: price,
               )
             : newAssetCard = AssetCard(
                 asset: Crypto(currentlySelectedAsset,
                     qty: double.parse(dataSourceInputController.text)),
                 vsTicker: currentVsTicker,
-                price: price!,
+                price: price,
               );
         break;
       case AssetType.cash:
@@ -572,7 +567,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     popContextWithCard(newAssetCard);
   }
 
-  Future<double?> retrievePrice() async {
+  Future<double> retrievePrice() async {
     List<String> splitCurrentlySelectedAsset =
         currentlySelectedAsset.split(" - ");
     String currentTicker = splitCurrentlySelectedAsset.elementAt(0);
@@ -921,6 +916,7 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
 /// once, then provide a [DrawerMenu.RefreshAssetsButton] to let the user
 /// manually refresh them in the event a new security comes along that is not
 /// yet listed. This class encapsulates the necessary persistent storage logic.
+///
 class AssetListStorage {
   Future<String> get _localPath async {
     final directory = await getApplicationSupportDirectory();

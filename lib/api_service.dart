@@ -11,7 +11,7 @@ class AssetAPI {
   AssetType assetType;
   AssetAPI(this.assetType);
 
-  Future<List?> getAssetNamesAndTickersList() {
+  Future<List> getAssetNamesAndTickersList() {
     switch (assetType) {
       case AssetType.stock:
         return StockAPI().getAssetNamesAndTickers();
@@ -22,18 +22,18 @@ class AssetAPI {
     }
   }
 
-  Future<double?> getPrice(String symbol, String vsCurrencySymbol) async {
+  Future<double> getPrice(String ticker, String vsCurrencySymbol) async {
     switch (assetType) {
       case AssetType.stock:
-        return StockAPI().getPrice(symbol, vsCurrencySymbol);
+        return StockAPI().getPrice(ticker, vsCurrencySymbol);
       case AssetType.crypto:
-        return await CryptoAPI().getPrice(symbol, vsCurrencySymbol);
+        return await CryptoAPI().getPrice(ticker, vsCurrencySymbol);
       case AssetType.cash:
-        return CashAPI().getPrice(symbol, vsCurrencySymbol);
+        return CashAPI().getPrice(ticker, vsCurrencySymbol);
     }
   }
 
-  Future<double?> getMarketCap(
+  Future<double> getMarketCap(
       {required String ticker, required String vsTicker}) {
     switch (assetType) {
       case AssetType.stock:
@@ -49,7 +49,7 @@ class AssetAPI {
 class CryptoAPI {
   final api = CoinGeckoApi();
 
-  Future<List<Map<String, String>>?> getAssetNamesAndTickers() async {
+  Future<List<Map<String, String>>> getAssetNamesAndTickers() async {
     final CoinGeckoResult<List<CoinShort>> result =
         await api.coins.listCoins(includePlatforms: true);
     if (!result.isError) {
@@ -59,35 +59,33 @@ class CryptoAPI {
       }
       return cryptoNameAndTickerList;
     }
-    return null;
+    return [];
   }
 
-  Future<double?> getPrice(String symbol, String vsCurrencySymbol) async {
+  Future<double> getPrice(String ticker, String vsCurrencySymbol) async {
     CoinGeckoResult<List<Market>> marketData =
         await api.coins.listCoinMarkets(vsCurrency: vsCurrencySymbol);
     for (Market market in marketData.data) {
-      if (market.symbol == symbol) {
-        return market.currentPrice;
+      if (market.symbol == ticker) {
+        return market.currentPrice!;
       }
     }
-    return null;
+    return 0;
   }
 
-  Future<double?> getMarketCap(String symbol, String vsCurrencySymbol) async {
+  Future<double> getMarketCap(String ticker, String vsCurrencySymbol) async {
     CoinGeckoResult<List<Market>> marketData =
         await api.coins.listCoinMarkets(vsCurrency: vsCurrencySymbol);
     for (Market market in marketData.data) {
-      if (market.symbol == symbol) {
-        return market.marketCap;
+      if (market.symbol == ticker) {
+        return market.marketCap!;
       }
     }
-    return null;
+    return 0;
   }
 }
 
 class StockAPI {
-  final stockApiUrl = "api.marketstack.com";
-
   Future<List<Map<String, String>>> getAssetNamesAndTickers() async {
     Uri url = Uri.http(stockApiUrl, "/v1/tickers",
         {"access_key": stockDataApiKey, "limit": "10000"});
@@ -115,16 +113,45 @@ class StockAPI {
     return [];
   }
 
-  double getPrice(String ticker, String vsTicker) {
-    return 2.0;
+  // TODO: add a function to retrieve multiple prices at once since the API supports bundling calls. This will save on API pings when the user refreshes.
+
+  Future<double> getPrice(String ticker, String vsTicker) async {
+    Uri url = Uri.http(stockApiUrl, "/v1/intraday/latest",
+        {"access_key": stockDataApiKey, "symbols": ticker});
+
+    double price = 0;
+    Response response = await get(url);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse =
+          jsonDecode(response.body) as Map<String, dynamic>;
+      price = jsonResponse['data'][0]['last'];
+    }
+
+    return price;
+  }
+
+  Future<List<Map<String, double>>> getPrices(
+      List<String> tickers, String vsTicker) async {
+    Uri url = Uri.http(stockApiUrl, "/v1/intraday/latest",
+        {"access_key": stockDataApiKey, "symbols": tickers.join(',')});
+
+    Response response = await get(url);
+    List<Map<String, double>> prices = [];
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse =
+          jsonDecode(response.body) as Map<String, dynamic>;
+      var assetDataList = jsonResponse['data'];
+      for (Map<String, dynamic> assetData in assetDataList) {
+        prices.add({assetData["symbol"]: assetData['last']});
+      }
+    }
+    return prices;
   }
 
   getMarketCap(String ticker, String vsTicker) {}
 }
 
 class CashAPI {
-  final currencyApiUrl = "api.apilayer.com";
-
   Future<List> getAssetNamesAndTickers() async {
     Uri url = Uri.https(currencyApiUrl, "/exchangerates_data/symbols",
         {"apikey": currencyExchangeDataApiKey});

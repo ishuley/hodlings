@@ -40,7 +40,7 @@ class Crypto extends Asset {
   }
 
   @override
-  Future<double?> getPrice({required String vsTicker}) async {
+  Future<double> getPrice({required String vsTicker}) async {
     return await AssetAPI(AssetType.crypto).getPrice(ticker, vsTicker);
   }
 
@@ -144,7 +144,7 @@ class AssetCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Text(
-                    "Market Cap: ${asset.getMarketCap(vsTicker: vsTicker)} $vsTicker",
+                    retrieveMarketCapStringForAssetCard(),
                     textScaleFactor: 0.9,
                   ),
                 )
@@ -154,6 +154,12 @@ class AssetCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String retrieveMarketCapStringForAssetCard() {
+    double? marketCap = asset.getMarketCap(vsTicker: vsTicker) as double?;
+    String marketCapAsString = marketCap.toString();
+    return "Market Cap: $marketCapAsString  $vsTicker";
   }
 
   String retrievePrice() {

@@ -180,23 +180,25 @@ class _AddNewAssetButtonState extends State<AddNewAssetButton> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.bottomCenter,
-      child: Row(children: [
-        Expanded(
-          child: SizedBox(
-            height: 75,
-            child: TextButton(
-              onPressed: widget.addNewAssetCallback,
-              style: const ButtonStyle(
-                backgroundColor:
-                    MaterialStatePropertyAll<Color>(Colors.black26),
-                foregroundColor:
-                    MaterialStatePropertyAll<Color>(Colors.white54),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 75,
+              child: TextButton(
+                onPressed: widget.addNewAssetCallback,
+                style: const ButtonStyle(
+                  backgroundColor:
+                      MaterialStatePropertyAll<Color>(Colors.black26),
+                  foregroundColor:
+                      MaterialStatePropertyAll<Color>(Colors.white54),
+                ),
+                child: const Icon(Icons.add),
               ),
-              child: const Icon(Icons.add),
             ),
-          ),
-        )
-      ]),
+          )
+        ],
+      ),
     );
   }
 }
