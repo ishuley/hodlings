@@ -30,6 +30,7 @@ abstract class Asset {
 
 class Crypto extends Asset {
   late double qty;
+  late double mktCap;
 
   @override
   Crypto(super.assetFieldData, {required double qty}) {
@@ -73,11 +74,15 @@ class AssetCard extends StatelessWidget {
 
   double get totalValue => price * asset.quantity;
 
-  const AssetCard(
-      {super.key,
-      required this.asset,
-      required this.vsTicker,
-      required this.price});
+  final String marketCapString;
+
+  const AssetCard({
+    super.key,
+    required this.asset,
+    required this.vsTicker,
+    required this.price,
+    required this.marketCapString,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +149,7 @@ class AssetCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Text(
-                    retrieveMarketCapStringForAssetCard(),
+                    marketCapString,
                     textScaleFactor: 0.9,
                   ),
                 )
@@ -154,16 +159,5 @@ class AssetCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String retrieveMarketCapStringForAssetCard() {
-    double? marketCap = asset.getMarketCap(vsTicker: vsTicker) as double?;
-    String marketCapAsString = marketCap.toString();
-    return "Market Cap: $marketCapAsString  $vsTicker";
-  }
-
-  String retrievePrice() {
-    double? price = asset.getPrice(vsTicker: vsTicker) as double?;
-    return price.toString();
   }
 }

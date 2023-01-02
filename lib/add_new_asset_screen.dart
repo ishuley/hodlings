@@ -10,6 +10,8 @@ import 'package:search_choices/search_choices.dart';
 import 'main.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+// ignore: depend_on_referenced_packages
+import 'package:intl/intl.dart';
 
 // "Ticker" and "symbol" mean the same thing throughout this program. They
 // both refer to the 3-5 character identifier used to identify securities, for
@@ -192,6 +194,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
       if (assetNamesAndTickers.isEmpty) {
         assetNamesAndTickers = await retrieveAssetListFromApi(assetType);
+        rearrangeAssetListToMyPersonalConvenience(
+            assetType, assetNamesAndTickers);
       }
       setState(() {
         if (assetNamesAndTickers.isNotEmpty) {
@@ -221,8 +225,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       List<String> assetNamesAndTickers =
           parseAssetNameAndTickerMapListIntoStrings(assetNameAndTickerMapList);
       assetNamesAndTickers.sort();
-      rearrangeAssetListToMyPersonalConvenience(
-          assetType, assetNamesAndTickers);
 
       return assetNamesAndTickers;
     }
@@ -277,10 +279,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   Future<List<String>> getSavedAssetList(
       AssetListStorage storage, AssetType assetType) async {
     List<String> assetListFromStorage = await storage.readAssetList(assetType);
-    if (assetListFromStorage.isNotEmpty) {
-      return assetListFromStorage;
-    }
-    return [];
+    return assetListFromStorage;
   }
 
   /// Initializes the lists that [AssetDropdown] if any are to be found.
@@ -537,31 +536,38 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// back to [MainScreen] by "popping" it along with the context.
   ///
   Future<void> onAcceptButtonPressed() async {
-    /// TODO Replace this with code that actually builds the specified asset.
-
     double? price = await retrievePrice();
-
     late AssetCard newAssetCard;
+    String dataSourceText = dataSourceInputController.text;
 
     switch (assetType) {
+      case AssetType.stock:
+        break;
       case AssetType.crypto:
-        currentDataSource.endsWith("Address")
-            ? newAssetCard = AssetCard(
-                asset: Crypto.byAddress(currentlySelectedAsset,
-                    address: dataSourceInputController.text),
-                vsTicker: currentVsTicker,
-                price: price,
-              )
-            : newAssetCard = AssetCard(
-                asset: Crypto(currentlySelectedAsset,
-                    qty: double.parse(dataSourceInputController.text)),
-                vsTicker: currentVsTicker,
-                price: price,
-              );
+        late Crypto crypto;
+        if (currentDataSource.endsWith("Address")) {
+          crypto = Crypto.byAddress(currentlySelectedAsset,
+              address: dataSourceInputController.text);
+        }
+        if (currentDataSource.endsWith("Qty")) {
+          double dataSrcAsDouble = double.parse(dataSourceText);
+          crypto = Crypto(currentlySelectedAsset, qty: dataSrcAsDouble);
+        }
+        double? marketCap =
+            await crypto.getMarketCap(vsTicker: currentVsTicker);
+        String formattedMktCap = NumberFormat().format(marketCap);
+        String marketCapString =
+            "Market Cap: $formattedMktCap ${currentVsTicker.toUpperCase()}";
+
+        newAssetCard = AssetCard(
+          asset: crypto,
+          price: price,
+          marketCapString: marketCapString,
+          vsTicker: currentVsTicker,
+        );
         break;
       case AssetType.cash:
         break;
-      default:
     }
 
     popContextWithCard(newAssetCard);
@@ -571,7 +577,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     List<String> splitCurrentlySelectedAsset =
         currentlySelectedAsset.split(" - ");
     String currentTicker = splitCurrentlySelectedAsset.elementAt(0);
-    return await AssetAPI(assetType).getPrice(currentTicker, currentVsTicker);
+    return await AssetAPI(assetType)
+        .getPrice(currentTicker.toLowerCase(), currentVsTicker.toLowerCase());
   }
 
   /// Pops the context and newly created [AssetCard] back to [MainScreen].
@@ -939,15 +946,12 @@ class AssetListStorage {
   }
 
   Future<List<String>> readAssetList(AssetType assetType) async {
-    List<String> result = [];
     try {
       final File file = await chooseAssetFile(assetType);
-
-      result = await file.readAsLines();
+      return await file.readAsLines();
     } catch (e) {
-      return result;
+      return [];
     }
-    return result;
   }
 
   Future<void> writeAssetList(
@@ -968,6 +972,13 @@ class AssetListStorage {
         return await _cryptoAssetListFile;
       case AssetType.cash:
         return await _cashAssetListFile;
+    }
+  }
+
+  Future<void> deleteAssetListFile(AssetType assetType) async {
+    File assetListFile = await chooseAssetFile(assetType);
+    if (await assetListFile.exists()) {
+      assetListFile.delete();
     }
   }
 }

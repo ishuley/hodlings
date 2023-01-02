@@ -74,10 +74,10 @@ class CryptoAPI {
   }
 
   Future<double> getMarketCap(String ticker, String vsCurrencySymbol) async {
-    CoinGeckoResult<List<Market>> marketData =
-        await api.coins.listCoinMarkets(vsCurrency: vsCurrencySymbol);
+    CoinGeckoResult<List<Market>> marketData = await api.coins
+        .listCoinMarkets(vsCurrency: vsCurrencySymbol.toLowerCase());
     for (Market market in marketData.data) {
-      if (market.symbol == ticker) {
+      if (market.symbol == ticker.toLowerCase()) {
         return market.marketCap!;
       }
     }
