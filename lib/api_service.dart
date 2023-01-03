@@ -113,42 +113,28 @@ class StockAPI {
     return [];
   }
 
-  // TODO: add a function to retrieve multiple prices at once since the API supports bundling calls. This will save on API pings when the user refreshes.
-
   Future<double> getPrice(String ticker, String vsTicker) async {
     Uri url = Uri.http(stockApiUrl, "/v1/intraday/latest",
         {"access_key": stockDataApiKey, "symbols": ticker});
-
-    double price = 0;
+    ticker = ticker.toUpperCase();
+    double? price;
     Response response = await get(url);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse =
           jsonDecode(response.body) as Map<String, dynamic>;
+
       price = jsonResponse['data'][0]['last'];
+      price ??= jsonResponse['data'][0]['close'];
+      price ??= jsonResponse['data'][0]['open'];
+      price ??= jsonResponse['data'][0]['low'];
+      price ??= jsonResponse['data'][0]['high'];
     }
-
-    return price;
+    return price!;
   }
 
-  Future<List<Map<String, double>>> getPrices(
-      List<String> tickers, String vsTicker) async {
-    Uri url = Uri.http(stockApiUrl, "/v1/intraday/latest",
-        {"access_key": stockDataApiKey, "symbols": tickers.join(',')});
-
-    Response response = await get(url);
-    List<Map<String, double>> prices = [];
-    if (response.statusCode == 200) {
-      Map<String, dynamic> jsonResponse =
-          jsonDecode(response.body) as Map<String, dynamic>;
-      var assetDataList = jsonResponse['data'];
-      for (Map<String, dynamic> assetData in assetDataList) {
-        prices.add({assetData["symbol"]: assetData['last']});
-      }
-    }
-    return prices;
+  getMarketCap(String ticker, String vsTicker) {
+    return 0;
   }
-
-  getMarketCap(String ticker, String vsTicker) {}
 }
 
 class CashAPI {
@@ -177,5 +163,7 @@ class CashAPI {
     return 1.0;
   }
 
-  getMarketCap(String ticker, String vsTicker) {}
+  getMarketCap(String ticker, String vsTicker) {
+    return 0;
+  }
 }

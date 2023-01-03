@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 // "Ticker" and "symbol" mean the same thing throughout this program. They
 // both refer to the 3-5 character identifier used to identify securities, for
 // example, "ETH" is Ethereum's ticker/symbol.
+// TODO: Refactor everything into "tickers" except for the api parameters that demand "symbol."
 
 /// Screen where the user specifies a new [Asset] to be added to an [AssetCard].
 ///
@@ -28,7 +29,7 @@ class AddNewAssetScreen extends StatefulWidget {
 
   /// The types of input possible for a given asset category.
   ///
-  /// These possible data sources lists here represent ways the user can input
+  /// These lists of possible data sources represent ways the user can input
   /// how many of a given asset they own, which one is used is based on what the
   /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
   /// will only rarely change, if ever.
@@ -41,7 +42,7 @@ class AddNewAssetScreen extends StatefulWidget {
 
   /// The types of input possible for a given asset category.
   ///
-  /// These possible data sources lists here represent ways the user can input
+  /// These lists of possible data sources represent ways the user can input
   /// how many of a given asset they own, which one is used is based on what the
   /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
   /// will only rarely change, if ever.
@@ -54,7 +55,7 @@ class AddNewAssetScreen extends StatefulWidget {
 
   /// The types of input possible for a given asset category.
   ///
-  /// These possible data sources lists here represent ways the user can input
+  /// These lists of possible data sources represent ways the user can input
   /// how many of a given asset they own, which one is used is based on what the
   /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
   /// will only rarely change, if ever.
@@ -209,6 +210,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           await getSavedAssetList(assetListStorage, assetType);
 
       if (assetNamesAndTickers.isEmpty) {
+        // There is a bug that occurs when we end up here but yet a file still
+        // exists. If we don't delete the entire file on the next line, it will
+        // demand an API call every time AddNewAssetScreen is accessed after
+        // the asset list changes, and defeat the entire point of all this
+        // logic.
         assetListStorage.deleteAssetListFile(assetType);
         assetNamesAndTickers = await retrieveAssetListFromApi(assetType);
         rearrangeAssetListToMyPersonalConvenience(
