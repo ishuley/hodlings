@@ -120,10 +120,18 @@ class StockAPI implements AssetAPI {
 
   @override
   Future<double> getMarketCap(
-      {required String ticker, String vsTicker = 'USD'}) {
+      {required String ticker, String vsTicker = 'USD'}) async {
     ticker = ticker.toUpperCase();
     vsTicker = vsTicker.toUpperCase();
-    // /api/v3/market-capitalization/
+
+    Uri url = Uri.http(stockApiUrl, "/api/v3/market-capitalization/",
+        {"apikey": stockDataApiKey, "symbols": ticker});
+    Response response = await get(url);
+    if (response.statusCode == 200) {
+      List<Map<String, dynamic>> jsonResponse =
+          jsonDecode(response.body) as List<Map<String, dynamic>>;
+      return jsonResponse[0]["marketCap"];
+    }
     return 0.0;
   }
 }
@@ -155,12 +163,17 @@ class CashAPI implements AssetAPI {
   }
 
   @override
-  Future<double> getPrice(String ticker, {String vsTicker = 'usd'}) {
-    return 1.0;
+  Future<double> getPrice(
+      {required String ticker, String vsTicker = 'usd'}) async {
+    if (ticker == 'usd') {
+      return 1.0;
+    }
+    return 0.0;
   }
 
   @override
-  Future<double> getMarketCap(String ticker, {String vsTicker = 'usd'}) {
-    return 0;
+  Future<double> getMarketCap(
+      {required String ticker, String vsTicker = 'usd'}) async {
+    return 0.0;
   }
 }

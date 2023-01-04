@@ -542,8 +542,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     String qrCode = await FlutterBarcodeScanner.scanBarcode(
         '#ff6666', 'Cancel', false, ScanMode.QR);
 
-    // if (!mounted) return; // TODO remove this entire line if nothing breaks when you finally get to test your QR code scanner
-
+    if (!mounted) return;
     setState(() {
       qrCodeResult = qrCode;
     });
@@ -558,7 +557,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// back to [MainScreen] by "popping" it along with the context.
   ///
   Future<void> onAcceptButtonPressed() async {
-    double price = await retrievePrice();
     String dataSourceText = dataSourceInputController.text;
     late Asset asset;
 
@@ -566,19 +564,26 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       case AssetType.stock:
         break;
       case AssetType.crypto:
-        if (currentDataSource.endsWith("Address")) {
-          asset = Crypto.byAddress(currentlySelectedAsset,
-              address: dataSourceInputController.text);
-        }
         if (currentDataSource.endsWith("Qty")) {
           asset =
               Crypto(currentlySelectedAsset, qty: double.parse(dataSourceText));
+        }
+        if (currentDataSource.endsWith("Address")) {
+          asset =
+              Crypto.byAddress(currentlySelectedAsset, address: dataSourceText);
         }
         break;
       case AssetType.cash:
         break;
     }
 
+    AssetCard newAssetCard = await createNewAssetCard(asset);
+
+    popContextWithCard(newAssetCard);
+  }
+
+  Future<AssetCard> createNewAssetCard(Asset asset) async {
+    double price = await retrievePrice();
     String marketCapString = await getMarketCapString(asset);
 
     AssetCard newAssetCard = AssetCard(
@@ -587,8 +592,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       marketCapString: marketCapString,
       vsTicker: currentVsTicker,
     );
-
-    popContextWithCard(newAssetCard);
+    return newAssetCard;
   }
 
   Future<String> getMarketCapString(Asset asset) async {
