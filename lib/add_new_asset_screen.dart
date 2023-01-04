@@ -440,7 +440,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       currentDataSource = dataSource;
       updateDataSourceScanability();
       updateDataSourceKeyboardType();
-      currentDataSourceLabel = getDataSourceLabel();
+      updateDataSourceLabel();
     });
   }
 
@@ -516,16 +516,16 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Provides a [String] used by [DataSourceLabel] to inform the user what kind
   /// of data source is currently selected by [DataSourceDropdown].
   ///
-  String getDataSourceLabel() {
+  void updateDataSourceLabel() {
     if (currentDataSource.endsWith("API")) {
-      return "Enter Read-Only API Key: ";
+      currentDataSourceLabel = "Enter Read-Only API Key: ";
     }
     if (currentDataSource.endsWith("Address")) {
-      return "Enter blockchain address: ";
+      currentDataSourceLabel = "Enter blockchain address: ";
     }
     if (currentDataSource.endsWith("Qty") ||
         currentDataSource.endsWith("Agent")) {
-      return "Enter quantity manually: ";
+      currentDataSourceLabel = "Enter quantity manually: ";
     }
     throw UnsupportedError(
         "Unknown data source when getDataSourceLabel() is called.");
