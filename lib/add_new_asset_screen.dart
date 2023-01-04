@@ -263,7 +263,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void rearrangeAssetListToMyPersonalConvenience(
       AssetType assetType, List<String> assetNamesAndTickers) {
     if (assetType == AssetType.stock) {
-      int gmeIndex = assetNamesAndTickers.indexOf("GME - Gamestop Corp.");
+      int gmeIndex = assetNamesAndTickers.indexOf("GME - GameStop Corp.");
       assetNamesAndTickers.insert(0, assetNamesAndTickers.removeAt(gmeIndex));
     }
     if (assetType == AssetType.crypto) {
