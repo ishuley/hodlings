@@ -558,41 +558,45 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// back to [MainScreen] by "popping" it along with the context.
   ///
   Future<void> onAcceptButtonPressed() async {
-    double? price = await retrievePrice();
-    late AssetCard newAssetCard;
+    double price = await retrievePrice();
     String dataSourceText = dataSourceInputController.text;
+    late Asset asset;
 
     switch (assetType) {
       case AssetType.stock:
         break;
       case AssetType.crypto:
-        late Crypto crypto;
         if (currentDataSource.endsWith("Address")) {
-          crypto = Crypto.byAddress(currentlySelectedAsset,
+          asset = Crypto.byAddress(currentlySelectedAsset,
               address: dataSourceInputController.text);
         }
         if (currentDataSource.endsWith("Qty")) {
-          double dataSrcAsDouble = double.parse(dataSourceText);
-          crypto = Crypto(currentlySelectedAsset, qty: dataSrcAsDouble);
+          asset =
+              Crypto(currentlySelectedAsset, qty: double.parse(dataSourceText));
         }
-        double? marketCap =
-            await crypto.getMarketCap(vsTicker: currentVsTicker);
-        String formattedMktCap = NumberFormat().format(marketCap);
-        String marketCapString =
-            "Market Cap: $formattedMktCap ${currentVsTicker.toUpperCase()}";
-
-        newAssetCard = AssetCard(
-          asset: crypto,
-          price: price,
-          marketCapString: marketCapString,
-          vsTicker: currentVsTicker,
-        );
         break;
       case AssetType.cash:
         break;
     }
 
+    String marketCapString = await getMarketCapString(asset);
+
+    AssetCard newAssetCard = AssetCard(
+      asset: asset,
+      price: price,
+      marketCapString: marketCapString,
+      vsTicker: currentVsTicker,
+    );
+
     popContextWithCard(newAssetCard);
+  }
+
+  Future<String> getMarketCapString(Asset asset) async {
+    double marketCap = await asset.getMarketCap(vsTicker: currentVsTicker);
+    String formattedMktCap = NumberFormat().format(marketCap);
+    String marketCapString =
+        "Market Cap: $formattedMktCap ${currentVsTicker.toUpperCase()}";
+    return marketCapString;
   }
 
   Future<double> retrievePrice() async {

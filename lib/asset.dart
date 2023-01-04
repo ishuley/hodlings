@@ -16,12 +16,12 @@ abstract class Asset {
 
   double quantity = 0;
 
-  Future<double?> getPrice({String vsTicker = 'usd'}) {
+  Future<double> getPrice({String vsTicker = 'usd'}) {
     throw UnimplementedError(
         "This should never get called because Asset is an abstract class. Initialize the object as one of it's subclasses, Stock, Crypto, Cash, NFT, etc.");
   }
 
-  Future<double?> getMarketCap({String vsTicker = 'usd'}) {
+  Future<double> getMarketCap({String vsTicker = 'usd'}) {
     throw UnimplementedError(
         "This should never get called because Asset is an abstract class. Initialize the object as one of it's subclasses, Stock, Crypto, Cash, NFT, etc.");
   }
@@ -45,7 +45,7 @@ class Crypto extends Asset {
   }
 
   @override
-  Future<double?> getMarketCap({String vsTicker = 'usd'}) async {
+  Future<double> getMarketCap({String vsTicker = 'usd'}) async {
     return await AssetAPI(AssetType.crypto)
         .getMarketCap(ticker: ticker, vsTicker: vsTicker);
   }
