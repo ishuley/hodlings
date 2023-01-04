@@ -87,8 +87,7 @@ class StockAPI implements AssetAPI {
 
     Response response = await get(url);
     if (response.statusCode == 200) {
-      List<Map<String, dynamic>> jsonResponse =
-          jsonDecode(response.body) as List<Map<String, dynamic>>;
+      List<dynamic> jsonResponse = jsonDecode(response.body) as List<dynamic>;
       List<Map<String, String>> stockNamesAndTickers = [];
       for (Map<String, dynamic> stockDataMap in jsonResponse) {
         if (stockDataMap['symbol'] != null && stockDataMap['name'] != null) {
