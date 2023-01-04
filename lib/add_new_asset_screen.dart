@@ -263,8 +263,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void rearrangeAssetListToMyPersonalConvenience(
       AssetType assetType, List<String> assetNamesAndTickers) {
     if (assetType == AssetType.stock) {
-      int gmeIndex =
-          assetNamesAndTickers.indexOf("GME - Gamestop Corporation - Class A");
+      int gmeIndex = assetNamesAndTickers.indexOf("GME - Gamestop Corp.");
       assetNamesAndTickers.insert(0, assetNamesAndTickers.removeAt(gmeIndex));
     }
     if (assetType == AssetType.crypto) {
@@ -519,13 +518,16 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void updateDataSourceLabel() {
     if (currentDataSource.endsWith("API")) {
       currentDataSourceLabel = "Enter Read-Only API Key: ";
+      return;
     }
     if (currentDataSource.endsWith("Address")) {
       currentDataSourceLabel = "Enter blockchain address: ";
+      return;
     }
     if (currentDataSource.endsWith("Qty") ||
         currentDataSource.endsWith("Agent")) {
       currentDataSourceLabel = "Enter quantity manually: ";
+      return;
     }
     throw UnsupportedError(
         "Unknown data source when getDataSourceLabel() is called.");
