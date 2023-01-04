@@ -15,8 +15,8 @@ import 'package:intl/intl.dart';
 
 // "Ticker" and "symbol" mean the same thing throughout this program. They
 // both refer to the 3-5 character identifier used to identify securities, for
-// example, "ETH" is Ethereum's ticker/symbol.
-// TODO: Refactor everything into "tickers" except for the api parameters that demand "symbol."
+// example, "ETH" is Ethereum's ticker/symbol. I try to stick with "ticker" but
+// an API might occasionally phrase it as "symbol."
 
 /// Screen where the user specifies a new [Asset] to be added to an [AssetCard].
 ///
@@ -48,9 +48,9 @@ class AddNewAssetScreen extends StatefulWidget {
   /// will only rarely change, if ever.
   ///
   static const cryptoDataSourcesList = <String>[
-    'Blockchain Address',
-    // 'Exchange API',
     'Manual Qty',
+    // 'Blockchain Address',
+    // 'Exchange API',
   ];
 
   /// The types of input possible for a given asset category.
@@ -356,8 +356,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   Future<List<Map<String, String>>> getAssetNameAndTickerMapListFromApi(
       AssetType assetType) async {
     List<Map<String, String>>? assetNameAndTickerMapList =
-        await AssetAPI(assetType).getAssetNamesAndTickersList()
-            as List<Map<String, String>>;
+        await AssetAPI(assetType).getAssetNamesAndTickers();
     return assetNameAndTickerMapList;
   }
 
@@ -372,14 +371,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       List<Map<String, String>> assetNameAndTickerMapList) {
     List<Map<String, String>> newAssetNameAndTickerList =
         assetNameAndTickerMapList;
-    List<String> newAssetSymbolNameListForDropdown = [];
+    List<String> newAssetTickerAndNameListForDropdown = [];
     for (var assetNameAndTickerMap in newAssetNameAndTickerList) {
       assetNameAndTickerMap.forEach((ticker, assetName) {
         ticker = ticker.toUpperCase();
-        newAssetSymbolNameListForDropdown.add("$ticker - $assetName");
+        newAssetTickerAndNameListForDropdown.add("$ticker - $assetName");
       });
     }
-    return newAssetSymbolNameListForDropdown;
+    return newAssetTickerAndNameListForDropdown;
   }
 
   /// Chooses the correct data source list.
@@ -601,7 +600,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         currentlySelectedAsset.split(" - ");
     String currentTicker = splitCurrentlySelectedAsset.elementAt(0);
     return await AssetAPI(assetType)
-        .getPrice(currentTicker.toLowerCase(), currentVsTicker.toLowerCase());
+        .getPrice(ticker: currentTicker, vsTicker: currentVsTicker);
   }
 
   /// Pops the context and newly created [AssetCard] back to [MainScreen].
@@ -666,7 +665,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                           currentAssetName: currentlySelectedAsset,
                           assetType: assetType,
                           assetDropdownChangedCallback: assetDropdownChanged,
-                          assetSymbolNameList:
+                          assetTickerAndNameList:
                               chooseAssetDropdownMenuItemsBasedOnAssetType(),
                         ),
                         DataSourceLabel(
@@ -790,21 +789,21 @@ class AssetDropdown extends StatelessWidget {
   final AssetType assetType;
   final String currentAssetName;
   final ValueChanged<String> assetDropdownChangedCallback;
-  final List<String> assetSymbolNameList;
+  final List<String> assetTickerAndNameList;
 
   const AssetDropdown({
     super.key,
     required this.assetType,
     required this.currentAssetName,
     required this.assetDropdownChangedCallback,
-    required this.assetSymbolNameList,
+    required this.assetTickerAndNameList,
   });
 
   List<DropdownMenuItem> mapListForDropdown() {
     List<DropdownMenuItem> assetNameDropdownItemsList = [];
-    for (var symbolNameString in assetSymbolNameList) {
+    for (String tickerAndNameString in assetTickerAndNameList) {
       assetNameDropdownItemsList.add(DropdownMenuItem(
-          value: symbolNameString, child: Text(symbolNameString)));
+          value: tickerAndNameString, child: Text(tickerAndNameString)));
     }
     return assetNameDropdownItemsList;
   }
@@ -988,8 +987,8 @@ class AssetListStorage {
       List<String> assetList, AssetType assetType) async {
     File file = await chooseAssetFile(assetType);
 
-    for (String assetSymbolAndName in assetList) {
-      file = await file.writeAsString("$assetSymbolAndName\n",
+    for (String assetTickerAndName in assetList) {
+      file = await file.writeAsString("$assetTickerAndName\n",
           mode: FileMode.append);
     }
   }

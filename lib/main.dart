@@ -19,12 +19,12 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   double netWorth = 0;
-  String vsSymbol = "USD";
+  String vsTicker = "USD";
   List<AssetCard> assetList = [];
 
   void onNetWorthButtonPressed() {
     setState(() {
-      // TODO make this screen update the vsSymbol appropriately
+      // TODO make this screen update the vsTicker appropriately
     });
   }
 
@@ -66,8 +66,8 @@ class _MainScreenState extends State<MainScreen> {
             child: Column(
               children: [
                 NetWorthButton(
-                  netWorth: netWorth.toString(),
-                  vsSymbol: vsSymbol,
+                  netWorth: netWorth.toStringAsFixed(2),
+                  vsTicker: vsTicker,
                   onNetWorthClickCallback: onNetWorthButtonPressed,
                 ),
                 Expanded(
@@ -99,12 +99,12 @@ class DrawerMenu extends StatelessWidget {
 
 class NetWorthButton extends StatelessWidget {
   final String netWorth;
-  final String vsSymbol;
+  final String vsTicker;
   final VoidCallback onNetWorthClickCallback;
   const NetWorthButton(
       {super.key,
       required this.netWorth,
-      required this.vsSymbol,
+      required this.vsTicker,
       required this.onNetWorthClickCallback});
 
   @override
@@ -123,7 +123,7 @@ class NetWorthButton extends StatelessWidget {
                       MaterialStatePropertyAll<Color>(Colors.white),
                 ),
                 child: Text(
-                  "$netWorth $vsSymbol",
+                  "$netWorth $vsTicker",
                   textScaleFactor: 1.8,
                 )),
           ),
