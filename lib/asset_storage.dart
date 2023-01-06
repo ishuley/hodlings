@@ -79,6 +79,7 @@ class AssetStorage {
 
   Future<void> writeAssetData(List<Map<String, String>> newAssetDataMapList,
       AssetType assetType) async {
+    // TODO: This function needs rewritten using JSON serialization and IOSink
     File file = await chooseAssetDataFile(assetType);
     deleteAssetDataFile(assetType);
     for (Map<String, String> assetDataMap in newAssetDataMapList) {
