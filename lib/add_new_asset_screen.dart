@@ -207,7 +207,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Called upon initialization of the program to establish the default
   /// choices for [AssetDropdown], based on API data.
   /// [getAssetIdDataFromApi] gets the raw data from the appropriate
-  /// API, and [parseAssetIdDataMapListIntoDropdownStrings] converts
+  /// API, and [parseAssetDataIntoDropdownStrings] converts
   /// it into a format appropriate for [AssetDropdown] to use.
   ///
   void initAssetNamesAndTickerListForAssetDropdown() async {
@@ -217,13 +217,13 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     for (AssetType assetType in AssetType.values) {
       newAssetDataMapList = await AssetStorage().readDataList(assetType);
       if (newAssetDataMapList.isEmpty) {
+        print("newAssetDataMapList is empty");
         newAssetDataMapList = await AssetAPI(assetType).getAssetData();
         AssetStorage().writeAssetData(newAssetDataMapList, assetType);
       }
       setAssetListData(assetType, newAssetDataMapList);
-
-      List<String> assetDropdownStrings =
-          await assetListStorage.readAssetList(assetType);
+      List<String> assetDropdownStrings = [];
+      assetDropdownStrings = await assetListStorage.readAssetList(assetType);
 
       if (assetDropdownStrings.isEmpty) {
         assetDropdownStrings =
@@ -286,7 +286,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       List<Map<String, String>> newAssetDataMapList) async {
     List<String> assetDropdownStrings = [];
     assetDropdownStrings =
-        parseAssetIdDataMapListIntoDropdownStrings(newAssetDataMapList);
+        parseAssetDataIntoDropdownStrings(newAssetDataMapList);
     assetDropdownStrings.sort();
     return assetDropdownStrings;
   }
@@ -400,7 +400,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// wish to track. This method takes a Map result from an API and converts it
   /// into that list.
   ///
-  List<String> parseAssetIdDataMapListIntoDropdownStrings(
+  List<String> parseAssetDataIntoDropdownStrings(
       List<Map<String, String>> assetIdDataMapList) {
     List<String> assetDropdownStrings = [];
     for (Map<String, String> assetIdDataMap in assetIdDataMapList) {

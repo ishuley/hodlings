@@ -82,13 +82,9 @@ class AssetStorage {
     File file = await chooseAssetDataFile(assetType);
     deleteAssetDataFile(assetType);
     for (Map<String, String> assetDataMap in newAssetDataMapList) {
-      assetDataMap.forEach(
-        (dataType, dataValue) async {
-          file = await file.writeAsString("$dataType;$dataValue;",
-              mode: FileMode.append);
-        },
-      );
-      file = await file.writeAsString('\n', mode: FileMode.append);
+      file = await file.writeAsString(
+          "id;${assetDataMap['id']!};name;${assetDataMap['name']!};ticker;${"${assetDataMap['ticker']!}\n"}",
+          mode: FileMode.append);
     }
   }
 
