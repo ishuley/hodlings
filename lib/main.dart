@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_new_asset_screen.dart';
-import 'asset.dart';
+import 'asset_card.dart';
 
 void main() => runApp(
       MaterialApp(

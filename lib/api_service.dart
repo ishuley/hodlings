@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:coingecko_api/coingecko_result.dart';
 import 'package:coingecko_api/data/coin_short.dart';
 import 'package:coingecko_api/data/market.dart';
+import 'package:coingecko_api/data/price_info.dart';
 import 'asset.dart';
 import 'package:coingecko_api/coingecko_api.dart';
 import 'package:http/http.dart';
@@ -20,9 +21,9 @@ abstract class AssetAPI {
         return CashAPI();
     }
   }
-  Future<List<Map<String, String>>> getAssetNamesAndTickers();
-  Future<double> getPrice({required String ticker, String vsTicker});
-  Future<double> getMarketCap({required String ticker, String vsTicker});
+  Future<List<Map<String, String>>> getAssetData();
+  Future<double> getPrice({required String id, String vsTicker});
+  Future<double> getMarketCap({required String id, String vsTicker});
 }
 
 class CryptoAPI implements AssetAPI {
@@ -32,29 +33,28 @@ class CryptoAPI implements AssetAPI {
   late AssetType assetType;
 
   @override
-  Future<List<Map<String, String>>> getAssetNamesAndTickers() async {
-    final CoinGeckoResult<List<CoinShort>> result =
-        await api.coins.listCoins(includePlatforms: true);
-    if (!result.isError) {
-      List<Map<String, String>> cryptoNameAndTickerList = [];
-      for (CoinShort cryptoDetails in result.data) {
-        cryptoNameAndTickerList.add({cryptoDetails.symbol: cryptoDetails.name});
-      }
-      return cryptoNameAndTickerList;
+  Future<List<Map<String, String>>> getAssetData() async {
+    final CoinGeckoResult<List<CoinShort>> result = await api.coins.listCoins();
+    List<Map<String, String>> cryptoIDData = [];
+    for (CoinShort cryptoDetails in result.data) {
+      cryptoIDData.add({
+        "id": cryptoDetails.id,
+        "name": cryptoDetails.name,
+        "ticker": cryptoDetails.symbol
+      });
     }
-    return [];
+    return cryptoIDData;
   }
 
   @override
-  Future<double> getPrice(
-      {required String ticker, String vsTicker = 'usd'}) async {
-    ticker = ticker.toLowerCase();
+  Future<double> getPrice({required String id, String vsTicker = 'usd'}) async {
+    id = id.toLowerCase();
     vsTicker = vsTicker.toLowerCase();
-    CoinGeckoResult<List<Market>> marketData =
-        await api.coins.listCoinMarkets(vsCurrency: vsTicker);
-    for (Market market in marketData.data) {
-      if (market.symbol == ticker) {
-        return market.currentPrice!;
+    CoinGeckoResult<List<PriceInfo>> priceData =
+        await api.simple.listPrices(ids: [id], vsCurrencies: [vsTicker]);
+    for (PriceInfo price in priceData.data) {
+      if (price.id == id) {
+        return price.getPriceIn('usd')!;
       }
     }
     return 0;
@@ -62,14 +62,16 @@ class CryptoAPI implements AssetAPI {
 
   @override
   Future<double> getMarketCap(
-      {required String ticker, String vsTicker = 'usd'}) async {
-    ticker = ticker.toLowerCase();
+      {required String id, String vsTicker = 'usd'}) async {
+    id = id.toLowerCase();
     vsTicker = vsTicker.toLowerCase();
     CoinGeckoResult<List<Market>> marketData =
-        await api.coins.listCoinMarkets(vsCurrency: vsTicker);
+        await api.coins.listCoinMarkets(coinIds: [id], vsCurrency: vsTicker);
     for (Market market in marketData.data) {
-      if (market.symbol == ticker) {
-        return market.marketCap!;
+      if (market.id == id || id == "loopring" && market.name == "Loopring") {
+        if (market.marketCap != null) {
+          return market.marketCap!;
+        }
       }
     }
     return 0;
@@ -81,7 +83,7 @@ class StockAPI implements AssetAPI {
   late AssetType assetType;
 
   @override
-  Future<List<Map<String, String>>> getAssetNamesAndTickers() async {
+  Future<List<Map<String, String>>> getAssetData() async {
     Uri url = Uri.http(stockApiUrl, "/api/v3/stock/list",
         {"apikey": stockDataApiKey, "limit": "10000"});
 
@@ -92,7 +94,11 @@ class StockAPI implements AssetAPI {
       for (Map<String, dynamic> stockDataMap in jsonResponse) {
         if (stockDataMap['symbol'] != null && stockDataMap['name'] != null) {
           stockNamesAndTickers.add(
-            {stockDataMap['symbol']: stockDataMap['name']},
+            {
+              'id': stockDataMap['symbol'],
+              'ticker': stockDataMap['symbol'],
+              'name': stockDataMap['name'],
+            },
           );
         }
       }
@@ -102,12 +108,11 @@ class StockAPI implements AssetAPI {
   }
 
   @override
-  Future<double> getPrice(
-      {required String ticker, String vsTicker = 'USD'}) async {
-    ticker = ticker.toUpperCase();
+  Future<double> getPrice({required String id, String vsTicker = 'USD'}) async {
+    id = id.toUpperCase();
     vsTicker = vsTicker.toUpperCase();
     Uri url = Uri.http(stockApiUrl, "/api/v3/quote-short/",
-        {"apikey": stockDataApiKey, "symbols": ticker});
+        {"apikey": stockDataApiKey, "symbols": id});
     Response response = await get(url);
     if (response.statusCode == 200) {
       List<Map<String, dynamic>> jsonResponse =
@@ -119,12 +124,12 @@ class StockAPI implements AssetAPI {
 
   @override
   Future<double> getMarketCap(
-      {required String ticker, String vsTicker = 'USD'}) async {
-    ticker = ticker.toUpperCase();
+      {required String id, String vsTicker = 'USD'}) async {
+    id = id.toUpperCase();
     vsTicker = vsTicker.toUpperCase();
 
     Uri url = Uri.http(stockApiUrl, "/api/v3/market-capitalization/",
-        {"apikey": stockDataApiKey, "symbols": ticker});
+        {"apikey": stockDataApiKey, "symbols": id});
     Response response = await get(url);
     if (response.statusCode == 200) {
       List<Map<String, dynamic>> jsonResponse =
@@ -140,7 +145,7 @@ class CashAPI implements AssetAPI {
   late AssetType assetType;
 
   @override
-  Future<List<Map<String, String>>> getAssetNamesAndTickers() async {
+  Future<List<Map<String, String>>> getAssetData() async {
     Uri url = Uri.https(currencyApiUrl, "/exchangerates_data/symbols",
         {"apikey": currencyExchangeDataApiKey});
     Response response = await get(url);
@@ -152,8 +157,9 @@ class CashAPI implements AssetAPI {
 
       if (jsonResponse['success'] == true) {
         Map<String, dynamic> currencyList = jsonResponse['symbols'];
-        currencyList.forEach((key, value) {
-          currencyNamesAndTickers.add({key: value});
+        currencyList.forEach((ticker, name) {
+          currencyNamesAndTickers
+              .add({'id': ticker, 'ticker': ticker, 'name': name});
         });
       }
       return currencyNamesAndTickers;
@@ -162,9 +168,8 @@ class CashAPI implements AssetAPI {
   }
 
   @override
-  Future<double> getPrice(
-      {required String ticker, String vsTicker = 'usd'}) async {
-    if (ticker == 'usd') {
+  Future<double> getPrice({required String id, String vsTicker = 'usd'}) async {
+    if (id == 'usd') {
       return 1.0;
     }
     return 0.0;
@@ -172,7 +177,7 @@ class CashAPI implements AssetAPI {
 
   @override
   Future<double> getMarketCap(
-      {required String ticker, String vsTicker = 'usd'}) async {
+      {required String id, String vsTicker = 'usd'}) async {
     return 0.0;
   }
 }
