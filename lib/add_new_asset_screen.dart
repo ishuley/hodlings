@@ -201,7 +201,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   @override
   void initState() {
     super.initState();
-    initAssetNamesAndTickerListForAssetDropdown();
+    initAssetDropdownAndData();
   }
 
   /// Assigns a list of [AssetDropdown] choices to the appropriate variable.
@@ -212,20 +212,17 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// API, and [parseAssetDataIntoDropdownStrings] converts
   /// it into a format appropriate for [AssetDropdown] to use.
   ///
-  ///TODO extract some methods out of this
-  void initAssetNamesAndTickerListForAssetDropdown() async {
+  void initAssetDropdownAndData() async {
     AssetStorage assetListStorage = AssetStorage();
     List<AssetDataItem> assetData = [];
 
     for (AssetType assetType in AssetType.values) {
-      assetData = await AssetStorage().readAssetData(assetType);
-      if (assetData.isEmpty) {
-        assetData = await AssetAPI(assetType).getAssetData();
-        AssetStorage().writeAssetData(assetData, assetType);
-      }
-      setAssetListData(assetType, assetData);
-      List<AssetDropdownItem> assetDropdownItems = [];
-      assetDropdownItems = await assetListStorage.readAssetList(assetType);
+      assetData = await getAssetData(assetData, assetType);
+      setAnAssetDataList(assetType, assetData);
+      // The list I use for the [AssetDropdown] menu is stored separately from
+      // the list of data, which contains names, tickers, and and unique identifier.
+      List<AssetDropdownItem> assetDropdownItems =
+          await assetListStorage.readAssetDropdownItems(assetType);
 
       if (assetDropdownItems.isEmpty) {
         assetDropdownItems =
@@ -236,13 +233,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       }
 
       setState(() {
-        if (assetDropdownItems.isNotEmpty) {
-          initializeAnAssetListWithSavedDataOrApiData(
-              assetDropdownItems, assetType);
-        }
-        if (assetDropdownItems.isEmpty) {
-          initializeAnEmptyAssetList(assetType);
-        }
+        initializeAssetDropdownButton(assetDropdownItems, assetType);
       });
     }
     setState(() {
@@ -250,9 +241,33 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     });
   }
 
+  void initializeAssetDropdownButton(
+      List<AssetDropdownItem> assetDropdownItems, AssetType assetType) {
+    if (assetDropdownItems.isNotEmpty) {
+      initializeAnAssetListWithSavedDataOrApiData(
+          assetDropdownItems, assetType);
+    }
+    if (assetDropdownItems.isEmpty) {
+      initializeAnEmptyAssetList(assetType);
+    }
+  }
+
+  Future<List<AssetDataItem>> getAssetData(
+      List<AssetDataItem> assetData, AssetType assetType) async {
+    // Check persistent storage for the asset data.
+    assetData = await AssetStorage().readAssetData(assetType);
+    if (assetData.isEmpty) {
+      // Get the list of assets from the API if none found on drive.
+      assetData = await AssetAPI(assetType).getListOfAssets();
+      // Save it so we don't have to do this API call every time.
+      AssetStorage().writeAssetData(assetData, assetType);
+    }
+    return assetData;
+  }
+
   String getAssetIdFromName(String assetName, AssetType assetType) {
     List<AssetDataItem> assetDataList =
-        chooseAssetDataListBasedOnAssetType(assetType);
+        chooseAssetDataBasedOnAssetType(assetType);
 
     for (AssetDataItem assetData in assetDataList) {
       if (assetData.name.toLowerCase() == assetName.toLowerCase()) {
@@ -264,7 +279,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     // sometimes that works instead with CoinGecko's API.
   }
 
-  List<AssetDataItem> chooseAssetDataListBasedOnAssetType(AssetType assetType) {
+  List<AssetDataItem> chooseAssetDataBasedOnAssetType(AssetType assetType) {
     switch (assetType) {
       case AssetType.stock:
         return stockAssetData;
@@ -285,14 +300,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     List<String> assetDropdownStrings = [];
     assetDropdownStrings = parseAssetDataIntoDropdownStrings(newAssetData);
     assetDropdownStrings.sort();
-    List<AssetDropdownItem> assetDropdownItems = [];
-    for (String assetText in assetDropdownStrings) {
-      assetDropdownItems.add(AssetDropdownItem(assetText));
-    }
-    return assetDropdownItems;
+    return convertListOfStringsToListOfAssetDropdownItems(assetDropdownStrings);
   }
 
-  void setAssetListData(
+  void setAnAssetDataList(
       AssetType assetType, List<AssetDataItem> newAssetDataMapList) {
     setState(() {
       if (assetType == AssetType.stock) {
@@ -316,7 +327,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   List<AssetDropdownItem> rearrangeAssetListToMyPersonalConvenience(
       AssetType assetType, List<AssetDropdownItem> assetDropdownItems) {
     List<String> assetDropdownStrings =
-        convertListOfAssetDropdownItemToListOfStrings(assetDropdownItems);
+        convertListOfAssetDropdownItemsToListOfStrings(assetDropdownItems);
     if (assetType == AssetType.stock) {
       int gmeIndex = assetDropdownStrings.indexOf("GME GameStop Corp.");
       assetDropdownStrings.insert(0, assetDropdownStrings.removeAt(gmeIndex));
@@ -359,7 +370,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     return newAssetDropdownItems;
   }
 
-  List<String> convertListOfAssetDropdownItemToListOfStrings(
+  List<String> convertListOfAssetDropdownItemsToListOfStrings(
       List<AssetDropdownItem> assetDropdownItems) {
     List<String> assetDropdownStrings = [];
     for (AssetDropdownItem assetDropdownItem in assetDropdownItems) {
@@ -470,24 +481,28 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
         List<AssetDropdownItem> currentAssetList =
             chooseAssetDropdownItemListBasedOnAssetType();
-        if (currentAssetList.isNotEmpty) {
-          currentlySelectedAssetDropdownElement =
-              currentAssetList[0].assetDropdownString;
-          setCurrentlySelectedAssetId();
-        }
-        if (currentAssetList.isEmpty) {
-          currentlySelectedAssetDropdownElement =
-              "Apologies, the list somehow failed to load.";
-          currentlySelectedAssetID = null;
-        }
+        setCurrentAsset(currentAssetList);
 
         dataSourceDropdownValues = getDataSourcesDropdownValues();
         currentDataSource = dataSourceDropdownValues.first;
-        // TODO make currentAssetName remember the last asset selected from a category after changing
+        // TODO make the app remember the last asset selected from a category after changing categories
 
         dataSourceChanged(currentDataSource);
       },
     );
+  }
+
+  void setCurrentAsset(List<AssetDropdownItem> currentAssetList) {
+    if (currentAssetList.isNotEmpty) {
+      currentlySelectedAssetDropdownElement =
+          currentAssetList[0].assetDropdownString;
+      setCurrentlySelectedAssetId();
+    }
+    if (currentAssetList.isEmpty) {
+      currentlySelectedAssetDropdownElement =
+          "Apologies, the list somehow failed to load.";
+      currentlySelectedAssetID = null;
+    }
   }
 
   void setCurrentlySelectedAssetId() {
@@ -751,7 +766,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
                           assetType: assetType,
                           assetDropdownChangedCallback: assetDropdownChanged,
                           assetTickerAndNameList:
-                              convertListOfAssetDropdownItemToListOfStrings(
+                              convertListOfAssetDropdownItemsToListOfStrings(
                                   chooseAssetDropdownItemListBasedOnAssetType()),
                         ),
                         DataSourceLabel(

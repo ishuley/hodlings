@@ -83,7 +83,8 @@ class AssetStorage {
     await file.writeAsString(encodedAssetList);
   }
 
-  Future<List<AssetDropdownItem>> readAssetList(AssetType assetType) async {
+  Future<List<AssetDropdownItem>> readAssetDropdownItems(
+      AssetType assetType) async {
     File file = await chooseAssetListFile(assetType);
     if (await file.exists()) {
       String encodedAssetList = await file.readAsString();

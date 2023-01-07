@@ -2,6 +2,36 @@ import 'package:flutter/material.dart';
 import 'add_new_asset_screen.dart';
 import 'asset_card.dart';
 
+// TODO LIST:
+//
+// 1) Finish integrating stocks and cash type assets.
+// 2) Tear out current styles and replace with proper Flutter themes,
+// and add ability to toggle themes (persist it).
+// 3) Add the ability to delete AssetCards.
+// 4) Add the ability to persist AssetCard list.
+// 5) Add the ability to refresh AssetCard list's data.
+// 6) Add ability to reload asset lists.
+// 7) Add the ability to sort by specific AssetCard elements like total, market
+// cap, or alphabetically by ticker. Default it to total. Persist chosen sort
+// order.
+// 8) Divide the app into many smaller pieces and into appropriate folders.
+// 9) This is a minimum viable product. Get a code review from the nice people
+// in FlutterDev discord.
+// 10) Add daily volume and % change. Give user option for displayed % change
+// time frame. Persist it.
+// 11) Add support for different vs currencies, and the necessary conversions.
+// as well as customized lists of preferred vs currencies that can be toggled
+// through by pushing the net worth button.
+// 12) Add the ability to back up AssetCard list to the cloud and restore using
+// a seed.
+// 13) Add a chart to each AssetCard based one the chosen % change time interval.
+// Provide option to toggle chart on or off, add to settings, persist it.
+// 14) Add the ability to back up settings to the cloud (which should be
+// persistent already).
+// 15) Add API support for exchanges and brokers where possible.
+// 16) Add support for NFTs and scrape GameStops marketplace to support it,
+// if necessary and permissible.
+
 void main() => runApp(
       MaterialApp(
         routes: {
@@ -24,7 +54,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void onNetWorthButtonPressed() {
     setState(() {
-      // TODO make this screen update the vsTicker appropriately
+      // TODO Make this listener update the vsTicker appropriately to the next available vsCurrency when pressed.
     });
   }
 

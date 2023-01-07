@@ -22,7 +22,7 @@ abstract class AssetAPI {
         return CashAPI();
     }
   }
-  Future<List<AssetDataItem>> getAssetData();
+  Future<List<AssetDataItem>> getListOfAssets();
   Future<double> getPrice({required String id, String vsTicker});
   Future<double> getMarketCap({required String id, String vsTicker});
 }
@@ -34,7 +34,7 @@ class CryptoAPI implements AssetAPI {
   late AssetType assetType;
 
   @override
-  Future<List<AssetDataItem>> getAssetData() async {
+  Future<List<AssetDataItem>> getListOfAssets() async {
     final CoinGeckoResult<List<CoinShort>> result = await api.coins.listCoins();
     List<AssetDataItem> cryptoData = [];
     for (CoinShort cryptoDetails in result.data) {
@@ -81,7 +81,7 @@ class StockAPI implements AssetAPI {
   late AssetType assetType;
 
   @override
-  Future<List<AssetDataItem>> getAssetData() async {
+  Future<List<AssetDataItem>> getListOfAssets() async {
     Uri url = Uri.http(stockApiUrl, "/api/v3/stock/list",
         {"apikey": stockDataApiKey, "limit": "10000"});
 
@@ -143,7 +143,7 @@ class CashAPI implements AssetAPI {
   late AssetType assetType;
 
   @override
-  Future<List<AssetDataItem>> getAssetData() async {
+  Future<List<AssetDataItem>> getListOfAssets() async {
     Uri url = Uri.https(currencyApiUrl, "/exchangerates_data/symbols",
         {"apikey": currencyExchangeDataApiKey});
     Response response = await get(url);
