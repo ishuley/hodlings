@@ -3,6 +3,7 @@ import 'package:coingecko_api/coingecko_result.dart';
 import 'package:coingecko_api/data/coin_short.dart';
 import 'package:coingecko_api/data/market.dart';
 import 'package:coingecko_api/data/price_info.dart';
+import 'package:hodlings/asset_data_item.dart';
 import 'asset.dart';
 import 'package:coingecko_api/coingecko_api.dart';
 import 'package:http/http.dart';
@@ -21,7 +22,7 @@ abstract class AssetAPI {
         return CashAPI();
     }
   }
-  Future<List<Map<String, String>>> getAssetData();
+  Future<List<AssetDataItem>> getAssetData();
   Future<double> getPrice({required String id, String vsTicker});
   Future<double> getMarketCap({required String id, String vsTicker});
 }
@@ -33,17 +34,14 @@ class CryptoAPI implements AssetAPI {
   late AssetType assetType;
 
   @override
-  Future<List<Map<String, String>>> getAssetData() async {
+  Future<List<AssetDataItem>> getAssetData() async {
     final CoinGeckoResult<List<CoinShort>> result = await api.coins.listCoins();
-    List<Map<String, String>> cryptoIDData = [];
+    List<AssetDataItem> cryptoData = [];
     for (CoinShort cryptoDetails in result.data) {
-      cryptoIDData.add({
-        "id": cryptoDetails.id,
-        "name": cryptoDetails.name,
-        "ticker": cryptoDetails.symbol
-      });
+      cryptoData.add(AssetDataItem(
+          cryptoDetails.id, cryptoDetails.name, cryptoDetails.symbol));
     }
-    return cryptoIDData;
+    return cryptoData;
   }
 
   @override
@@ -83,22 +81,22 @@ class StockAPI implements AssetAPI {
   late AssetType assetType;
 
   @override
-  Future<List<Map<String, String>>> getAssetData() async {
+  Future<List<AssetDataItem>> getAssetData() async {
     Uri url = Uri.http(stockApiUrl, "/api/v3/stock/list",
         {"apikey": stockDataApiKey, "limit": "10000"});
 
     Response response = await get(url);
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body) as List<dynamic>;
-      List<Map<String, String>> stockNamesAndTickers = [];
+      List<AssetDataItem> stockNamesAndTickers = [];
       for (Map<String, dynamic> stockDataMap in jsonResponse) {
         if (stockDataMap['symbol'] != null && stockDataMap['name'] != null) {
           stockNamesAndTickers.add(
-            {
-              'id': stockDataMap['symbol'],
-              'ticker': stockDataMap['symbol'],
-              'name': stockDataMap['name'],
-            },
+            AssetDataItem(
+              stockDataMap['symbol'],
+              stockDataMap['name'],
+              stockDataMap['symbol'],
+            ),
           );
         }
       }
@@ -145,24 +143,24 @@ class CashAPI implements AssetAPI {
   late AssetType assetType;
 
   @override
-  Future<List<Map<String, String>>> getAssetData() async {
+  Future<List<AssetDataItem>> getAssetData() async {
     Uri url = Uri.https(currencyApiUrl, "/exchangerates_data/symbols",
         {"apikey": currencyExchangeDataApiKey});
     Response response = await get(url);
+    List<AssetDataItem> currencyData = [];
     if (response.statusCode == 200) {
-      List<Map<String, String>> currencyNamesAndTickers = [];
-
       Map<String, dynamic> jsonResponse =
           jsonDecode(response.body) as Map<String, dynamic>;
 
       if (jsonResponse['success'] == true) {
         Map<String, dynamic> currencyList = jsonResponse['symbols'];
-        currencyList.forEach((ticker, name) {
-          currencyNamesAndTickers
-              .add({'id': ticker, 'ticker': ticker, 'name': name});
-        });
+
+        for (MapEntry<String, dynamic> currency in currencyList.entries) {
+          currencyData.add(AssetDataItem(currency.key.toUpperCase(),
+              currency.value, currency.key.toUpperCase()));
+        }
       }
-      return currencyNamesAndTickers;
+      return currencyData;
     }
     return [];
   }

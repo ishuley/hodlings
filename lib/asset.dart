@@ -10,9 +10,10 @@ abstract class Asset {
   late String assetID;
 
   Asset({required this.assetFieldData, required this.assetID}) {
-    List splitAssetFieldData = assetFieldData.split(" - ");
-    ticker = splitAssetFieldData.elementAt(0);
-    name = splitAssetFieldData.elementAt(1);
+    List<String> splitAssetFieldData = assetFieldData.split(" ");
+    ticker = splitAssetFieldData.elementAt(0).toUpperCase();
+    splitAssetFieldData.removeAt(0);
+    name = splitAssetFieldData.join(' ');
   }
 
   double quantity = 0;

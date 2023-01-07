@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:path_provider/path_provider.dart';
-
 import 'asset.dart';
+import 'asset_data_item.dart';
+import 'asset_dropdown_item.dart';
 
 /// Presistent storage for the lists of selectable assets.
 ///
@@ -20,87 +21,84 @@ class AssetStorage {
 
   Future<File> get _stockAssetListFile async {
     final path = await _localPath;
-    return File('$path/stockAssetList.txt');
+    return File('$path/stockAssetList.json');
   }
 
   Future<File> get _cryptoAssetListFile async {
     final path = await _localPath;
-    return File('$path/cryptoAssetList.txt');
+    return File('$path/cryptoAssetList.json');
   }
 
   Future<File> get _cashAssetListFile async {
     final path = await _localPath;
-    return File('$path/cashAssetList.txt');
+    return File('$path/cashAssetList.json');
   }
 
   Future<File> get _stockAssetDataFile async {
     final path = await _localPath;
-    return File('$path/stockAssetData.txt');
+    return File('$path/stockAssetData.json');
   }
 
   Future<File> get _cryptoAssetDataFile async {
     final path = await _localPath;
-    return File('$path/cryptoAssetData.txt');
+    return File('$path/cryptoAssetData.json');
   }
 
   Future<File> get _cashAssetDataFile async {
     final path = await _localPath;
-    return File('$path/cashAssetData.txt');
+    return File('$path/cashAssetData.json');
   }
 
-  Future<List<String>> readAssetList(AssetType assetType) async {
-    try {
-      final File file = await chooseAssetFile(assetType);
-      return await file.readAsLines();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  Future<List<Map<String, String>>> readDataList(AssetType assetType) async {
-    List<Map<String, String>> storedDataList = [];
-    try {
-      final File file = await chooseAssetDataFile(assetType);
-      List<String> dataFileList = await file.readAsLines();
-      for (String lineRead in dataFileList) {
-        List<String> splitLine = lineRead.split(";");
-        Map<String, String> dataEntry = {
-          splitLine[0]: splitLine[1],
-          splitLine[2]: splitLine[3],
-          splitLine[4]: splitLine[5]
-        };
-        storedDataList.add(dataEntry);
-      }
-      return storedDataList;
-    } catch (e) {
-      return [];
-    }
-  }
-
-  Future<void> writeAssetData(List<Map<String, String>> newAssetDataMapList,
-      AssetType assetType) async {
-    // TODO: This function needs rewritten using JSON serialization and IOSink
+  Future<List<AssetDataItem>> readAssetData(AssetType assetType) async {
     File file = await chooseAssetDataFile(assetType);
-    deleteAssetDataFile(assetType);
-    for (Map<String, String> assetDataMap in newAssetDataMapList) {
-      file = await file.writeAsString(
-          "id;${assetDataMap['id']!};name;${assetDataMap['name']!};ticker;${"${assetDataMap['ticker']!}\n"}",
-          mode: FileMode.append);
+    if (await file.exists()) {
+      String encodedAssetData = await file.readAsString();
+      List<dynamic> decodedAssetData = jsonDecode(encodedAssetData);
+      List<AssetDataItem> assetData = [];
+      for (Map<String, dynamic> assetDataItem in decodedAssetData) {
+        assetData.add(AssetDataItem.fromJson(assetDataItem));
+      }
+      return assetData;
     }
+    return [];
+  }
+
+  Future<void> writeAssetData(
+      List<AssetDataItem> assetData, AssetType assetType) async {
+    deleteAssetDataFile(assetType);
+    String encodedAssetData = jsonEncode(assetData);
+    File file = await chooseAssetDataFile(assetType);
+    await file.writeAsString(encodedAssetData);
   }
 
   Future<void> writeAssetList(
-      List<String> assetList, AssetType assetType) async {
-    File file = await chooseAssetFile(assetType);
-
-    for (String assetTickerAndName in assetList) {
-      file = await file.writeAsString("$assetTickerAndName\n",
-          mode: FileMode.append);
+      List<AssetDropdownItem> assetList, AssetType assetType) async {
+    deleteAssetListFile(assetType);
+    List<String> assetListAsString = [];
+    for (AssetDropdownItem assetDropdownItem in assetList) {
+      assetListAsString.add(assetDropdownItem.assetDropdownString);
     }
+    String encodedAssetList = jsonEncode(assetListAsString);
+    File file = await chooseAssetListFile(assetType);
+    await file.writeAsString(encodedAssetList);
+  }
+
+  Future<List<AssetDropdownItem>> readAssetList(AssetType assetType) async {
+    File file = await chooseAssetListFile(assetType);
+    if (await file.exists()) {
+      String encodedAssetList = await file.readAsString();
+      List<dynamic> decodedAssetList = jsonDecode(encodedAssetList);
+      List<AssetDropdownItem> assetList = [];
+      for (String jsonElement in decodedAssetList) {
+        assetList.add(AssetDropdownItem(jsonElement));
+      }
+      return assetList;
+    }
+    return [];
   }
 
   Future<void> deleteAssetListFile(AssetType assetType) async {
-    File assetListFile = await chooseAssetFile(assetType);
+    File assetListFile = await chooseAssetListFile(assetType);
     if (await assetListFile.exists()) {
       assetListFile.delete();
     }
@@ -113,7 +111,7 @@ class AssetStorage {
     }
   }
 
-  Future<File> chooseAssetFile(AssetType assetType) async {
+  Future<File> chooseAssetListFile(AssetType assetType) async {
     switch (assetType) {
       case AssetType.stock:
         return await _stockAssetListFile;
