@@ -648,6 +648,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     late Asset asset;
     switch (assetType) {
       case AssetType.stock:
+        asset = Stock(
+            assetFieldData: currentlySelectedAssetDropdownElement,
+            assetID: currentlySelectedAssetID!,
+            qty: double.parse(dataSourceText));
         break;
       case AssetType.crypto:
         if (currentDataSource.endsWith("Qty")) {
@@ -664,6 +668,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         }
         break;
       case AssetType.cash:
+        asset = Cash(
+            assetFieldData: currentlySelectedAssetDropdownElement,
+            assetID: currentlySelectedAssetID!,
+            qty: double.parse(dataSourceText));
         break;
     }
 

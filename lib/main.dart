@@ -10,13 +10,12 @@ import 'asset_card.dart';
 // 3) Add the ability to delete AssetCards.
 // 4) Add the ability to persist AssetCard list.
 // 5) Add the ability to refresh AssetCard list's data.
-// 6) Add ability to reload asset lists.
+// 6) Add ability to reload asset lists. Limit the frequency that API calls can be made.
 // 7) Add the ability to sort by specific AssetCard elements like total, market
 // cap, or alphabetically by ticker. Default it to total. Persist chosen sort
 // order.
 // 8) Divide the app into many smaller pieces and into appropriate folders.
-// 9) This is a minimum viable product. Get a code review from the nice people
-// in FlutterDev discord.
+// 9) Finish blockchain based address lookup.
 // 10) Add daily volume and % change. Give user option for displayed % change
 // time frame. Persist it.
 // 11) Add support for different vs currencies, and the necessary conversions.
@@ -172,6 +171,7 @@ class AssetDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     if (assetList.isNotEmpty) {
       return ListView.builder(
+          physics: const ClampingScrollPhysics(),
           itemCount: assetList.length,
           itemBuilder: (BuildContext context, int index) {
             return Card(

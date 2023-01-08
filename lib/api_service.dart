@@ -90,15 +90,13 @@ class StockAPI implements AssetAPI {
       List<dynamic> jsonResponse = jsonDecode(response.body) as List<dynamic>;
       List<AssetDataItem> stockNamesAndTickers = [];
       for (Map<String, dynamic> stockDataMap in jsonResponse) {
-        if (stockDataMap['symbol'] != null && stockDataMap['name'] != null) {
-          stockNamesAndTickers.add(
-            AssetDataItem(
-              stockDataMap['symbol'],
-              stockDataMap['name'],
-              stockDataMap['symbol'],
-            ),
-          );
-        }
+        stockNamesAndTickers.add(
+          AssetDataItem(
+            stockDataMap['symbol'],
+            stockDataMap['name'],
+            stockDataMap['symbol'],
+          ),
+        );
       }
       return stockNamesAndTickers;
     }
@@ -109,12 +107,11 @@ class StockAPI implements AssetAPI {
   Future<double> getPrice({required String id, String vsTicker = 'USD'}) async {
     id = id.toUpperCase();
     vsTicker = vsTicker.toUpperCase();
-    Uri url = Uri.http(stockApiUrl, "/api/v3/quote-short/",
+    Uri url = Uri.http(stockApiUrl, "/api/v3/quote-short/$id",
         {"apikey": stockDataApiKey, "symbols": id});
     Response response = await get(url);
     if (response.statusCode == 200) {
-      List<Map<String, dynamic>> jsonResponse =
-          jsonDecode(response.body) as List<Map<String, dynamic>>;
+      List<dynamic> jsonResponse = jsonDecode(response.body);
       return jsonResponse[0]["price"];
     }
     return 0.0;
@@ -126,15 +123,14 @@ class StockAPI implements AssetAPI {
     id = id.toUpperCase();
     vsTicker = vsTicker.toUpperCase();
 
-    Uri url = Uri.http(stockApiUrl, "/api/v3/market-capitalization/",
+    Uri url = Uri.http(stockApiUrl, "/api/v3/market-capitalization/$id",
         {"apikey": stockDataApiKey, "symbols": id});
     Response response = await get(url);
     if (response.statusCode == 200) {
-      List<Map<String, dynamic>> jsonResponse =
-          jsonDecode(response.body) as List<Map<String, dynamic>>;
-      return jsonResponse[0]["marketCap"];
+      List<dynamic> jsonResponse = jsonDecode(response.body);
+      return jsonResponse[0]["marketCap"].toDouble();
     }
-    return 0.0;
+    return 0;
   }
 }
 
