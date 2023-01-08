@@ -671,6 +671,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
   Future<String> getMarketCapString(Asset asset) async {
     double marketCap = await asset.getMarketCap(vsTicker: currentVsTicker);
+    if (marketCap == 0) {
+      return "";
+    }
     String formattedMktCap = formatMarketCap(marketCap);
     String marketCapString =
         "Market Cap: $formattedMktCap ${currentVsTicker.toUpperCase()}";
