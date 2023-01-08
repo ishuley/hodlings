@@ -163,10 +163,10 @@ class CashAPI implements AssetAPI {
 
   @override
   Future<double> getPrice({required String id, String vsTicker = 'usd'}) async {
-    if (id == 'usd') {
+    if (id == vsTicker) {
       return 1.0;
     }
-    return 0.0;
+    return 0;
   }
 
   @override

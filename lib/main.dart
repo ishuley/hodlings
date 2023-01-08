@@ -14,10 +14,12 @@ import 'asset_card.dart';
 // 7) Add the ability to sort by specific AssetCard elements like total, market
 // cap, or alphabetically by ticker. Default it to total. Persist chosen sort
 // order.
+// 7.5) Add attributiona to CoinGecko and FinancialModelingPrep.
 // 8) Divide the app into many smaller pieces and into appropriate folders.
 // 9) Finish blockchain based address lookup.
 // 10) Add daily volume and % change. Give user option for displayed % change
 // time frame. Persist it.
+// 10.5) Add option to toggle whether market cap is described in words or numbers. Persist it.
 // 11) Add support for different vs currencies, and the necessary conversions.
 // as well as customized lists of preferred vs currencies that can be toggled
 // through by pushing the net worth button.
@@ -30,6 +32,7 @@ import 'asset_card.dart';
 // 15) Add API support for exchanges and brokers where possible.
 // 16) Add support for NFTs and scrape GameStops marketplace to support it,
 // if necessary and permissible.
+// 18) Add precious metal support.
 
 void main() => runApp(
       MaterialApp(
