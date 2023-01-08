@@ -166,6 +166,9 @@ class CashAPI implements AssetAPI {
     if (id == vsTicker) {
       return 1.0;
     }
+    // Uri url = Uri.https(currencyApiUrl, "/exchangerates_data/",
+    //     {"apikey": currencyExchangeDataApiKey});
+    // Response response = await get(url);
     return 0;
   }
 

@@ -644,36 +644,12 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// back to [MainScreen] by "popping" it along with the context.
   ///
   Future<void> onAcceptButtonPressed() async {
-    String dataSourceText = dataSourceInputController.text;
-    late Asset asset;
-    switch (assetType) {
-      case AssetType.stock:
-        asset = Stock(
-            assetFieldData: currentlySelectedAssetDropdownElement,
-            assetID: currentlySelectedAssetID!,
-            qty: double.parse(dataSourceText));
-        break;
-      case AssetType.crypto:
-        if (currentDataSource.endsWith("Qty")) {
-          asset = Crypto(
-              assetFieldData: currentlySelectedAssetDropdownElement,
-              assetID: currentlySelectedAssetID!,
-              qty: double.parse(dataSourceText));
-        }
-        if (currentDataSource.endsWith("Address")) {
-          asset = Crypto.byAddress(
-              assetFieldData: currentlySelectedAssetDropdownElement,
-              assetID: currentlySelectedAssetID!,
-              address: dataSourceText);
-        }
-        break;
-      case AssetType.cash:
-        asset = Cash(
-            assetFieldData: currentlySelectedAssetDropdownElement,
-            assetID: currentlySelectedAssetID!,
-            qty: double.parse(dataSourceText));
-        break;
-    }
+    Asset asset = assetType.createAsset(
+      assetFieldData: currentlySelectedAssetDropdownElement,
+      assetID: currentlySelectedAssetID!,
+      dataSource: currentDataSource,
+      dataSourceField: dataSourceInputController.text,
+    );
 
     AssetCard newAssetCard = await createNewAssetCard(asset);
 

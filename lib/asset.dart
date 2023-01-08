@@ -1,22 +1,39 @@
 import 'api_service.dart';
 
-enum AssetType { stock, crypto, cash }
+enum AssetType {
+  stock(Stock.new),
+  crypto(Crypto.new),
+  cash(Cash.new);
+
+  final Asset Function(
+      {required String assetFieldData,
+      required String assetID,
+      required String dataSource,
+      required String dataSourceField}) createAsset;
+  const AssetType(this.createAsset);
+}
 
 abstract class Asset {
   final String assetFieldData;
-  late String name;
-  late String ticker;
-  late AssetType assetType;
-  late String assetID;
+  late final String name;
+  late final String ticker;
+  late final AssetType assetType;
+  late final String assetID;
+  final String dataSource;
+  final String dataSourceField;
+  late final double quantity;
 
-  Asset({required this.assetFieldData, required this.assetID}) {
+  Asset(
+      {required this.assetFieldData,
+      required this.assetID,
+      required this.dataSource,
+      required this.dataSourceField}) {
     List<String> splitAssetFieldData = assetFieldData.split(" ");
     ticker = splitAssetFieldData.elementAt(0).toUpperCase();
     splitAssetFieldData.removeAt(0);
     name = splitAssetFieldData.join(' ');
   }
 
-  double quantity = 0;
   Future<double> getPrice({String vsTicker = 'usd'}) async {
     return await AssetAPI(assetType).getPrice(id: assetID, vsTicker: vsTicker);
   }
@@ -28,19 +45,20 @@ abstract class Asset {
 }
 
 class Crypto extends Asset {
+  late final String? address;
   Crypto(
       {required super.assetFieldData,
       required super.assetID,
-      required double qty}) {
+      required super.dataSource,
+      required super.dataSourceField}) {
+    if (dataSource.endsWith('Qty')) {
+      quantity = double.parse(dataSourceField);
+    }
+    if (dataSource.endsWith('Address')) {
+      address = dataSourceField;
+      quantity = getQuantityFromBlockchainAddress(address!);
+    }
     assetType = AssetType.crypto;
-    quantity = qty;
-  }
-  Crypto.byAddress(
-      {required super.assetFieldData,
-      required super.assetID,
-      required String address}) {
-    assetType = AssetType.crypto;
-    quantity = getQuantityFromBlockchainAddress(address);
   }
 
   double getQuantityFromBlockchainAddress(String address) {
@@ -52,8 +70,11 @@ class Stock extends Asset {
   Stock(
       {required super.assetFieldData,
       required super.assetID,
-      required double qty}) {
-    quantity = qty;
+      required super.dataSource,
+      required super.dataSourceField}) {
+    if (dataSource.endsWith('Qty')) {
+      quantity = double.parse(dataSourceField);
+    }
     assetType = AssetType.stock;
   }
 }
@@ -62,8 +83,11 @@ class Cash extends Asset {
   Cash(
       {required super.assetFieldData,
       required super.assetID,
-      required double qty}) {
-    quantity = qty;
+      required super.dataSource,
+      required super.dataSourceField}) {
+    if (dataSource.endsWith('Qty')) {
+      quantity = double.parse(dataSourceField);
+    }
     assetType = AssetType.cash;
   }
 }
