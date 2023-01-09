@@ -4,6 +4,8 @@ import 'asset_card.dart';
 
 // TODO LIST:
 
+// 2) add progress indicator to onAcceptButtonPushed that ends when the card is
+// added (API call to get price lags)
 // 3) Add the ability to delete AssetCards.
 // 4) Add the ability to persist AssetCard list.
 // 5) Add the ability to refresh AssetCard list's data.
@@ -38,7 +40,7 @@ void main() => runApp(
         },
         theme: ThemeData(
           brightness: Brightness.dark,
-          primarySwatch: Colors.grey,
+          primarySwatch: Colors.lime,
           useMaterial3: true,
         ),
       ),
