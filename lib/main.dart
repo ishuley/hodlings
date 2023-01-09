@@ -3,9 +3,7 @@ import 'add_new_asset_screen.dart';
 import 'asset_card.dart';
 
 // TODO LIST:
-//
-// 2) Tear out current styles and replace with proper Flutter themes,
-// and add ability to toggle themes (persist it).
+
 // 3) Add the ability to delete AssetCards.
 // 4) Add the ability to persist AssetCard list.
 // 5) Add the ability to refresh AssetCard list's data.
