@@ -22,6 +22,7 @@ class AssetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color textColor = Theme.of(context).textTheme.labelSmall!.color!;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
       child: Column(
@@ -34,22 +35,28 @@ class AssetCard extends StatelessWidget {
                 children: [
                   Text(
                     asset.ticker,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 22),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                        color: textColor),
                   ),
                   Text(
                     asset.name,
-                    style: const TextStyle(fontSize: 10),
+                    style: TextStyle(fontSize: 10, color: textColor),
                   ),
                 ],
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     "Qty: ",
+                    style: TextStyle(color: textColor),
                   ),
-                  Text(asset.quantity.toStringAsFixed(2))
+                  Text(
+                    asset.quantity.toStringAsFixed(2),
+                    style: TextStyle(color: textColor),
+                  )
                 ],
               ),
               Column(
@@ -57,6 +64,7 @@ class AssetCard extends StatelessWidget {
                 children: [
                   Text(
                     "Price (${vsTicker.toUpperCase()}):",
+                    style: TextStyle(color: textColor),
                   ),
                   Text(price.toStringAsFixed(2)),
                 ],
@@ -67,12 +75,14 @@ class AssetCard extends StatelessWidget {
                   Text(
                     textAlign: TextAlign.center,
                     "Total (${vsTicker.toUpperCase()}): ",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: textColor),
                   ),
                   Text(
                     textAlign: TextAlign.center,
                     totalValue.toStringAsFixed(2),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: textColor),
                   ),
                 ],
               ),
@@ -84,7 +94,7 @@ class AssetCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 7),
                 child: Text(
                   marketCapString,
-                  style: const TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 12, color: textColor),
                 ),
               )
             ],

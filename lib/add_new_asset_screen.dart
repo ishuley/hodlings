@@ -791,6 +791,8 @@ class _AssetTypeSelectionState extends State<AssetTypeSelection> {
       padding: const EdgeInsets.all(12.0),
       child: Center(
         child: CupertinoSlidingSegmentedControl(
+          backgroundColor: Theme.of(context).primaryColor,
+          thumbColor: Theme.of(context).toggleableActiveColor,
           groupValue: _assetSelection,
           onValueChanged: (int? choice) {
             widget.assetTypeChangedCallback(choice!);
@@ -828,21 +830,29 @@ class DataSourceDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: DropdownButton<String>(
-        onChanged: ((String? selectedDataSource) {
-          dataSourceChangedCallback(selectedDataSource!);
-        }),
-        value: currentDataSource,
-        items: dataSourceDropdownValues
-            .map<DropdownMenuItem<String>>((String dataSourceName) {
-          return DropdownMenuItem<String>(
-            value: dataSourceName,
-            child: Text(dataSourceName),
-          );
-        }).toList(),
-        isExpanded: true,
+    return SizedBox(
+      width: 367,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
+        decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+        child: Padding(
+          padding: const EdgeInsets.all(6.0),
+          child: DropdownButton<String>(
+            dropdownColor: Theme.of(context).primaryColor,
+            onChanged: ((String? selectedDataSource) {
+              dataSourceChangedCallback(selectedDataSource!);
+            }),
+            value: currentDataSource,
+            items: dataSourceDropdownValues
+                .map<DropdownMenuItem<String>>((String dataSourceName) {
+              return DropdownMenuItem<String>(
+                value: dataSourceName,
+                child: Text(dataSourceName),
+              );
+            }).toList(),
+            isExpanded: true,
+          ),
+        ),
       ),
     );
   }
@@ -881,7 +891,9 @@ class AssetDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).primaryColor,
       child: SearchChoices.single(
+        menuBackgroundColor: Theme.of(context).primaryColor,
         items: mapListForDropdown(),
         value: currentAssetName,
         hint: Text(
@@ -889,11 +901,16 @@ class AssetDropdown extends StatelessWidget {
         ),
         searchHint: const Text(
           "Select asset",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         closeButton: TextButton(
           onPressed: (() => {Navigator.pop(context)}),
+          style: ButtonStyle(
+              foregroundColor:
+                  MaterialStateProperty.all(Theme.of(context).iconTheme.color)),
           child: const Text(
             "Close",
+            style: TextStyle(fontSize: 16),
           ),
         ),
         onChanged: ((String? chosenAssetName) {
@@ -901,6 +918,9 @@ class AssetDropdown extends StatelessWidget {
         }),
         isExpanded: true,
         displayClearIcon: false,
+        style: TextStyle(
+            backgroundColor: Theme.of(context).primaryColor,
+            color: Theme.of(context).textTheme.labelLarge?.color),
       ),
     );
   }
@@ -957,9 +977,7 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
   void initState() {
     super.initState();
     widget.dataSourceInputController.addListener(
-      () {
-        setState(() {});
-      },
+      () {},
     );
   }
 
@@ -970,23 +988,34 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
       child: SizedBox(
         height: 50.0,
         child: TextField(
+          cursorColor: Theme.of(context).iconTheme.color,
           controller: widget.dataSourceInputController,
           decoration: InputDecoration(
-            border: const OutlineInputBorder(),
+            fillColor: Theme.of(context).primaryColor,
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                  color: Theme.of(context).iconTheme.color!, width: 0),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                  color: Theme.of(context).iconTheme.color!, width: 0),
+            ),
             filled: true,
             suffixIcon: widget.dataSourceInputController.text.isEmpty
                 ? widget.dataSourceScannable
                     ? IconButton(
                         onPressed: onQRIconPressed,
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.qr_code_scanner,
+                          color: Theme.of(context).iconTheme.color,
                         ),
                       )
                     : Container(width: 0)
                 : IconButton(
                     onPressed: () => widget.dataSourceInputController.clear(),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.close,
+                      color: Theme.of(context).iconTheme.color,
                     ),
                   ),
           ),

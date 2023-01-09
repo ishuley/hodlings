@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hodlings/themes.dart';
 import 'add_new_asset_screen.dart';
 import 'asset_card.dart';
 
@@ -38,11 +39,10 @@ void main() => runApp(
         routes: {
           '/': (context) => const MainScreen(),
         },
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          primarySwatch: Colors.lime,
-          useMaterial3: true,
-        ),
+        title: 'HODLings',
+        themeMode: ThemeMode.system,
+        theme: Themes.lightTheme,
+        darkTheme: Themes.darkTheme,
       ),
     );
 
@@ -89,28 +89,33 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("HODLings"),
-          centerTitle: true,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        title: Text(
+          "HODLings",
+          style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
-        drawer: const DrawerMenu(),
-        body: Center(
-          child: Column(
-            children: [
-              NetWorthButton(
-                netWorth: netWorth.toStringAsFixed(2),
-                vsTicker: vsTicker,
-                onNetWorthClickCallback: onNetWorthButtonPressed,
+        centerTitle: true,
+      ),
+      drawer: const DrawerMenu(),
+      body: Center(
+        child: Column(
+          children: [
+            NetWorthButton(
+              netWorth: netWorth.toStringAsFixed(2),
+              vsTicker: vsTicker,
+              onNetWorthClickCallback: onNetWorthButtonPressed,
+            ),
+            Expanded(
+              child: AssetDisplay(
+                assetList: assetList,
               ),
-              Expanded(
-                child: AssetDisplay(
-                  assetList: assetList,
-                ),
-              ),
-              AddNewAssetButton(addNewAssetCallback: addNewAssetScreen),
-            ],
-          ),
-        ));
+            ),
+            AddNewAssetButton(addNewAssetCallback: addNewAssetScreen),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -120,9 +125,11 @@ class DrawerMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-        child: ListView(
-      children: const [],
-    ));
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      child: ListView(
+        children: const [],
+      ),
+    );
   }
 }
 
@@ -145,11 +152,10 @@ class NetWorthButton extends StatelessWidget {
             height: 75,
             child: TextButton(
               onPressed: onNetWorthClickCallback,
-              child: Text("$netWorth $vsTicker",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    color: Colors.white,
-                  )),
+              child: Text(
+                "$netWorth $vsTicker",
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
             ),
           ),
         ),
@@ -206,9 +212,10 @@ class _AddNewAssetButtonState extends State<AddNewAssetButton> {
               height: 75,
               child: TextButton(
                 onPressed: widget.addNewAssetCallback,
-                child: const Icon(
+                child: Icon(
                   Icons.add,
-                  color: Colors.white,
+                  size: Theme.of(context).iconTheme.size,
+                  color: Theme.of(context).iconTheme.color,
                 ),
               ),
             ),

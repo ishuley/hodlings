@@ -21,29 +21,47 @@ class AcceptCancelButton extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: acceptPushedCallback,
-                    style: const ButtonStyle(
-                      backgroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.black87),
-                      foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.white70),
+                  child: TextButton(
+                    style: ButtonStyle(
+                      backgroundColor: Theme.of(context)
+                          .textButtonTheme
+                          .style!
+                          .backgroundColor,
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          side: BorderSide(
+                              color: Theme.of(context).iconTheme.color!),
+                        ),
+                      ),
                     ),
-                    child: const Text(
+                    onPressed: acceptPushedCallback,
+                    child: Text(
                       "Accept",
+                      style:
+                          TextStyle(color: Theme.of(context).iconTheme.color),
                     ),
                   ),
                 ),
                 Expanded(
                   child: TextButton(
                     onPressed: () => {Navigator.pop(context)},
-                    style: const ButtonStyle(
-                      backgroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.black38),
-                      foregroundColor:
-                          MaterialStatePropertyAll<Color>(Colors.white70),
+                    style: ButtonStyle(
+                      backgroundColor: Theme.of(context)
+                          .textButtonTheme
+                          .style!
+                          .backgroundColor,
+                      shape: MaterialStateProperty.all(
+                        const RoundedRectangleBorder(
+                          side: BorderSide(color: Colors.black),
+                        ),
+                      ),
                     ),
-                    child: const Text("Cancel"),
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                        color: Theme.of(context).iconTheme.color,
+                      ),
+                    ),
                   ),
                 ),
               ],
