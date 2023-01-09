@@ -4,7 +4,6 @@ import 'asset_card.dart';
 
 // TODO LIST:
 //
-// 1) Finish integrating stocks and cash type assets.
 // 2) Tear out current styles and replace with proper Flutter themes,
 // and add ability to toggle themes (persist it).
 // 3) Add the ability to delete AssetCards.
@@ -39,6 +38,11 @@ void main() => runApp(
         routes: {
           '/': (context) => const MainScreen(),
         },
+        theme: ThemeData(
+          brightness: Brightness.dark,
+          primarySwatch: Colors.grey,
+          useMaterial3: true,
+        ),
       ),
     );
 
@@ -87,30 +91,24 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
         appBar: AppBar(
           title: const Text("HODLings"),
-          foregroundColor: Colors.white70,
           centerTitle: true,
-          backgroundColor: Colors.grey[900],
         ),
         drawer: const DrawerMenu(),
-        body: Container(
-          color: Colors.grey[850],
-          child: Center(
-            child: Column(
-              children: [
-                NetWorthButton(
-                  netWorth: netWorth.toStringAsFixed(2),
-                  vsTicker: vsTicker,
-                  onNetWorthClickCallback: onNetWorthButtonPressed,
+        body: Center(
+          child: Column(
+            children: [
+              NetWorthButton(
+                netWorth: netWorth.toStringAsFixed(2),
+                vsTicker: vsTicker,
+                onNetWorthClickCallback: onNetWorthButtonPressed,
+              ),
+              Expanded(
+                child: AssetDisplay(
+                  assetList: assetList,
                 ),
-                Expanded(
-                  child: AssetDisplay(
-                    assetList: assetList,
-                  ),
-                ),
-                // AssetCard(asset: Crypto("Ethereum", 20), vsTicker: "USD"),
-                AddNewAssetButton(addNewAssetCallback: addNewAssetScreen),
-              ],
-            ),
+              ),
+              AddNewAssetButton(addNewAssetCallback: addNewAssetScreen),
+            ],
           ),
         ));
   }
@@ -122,10 +120,9 @@ class DrawerMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-        backgroundColor: Colors.grey[850],
         child: ListView(
-          children: const [],
-        ));
+      children: const [],
+    ));
   }
 }
 
@@ -147,17 +144,13 @@ class NetWorthButton extends StatelessWidget {
           child: SizedBox(
             height: 75,
             child: TextButton(
-                onPressed: onNetWorthClickCallback,
-                style: const ButtonStyle(
-                  backgroundColor:
-                      MaterialStatePropertyAll<Color>(Colors.black),
-                  foregroundColor:
-                      MaterialStatePropertyAll<Color>(Colors.white),
-                ),
-                child: Text(
-                  "$netWorth $vsTicker",
-                  textScaleFactor: 1.8,
-                )),
+              onPressed: onNetWorthClickCallback,
+              child: Text("$netWorth $vsTicker",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                  )),
+            ),
           ),
         ),
       ],
@@ -178,7 +171,6 @@ class AssetDisplay extends StatelessWidget {
           itemCount: assetList.length,
           itemBuilder: (BuildContext context, int index) {
             return Card(
-              color: Colors.white70,
               child: assetList[index],
             );
           });
@@ -187,9 +179,6 @@ class AssetDisplay extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         "No assets entered yet",
-        style: TextStyle(
-          color: Colors.white,
-        ),
         textAlign: TextAlign.center,
       ),
     );
@@ -217,13 +206,10 @@ class _AddNewAssetButtonState extends State<AddNewAssetButton> {
               height: 75,
               child: TextButton(
                 onPressed: widget.addNewAssetCallback,
-                style: const ButtonStyle(
-                  backgroundColor:
-                      MaterialStatePropertyAll<Color>(Colors.black26),
-                  foregroundColor:
-                      MaterialStatePropertyAll<Color>(Colors.white54),
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
                 ),
-                child: const Icon(Icons.add),
               ),
             ),
           )

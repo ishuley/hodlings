@@ -725,54 +725,42 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
           title: const Text("Add New Asset"),
-          foregroundColor: Colors.white70,
           centerTitle: true,
-          backgroundColor: Colors.grey[900],
         ),
-        body: Container(
-          color: Colors.black54,
-          child: Center(
-            child: progressIndicatorVisible
-                ? const CircularProgressIndicator.adaptive(
-                    backgroundColor: Colors.black,
-                    strokeWidth: 10.0,
-                  )
-                : Container(
-                    color: Colors.grey[850],
-                    child: Column(
-                      children: [
-                        AssetTypeSelection(
-                            assetTypeChangedCallback: assetTypeChanged),
-                        DataSourceDropdown(
-                            currentDataSource: currentDataSource,
-                            dataSourceDropdownValues: dataSourceDropdownValues,
-                            dataSourceChangedCallback: dataSourceChanged),
-                        AssetDropdown(
-                          currentAssetName:
-                              currentlySelectedAssetDropdownElement,
-                          assetType: assetType,
-                          assetDropdownChangedCallback: assetDropdownChanged,
-                          assetTickerAndNameList:
-                              convertListOfAssetDropdownItemsToListOfStrings(
-                                  chooseAssetDropdownItemListBasedOnAssetType()),
-                        ),
-                        DataSourceLabel(
-                            dataSourceLabel: currentDataSourceLabel),
-                        DataSourceTextField(
-                          dataSourceScannable: dataSourceScannable,
-                          qrIconPressedCallback: qrIconPressed,
-                          qrCodeResult: qrCodeResult,
-                          dataSourceTextFieldKeyboard:
-                              dataSourceTextFieldKeyboard,
-                          dataSourceInputController: dataSourceInputController,
-                        ),
-                        AcceptCancelButton(
-                          acceptPushedCallback: onAcceptButtonPressed,
-                        ),
-                      ],
+        body: Center(
+          child: progressIndicatorVisible
+              ? const CircularProgressIndicator.adaptive(
+                  strokeWidth: 10.0,
+                )
+              : Column(
+                  children: [
+                    AssetTypeSelection(
+                        assetTypeChangedCallback: assetTypeChanged),
+                    DataSourceDropdown(
+                        currentDataSource: currentDataSource,
+                        dataSourceDropdownValues: dataSourceDropdownValues,
+                        dataSourceChangedCallback: dataSourceChanged),
+                    AssetDropdown(
+                      currentAssetName: currentlySelectedAssetDropdownElement,
+                      assetType: assetType,
+                      assetDropdownChangedCallback: assetDropdownChanged,
+                      assetTickerAndNameList:
+                          convertListOfAssetDropdownItemsToListOfStrings(
+                              chooseAssetDropdownItemListBasedOnAssetType()),
                     ),
-                  ),
-          ),
+                    DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
+                    DataSourceTextField(
+                      dataSourceScannable: dataSourceScannable,
+                      qrIconPressedCallback: qrIconPressed,
+                      qrCodeResult: qrCodeResult,
+                      dataSourceTextFieldKeyboard: dataSourceTextFieldKeyboard,
+                      dataSourceInputController: dataSourceInputController,
+                    ),
+                    AcceptCancelButton(
+                      acceptPushedCallback: onAcceptButtonPressed,
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -810,13 +798,11 @@ class _AssetTypeSelectionState extends State<AssetTypeSelection> {
               _assetSelection = choice;
             });
           },
-          backgroundColor: Colors.black38,
-          thumbColor: Colors.black,
           children: const {
-            0: Text('Stocks', style: TextStyle(color: Colors.white)),
-            1: Text('Crypto', style: TextStyle(color: Colors.white)),
-            2: Text('Cash', style: TextStyle(color: Colors.white)),
-            // 3: Text('NFT', style: TextStyle(color: Colors.white)),
+            0: Text('Stocks'),
+            1: Text('Crypto'),
+            2: Text('Cash'),
+            // 3: Text('NFT'),
           },
         ),
       ),
@@ -857,10 +843,6 @@ class DataSourceDropdown extends StatelessWidget {
           );
         }).toList(),
         isExpanded: true,
-        style: const TextStyle(color: Colors.white),
-        dropdownColor: Colors.grey[900],
-        iconEnabledColor: Colors.white,
-        iconDisabledColor: Colors.grey,
       ),
     );
   }
@@ -899,29 +881,21 @@ class AssetDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.grey[850],
       child: SearchChoices.single(
         items: mapListForDropdown(),
         value: currentAssetName,
         hint: Text(
           currentAssetName,
-          style: const TextStyle(color: Colors.black),
         ),
         searchHint: const Text(
           "Select asset",
-          style: TextStyle(color: Colors.black),
         ),
-        style: const TextStyle(color: Colors.white),
         closeButton: TextButton(
           onPressed: (() => {Navigator.pop(context)}),
           child: const Text(
             "Close",
-            style: TextStyle(color: Colors.black),
           ),
         ),
-        menuBackgroundColor: Colors.grey[350],
-        iconEnabledColor: Colors.white,
-        iconDisabledColor: Colors.grey,
         onChanged: ((String? chosenAssetName) {
           assetDropdownChangedCallback(chosenAssetName!);
         }),
@@ -948,8 +922,7 @@ class DataSourceLabel extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 24.0),
       child: Align(
         alignment: Alignment.bottomLeft,
-        child:
-            Text(dataSourceLabel, style: const TextStyle(color: Colors.white)),
+        child: Text(dataSourceLabel),
       ),
     );
   }
@@ -1000,7 +973,6 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
           controller: widget.dataSourceInputController,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            fillColor: Colors.black38,
             filled: true,
             suffixIcon: widget.dataSourceInputController.text.isEmpty
                 ? widget.dataSourceScannable
@@ -1008,7 +980,6 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
                         onPressed: onQRIconPressed,
                         icon: const Icon(
                           Icons.qr_code_scanner,
-                          color: Colors.white60,
                         ),
                       )
                     : Container(width: 0)
@@ -1016,11 +987,9 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
                     onPressed: () => widget.dataSourceInputController.clear(),
                     icon: const Icon(
                       Icons.close,
-                      color: Colors.white60,
                     ),
                   ),
           ),
-          style: const TextStyle(color: Colors.white),
           keyboardType: widget.dataSourceTextFieldKeyboard,
         ),
       ),
