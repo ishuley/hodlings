@@ -305,17 +305,19 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
   void setAnAssetDataList(
       AssetType assetType, List<AssetDataItem> newAssetDataMapList) {
-    setState(() {
-      if (assetType == AssetType.stock) {
-        stockAssetData = newAssetDataMapList;
-      }
-      if (assetType == AssetType.crypto) {
-        cryptoAssetData = newAssetDataMapList;
-      }
-      if (assetType == AssetType.cash) {
-        cashAssetData = newAssetDataMapList;
-      }
-    });
+    setState(
+      () {
+        if (assetType == AssetType.stock) {
+          stockAssetData = newAssetDataMapList;
+        }
+        if (assetType == AssetType.crypto) {
+          cryptoAssetData = newAssetDataMapList;
+        }
+        if (assetType == AssetType.cash) {
+          cashAssetData = newAssetDataMapList;
+        }
+      },
+    );
   }
 
   /// Goes in and rearranges the asset lists to put the assets I like first.
@@ -365,7 +367,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       List<String> assetDropdownStrings) {
     List<AssetDropdownItem> newAssetDropdownItems = [];
     for (String assetDropdownText in assetDropdownStrings) {
-      newAssetDropdownItems.add(AssetDropdownItem(assetDropdownText));
+      newAssetDropdownItems.add(
+        AssetDropdownItem(assetDropdownText),
+      );
     }
     return newAssetDropdownItems;
   }

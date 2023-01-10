@@ -96,6 +96,7 @@ class _MainScreenState extends State<MainScreen> {
           style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         centerTitle: true,
+        iconTheme: Theme.of(context).appBarTheme.iconTheme,
       ),
       drawer: const DrawerMenu(),
       body: Center(
@@ -111,7 +112,9 @@ class _MainScreenState extends State<MainScreen> {
                 assetList: assetList,
               ),
             ),
-            AddNewAssetButton(addNewAssetCallback: addNewAssetScreen),
+            AddNewAssetButton(
+              addNewAssetCallback: addNewAssetScreen,
+            ),
           ],
         ),
       ),
@@ -173,13 +176,14 @@ class AssetDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     if (assetList.isNotEmpty) {
       return ListView.builder(
-          physics: const ClampingScrollPhysics(),
-          itemCount: assetList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Card(
-              child: assetList[index],
-            );
-          });
+        physics: const ClampingScrollPhysics(),
+        itemCount: assetList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Card(
+            child: assetList[index],
+          );
+        },
+      );
     }
     return const Align(
       alignment: Alignment.center,
