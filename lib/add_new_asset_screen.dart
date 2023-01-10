@@ -932,6 +932,20 @@ class AssetDropdown extends StatelessWidget {
     return Card(
       color: Theme.of(context).primaryColor,
       child: SearchChoices.single(
+        searchInputDecoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Theme.of(context).iconTheme.color!,
+              width: 0,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Theme.of(context).iconTheme.color!,
+              width: 0,
+            ),
+          ),
+        ),
         menuBackgroundColor: Theme.of(context).primaryColor,
         items: mapListForDropdown(),
         value: currentAssetName,
@@ -943,7 +957,9 @@ class AssetDropdown extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         closeButton: TextButton(
-          onPressed: (() => {Navigator.pop(context)}),
+          onPressed: (() => {
+                Navigator.pop(context),
+              }),
           style: ButtonStyle(
             foregroundColor:
                 MaterialStateProperty.all(Theme.of(context).iconTheme.color),

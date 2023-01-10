@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hodlings/themes.dart';
 import 'add_new_asset_screen.dart';
 import 'asset_card.dart';
-// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 // TODO LIST:
 
 // 2) add progress indicator to onAcceptButtonPushed that ends when the card is
@@ -46,14 +47,35 @@ class HODLings extends StatefulWidget {
 }
 
 class _HODLingsState extends State<HODLings> {
-  ThemeMode mainTheme = ThemeMode.system;
-  String currentThemeDescription = 'System default theme';
+  ThemeMode currentTheme = ThemeMode.system;
+  String currentThemeDescription = 'System theme';
 
-  void onThemeChanged(String chosenTheme) {
+  @override
+  void initState() {
+    super.initState();
+    initTheme();
+  }
+
+  Future<void> initTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? storedTheme = prefs.getString('lastTheme');
+    if (storedTheme != null) {
+      setTheme(storedTheme);
+    }
+  }
+
+  void setTheme(String newTheme) {
     setState(() {
-      mainTheme = getThemeFromChoice(chosenTheme);
-      currentThemeDescription = chosenTheme;
+      currentTheme = getThemeFromChoice(newTheme);
+      currentThemeDescription = newTheme;
     });
+  }
+
+  void onThemeChanged(String chosenTheme) async {
+    setTheme(chosenTheme);
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('lastTheme', currentThemeDescription);
   }
 
   ThemeMode getThemeFromChoice(String themeChoice) {
@@ -77,7 +99,7 @@ class _HODLingsState extends State<HODLings> {
             ),
       },
       title: 'HODLings',
-      themeMode: mainTheme,
+      themeMode: currentTheme,
       theme: Themes.lightTheme,
       darkTheme: Themes.darkTheme,
     );
@@ -188,17 +210,15 @@ class DrawerMenu extends StatelessWidget {
       child: ListView(
         children: [
           const Padding(
-            padding: EdgeInsets.fromLTRB(10, 20, 0, 0),
+            padding: EdgeInsets.fromLTRB(10, 20, 0, 10),
             child: Text(
               'Theme:',
               style: TextStyle(decoration: TextDecoration.underline),
             ),
           ),
-          Expanded(
-            child: ThemeChoiceDropdown(
-              onThemeChangedCallback: onThemeChangedCallback,
-              currentThemeDescription: currentThemeDescription,
-            ),
+          ThemeChoiceDropdown(
+            onThemeChangedCallback: onThemeChangedCallback,
+            currentThemeDescription: currentThemeDescription,
           ),
         ],
       ),
@@ -227,26 +247,23 @@ class _ThemeChoiceDropdownState extends State<ThemeChoiceDropdown> {
   Widget build(BuildContext context) {
     currentThemeChoice = widget.currentThemeDescription;
     return Container(
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
       decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-      child: Padding(
-        padding: const EdgeInsets.all(6.0),
-        child: DropdownButton<String>(
-          isExpanded: true,
-          dropdownColor: Theme.of(context).primaryColor,
-          onChanged: ((String? selectedTheme) {
-            currentThemeChoice = selectedTheme!;
-            widget.onThemeChangedCallback(currentThemeChoice);
-          }),
-          value: currentThemeChoice,
-          items: const ['System default theme', 'Dark theme', 'Light theme']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-        ),
+      child: DropdownButton<String>(
+        isExpanded: true,
+        dropdownColor: Theme.of(context).primaryColor,
+        onChanged: ((String? selectedTheme) {
+          currentThemeChoice = selectedTheme!;
+          widget.onThemeChangedCallback(currentThemeChoice);
+        }),
+        value: currentThemeChoice,
+        items: const ['System theme', 'Dark theme', 'Light theme']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
       ),
     );
   }
