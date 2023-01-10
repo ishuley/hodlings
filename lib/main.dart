@@ -33,6 +33,7 @@ import 'asset_card.dart';
 // 16) Add support for NFTs and scrape GameStops marketplace to support it,
 // if necessary and permissible.
 // 18) Add precious metal support.
+// ## Add more themes
 
 void main() => runApp(
       MaterialApp(
