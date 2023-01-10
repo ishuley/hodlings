@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hodlings/themes.dart';
 import 'add_new_asset_screen.dart';
 import 'asset_card.dart';
-
+// ignore: depend_on_referenced_packages
+import 'package:intl/intl.dart';
 // TODO LIST:
 
 // 2) add progress indicator to onAcceptButtonPushed that ends when the card is
@@ -58,6 +59,7 @@ class _MainScreenState extends State<MainScreen> {
   double netWorth = 0;
   String vsTicker = 'USD';
   List<AssetCard> assetList = [];
+  String currentThemeChoice = 'System default theme';
 
   void onNetWorthButtonPressed() {
     setState(() {
@@ -88,6 +90,12 @@ class _MainScreenState extends State<MainScreen> {
     assetList.add(newAssetCard!);
   }
 
+  void onThemeChanged(String chosenTheme) {
+    setState(() {
+      currentThemeChoice = chosenTheme;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,12 +108,16 @@ class _MainScreenState extends State<MainScreen> {
         centerTitle: true,
         iconTheme: Theme.of(context).appBarTheme.iconTheme,
       ),
-      drawer: const DrawerMenu(),
+      drawer: DrawerMenu(
+        currentThemeChoice: currentThemeChoice,
+        onThemeChangedCallback: onThemeChanged,
+      ),
       body: Center(
         child: Column(
           children: [
             NetWorthButton(
-              netWorth: netWorth.toStringAsFixed(2),
+              netWorth: NumberFormat('###,###,###,###,###,###', 'en_US')
+                  .format(netWorth),
               vsTicker: vsTicker,
               onNetWorthClickCallback: onNetWorthButtonPressed,
             ),
@@ -125,14 +137,71 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 class DrawerMenu extends StatelessWidget {
-  const DrawerMenu({super.key});
+  final ValueChanged<String> onThemeChangedCallback;
+  final String currentThemeChoice;
+  const DrawerMenu({
+    super.key,
+    required this.onThemeChangedCallback,
+    required this.currentThemeChoice,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       child: ListView(
-        children: const [],
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(10, 20, 0, 0),
+            child: Text(
+              'Theme:',
+              style: TextStyle(decoration: TextDecoration.underline),
+            ),
+          ),
+          Expanded(
+            child: ThemeChoiceDropdown(
+              onThemeChangedCallback: onThemeChangedCallback,
+              currentThemeChoice: currentThemeChoice,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ThemeChoiceDropdown extends StatelessWidget {
+  final ValueChanged<String> onThemeChangedCallback;
+  final String currentThemeChoice;
+
+  const ThemeChoiceDropdown({
+    super.key,
+    required this.onThemeChangedCallback,
+    required this.currentThemeChoice,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+      child: Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: DropdownButton<String>(
+          isExpanded: true,
+          dropdownColor: Theme.of(context).primaryColor,
+          onChanged: ((String? selectedTheme) {
+            onThemeChangedCallback(selectedTheme!);
+          }),
+          value: currentThemeChoice,
+          items: const ['System default theme', 'Dark theme', 'Light theme']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

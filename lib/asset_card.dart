@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: depend_on_referenced_packages
 
+import 'package:flutter/material.dart';
 import 'asset.dart';
+import 'package:intl/intl.dart';
 
 /// This is the class that creates the cards that display the information about
 /// each user specified asset. vsTicker is passed in because tapping the
@@ -36,9 +38,10 @@ class AssetCard extends StatelessWidget {
                   Text(
                     asset.ticker,
                     style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                        color: textColor),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      color: textColor,
+                    ),
                   ),
                   Text(
                     asset.name,
@@ -54,7 +57,7 @@ class AssetCard extends StatelessWidget {
                     style: TextStyle(color: textColor),
                   ),
                   Text(
-                    asset.quantity.toStringAsFixed(2),
+                    NumberFormat.compact().format(asset.quantity),
                     style: TextStyle(color: textColor),
                   )
                 ],
@@ -66,7 +69,10 @@ class AssetCard extends StatelessWidget {
                     'Price (${vsTicker.toUpperCase()}):',
                     style: TextStyle(color: textColor),
                   ),
-                  Text(price.toStringAsFixed(2)),
+                  Text(
+                    NumberFormat('###,###,###,###,###.00', 'en_US')
+                        .format(price),
+                  ),
                 ],
               ),
               Column(
@@ -76,13 +82,18 @@ class AssetCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     'Total (${vsTicker.toUpperCase()}): ',
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: textColor),
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
                   ),
                   Text(
                     textAlign: TextAlign.center,
-                    totalValue.toStringAsFixed(2),
+                    NumberFormat('###,###,###,###,###.00', 'en_US')
+                        .format(totalValue),
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: textColor),
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
                   ),
                 ],
               ),

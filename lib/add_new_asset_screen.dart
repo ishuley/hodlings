@@ -858,6 +858,7 @@ class DataSourceDropdown extends StatelessWidget {
   final String currentDataSource;
   final List<String> dataSourceDropdownValues;
   final ValueChanged<String> dataSourceChangedCallback;
+
   const DataSourceDropdown({
     super.key,
     required this.currentDataSource,
@@ -867,28 +868,25 @@ class DataSourceDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 367,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
-        decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-        child: Padding(
-          padding: const EdgeInsets.all(6.0),
-          child: DropdownButton<String>(
-            dropdownColor: Theme.of(context).primaryColor,
-            onChanged: ((String? selectedDataSource) {
-              dataSourceChangedCallback(selectedDataSource!);
-            }),
-            value: currentDataSource,
-            items: dataSourceDropdownValues
-                .map<DropdownMenuItem<String>>((String dataSourceName) {
-              return DropdownMenuItem<String>(
-                value: dataSourceName,
-                child: Text(dataSourceName),
-              );
-            }).toList(),
-            isExpanded: true,
-          ),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
+      decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+      child: Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: DropdownButton<String>(
+          dropdownColor: Theme.of(context).primaryColor,
+          onChanged: ((String? selectedDataSource) {
+            dataSourceChangedCallback(selectedDataSource!);
+          }),
+          value: currentDataSource,
+          items: dataSourceDropdownValues
+              .map<DropdownMenuItem<String>>((String dataSourceName) {
+            return DropdownMenuItem<String>(
+              value: dataSourceName,
+              child: Text(dataSourceName),
+            );
+          }).toList(),
+          isExpanded: true,
         ),
       ),
     );
