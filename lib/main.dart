@@ -36,20 +36,63 @@ import 'package:intl/intl.dart';
 // 18) Add precious metal support.
 // ## Add more themes
 
-void main() => runApp(
-      MaterialApp(
-        routes: {
-          '/': (context) => const MainScreen(),
-        },
-        title: 'HODLings',
-        themeMode: ThemeMode.system,
-        theme: Themes.lightTheme,
-        darkTheme: Themes.darkTheme,
-      ),
+void main() => runApp(const HODLings());
+
+class HODLings extends StatefulWidget {
+  const HODLings({super.key});
+
+  @override
+  State<HODLings> createState() => _HODLingsState();
+}
+
+class _HODLingsState extends State<HODLings> {
+  ThemeMode mainTheme = ThemeMode.system;
+  String currentThemeDescription = 'System default theme';
+
+  void onThemeChanged(String chosenTheme) {
+    setState(() {
+      mainTheme = getThemeFromChoice(chosenTheme);
+      currentThemeDescription = chosenTheme;
+    });
+  }
+
+  ThemeMode getThemeFromChoice(String themeChoice) {
+    switch (themeChoice) {
+      case 'Dark theme':
+        return ThemeMode.dark;
+      case 'Light theme':
+        return ThemeMode.light;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      routes: {
+        '/': (context) => MainScreen(
+              onThemeChangedCallback: onThemeChanged,
+              currentThemeDescription: currentThemeDescription,
+            ),
+      },
+      title: 'HODLings',
+      themeMode: mainTheme,
+      theme: Themes.lightTheme,
+      darkTheme: Themes.darkTheme,
     );
+  }
+}
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final ValueChanged<String> onThemeChangedCallback;
+  final String currentThemeDescription;
+
+  const MainScreen({
+    super.key,
+    required this.onThemeChangedCallback,
+    required this.currentThemeDescription,
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -59,7 +102,6 @@ class _MainScreenState extends State<MainScreen> {
   double netWorth = 0;
   String vsTicker = 'USD';
   List<AssetCard> assetList = [];
-  String currentThemeChoice = 'System default theme';
 
   void onNetWorthButtonPressed() {
     setState(() {
@@ -90,12 +132,6 @@ class _MainScreenState extends State<MainScreen> {
     assetList.add(newAssetCard!);
   }
 
-  void onThemeChanged(String chosenTheme) {
-    setState(() {
-      currentThemeChoice = chosenTheme;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,8 +145,8 @@ class _MainScreenState extends State<MainScreen> {
         iconTheme: Theme.of(context).appBarTheme.iconTheme,
       ),
       drawer: DrawerMenu(
-        currentThemeChoice: currentThemeChoice,
-        onThemeChangedCallback: onThemeChanged,
+        onThemeChangedCallback: widget.onThemeChangedCallback,
+        currentThemeDescription: widget.currentThemeDescription,
       ),
       body: Center(
         child: Column(
@@ -138,11 +174,11 @@ class _MainScreenState extends State<MainScreen> {
 
 class DrawerMenu extends StatelessWidget {
   final ValueChanged<String> onThemeChangedCallback;
-  final String currentThemeChoice;
+  final String currentThemeDescription;
   const DrawerMenu({
     super.key,
     required this.onThemeChangedCallback,
-    required this.currentThemeChoice,
+    required this.currentThemeDescription,
   });
 
   @override
@@ -161,7 +197,7 @@ class DrawerMenu extends StatelessWidget {
           Expanded(
             child: ThemeChoiceDropdown(
               onThemeChangedCallback: onThemeChangedCallback,
-              currentThemeChoice: currentThemeChoice,
+              currentThemeDescription: currentThemeDescription,
             ),
           ),
         ],
@@ -170,18 +206,26 @@ class DrawerMenu extends StatelessWidget {
   }
 }
 
-class ThemeChoiceDropdown extends StatelessWidget {
+class ThemeChoiceDropdown extends StatefulWidget {
   final ValueChanged<String> onThemeChangedCallback;
-  final String currentThemeChoice;
+  final String currentThemeDescription;
 
   const ThemeChoiceDropdown({
     super.key,
     required this.onThemeChangedCallback,
-    required this.currentThemeChoice,
+    required this.currentThemeDescription,
   });
 
   @override
+  State<ThemeChoiceDropdown> createState() => _ThemeChoiceDropdownState();
+}
+
+class _ThemeChoiceDropdownState extends State<ThemeChoiceDropdown> {
+  late String currentThemeChoice;
+
+  @override
   Widget build(BuildContext context) {
+    currentThemeChoice = widget.currentThemeDescription;
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(color: Theme.of(context).primaryColor),
@@ -191,7 +235,8 @@ class ThemeChoiceDropdown extends StatelessWidget {
           isExpanded: true,
           dropdownColor: Theme.of(context).primaryColor,
           onChanged: ((String? selectedTheme) {
-            onThemeChangedCallback(selectedTheme!);
+            currentThemeChoice = selectedTheme!;
+            widget.onThemeChangedCallback(currentThemeChoice);
           }),
           value: currentThemeChoice,
           items: const ['System default theme', 'Dark theme', 'Light theme']
