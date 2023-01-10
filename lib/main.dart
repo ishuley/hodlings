@@ -303,20 +303,39 @@ class NetWorthButton extends StatelessWidget {
   }
 }
 
-class AssetDisplay extends StatelessWidget {
+class AssetDisplay extends StatefulWidget {
   final List<AssetCard> assetList;
 
   const AssetDisplay({super.key, required this.assetList});
 
   @override
+  State<AssetDisplay> createState() => _AssetDisplayState();
+}
+
+class _AssetDisplayState extends State<AssetDisplay> {
+  Offset _tapPosition = Offset.zero;
+  int tappedCardIndex = 0;
+  String contextChoice = '';
+
+  @override
   Widget build(BuildContext context) {
-    if (assetList.isNotEmpty) {
+    if (widget.assetList.isNotEmpty) {
       return ListView.builder(
         physics: const ClampingScrollPhysics(),
-        itemCount: assetList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Card(
-            child: assetList[index],
+        itemCount: widget.assetList.length,
+        itemBuilder: (BuildContext newContext, int index) {
+          return GestureDetector(
+            onTapDown: (details) {
+              _getTapPosition(details, context);
+              _storeIndex(index);
+            },
+            onLongPress: () {
+              _showContextMenu(context);
+              // _executeChosenAction();
+            },
+            child: Card(
+              child: widget.assetList[index],
+            ),
           );
         },
       );
@@ -329,6 +348,60 @@ class AssetDisplay extends StatelessWidget {
       ),
     );
   }
+
+  void _getTapPosition(TapDownDetails details, BuildContext context) {
+    final RenderBox referenceBox = context.findRenderObject() as RenderBox;
+    _tapPosition = referenceBox.globalToLocal(details.globalPosition);
+  }
+
+  void _storeIndex(int index) {
+    tappedCardIndex = index;
+  }
+
+  void _showContextMenu(BuildContext context) async {
+    final RenderObject? overlay =
+        Overlay.of(context)?.context.findRenderObject();
+
+    String? userChoice = await _showMenu(context, overlay);
+    if (userChoice != null) {
+      contextChoice = userChoice;
+    }
+  }
+
+  Future<String?> _showMenu(BuildContext context, RenderObject? overlay) async {
+    String? userChoice = await showMenu(
+      context: context,
+      position: RelativeRect.fromRect(
+        Rect.fromLTWH(_tapPosition.dx + 140, _tapPosition.dy + 85, 30, 30),
+        Rect.fromLTWH(
+          0,
+          0,
+          overlay!.paintBounds.size.width,
+          overlay.paintBounds.size.height,
+        ),
+      ),
+      items: [
+        const PopupMenuItem(
+          value: 'edit',
+          child: Text('Edit quantity'),
+        ),
+        const PopupMenuItem(
+          value: 'delete',
+          child: Text('Delete asset'),
+        ),
+      ],
+    );
+    return userChoice;
+  }
+
+  // void _executeChosenAction() {
+  //   if (contextChoice == 'Delete asset') {
+  //     widget.deleteAssetCardCallback(tappedCardIndex);
+  //   }
+  //   if (contextChoice == 'Edit quantity') {
+  //     widget.editAssetCardQuantityCallback(tappedCardIndex);
+  //   }
+  // }
 }
 
 class AddNewAssetButton extends StatefulWidget {
