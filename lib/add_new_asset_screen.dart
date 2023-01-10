@@ -238,9 +238,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         initializeAssetDropdownButton(assetDropdownItems, assetType);
       });
     }
-    setState(() {
-      progressIndicatorVisible = !progressIndicatorVisible;
-    });
+    toggleProgressIndicator();
   }
 
   void initializeAssetDropdownButton(
@@ -677,6 +675,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// back to [MainScreen] by "popping" it along with the context.
   ///
   Future<void> onAcceptButtonPressed() async {
+    toggleProgressIndicator();
     Asset asset = assetType.createAsset(
       assetFieldData: currentlySelectedAssetDropdownElement,
       assetID: currentlySelectedAssetID!,
@@ -685,8 +684,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     );
 
     AssetCard newAssetCard = await createNewAssetCard(asset);
-
+    toggleProgressIndicator();
     popContextWithCard(newAssetCard);
+  }
+
+  void toggleProgressIndicator() {
+    setState(() {
+      progressIndicatorVisible = !progressIndicatorVisible;
+    });
   }
 
   Future<AssetCard> createNewAssetCard(Asset asset) async {
