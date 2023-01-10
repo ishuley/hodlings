@@ -102,7 +102,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// This is passed back to the main.dart to tell the program which asset's
   /// price it needs to retrieve from the API.
   ///
-  String currentlySelectedAssetDropdownElement = "GME - GameStop Corp.";
+  String currentlySelectedAssetDropdownElement = 'GME - GameStop Corp.';
 
   String? currentlySelectedAssetID;
 
@@ -112,7 +112,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// arbitrarily) is coincidentally manual entry, until API functionality is
   /// added.
   ///
-  String currentDataSourceLabel = "Enter quantity manually:";
+  String currentDataSourceLabel = 'Enter quantity manually:';
 
   /// Indicates if the current data source makes sense to input with a QR code.
   ///
@@ -183,7 +183,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   bool progressIndicatorVisible = true;
 
-  String currentVsTicker = "usd";
+  String currentVsTicker = 'usd';
 
   TextEditingController dataSourceInputController = TextEditingController();
 
@@ -228,7 +228,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         assetDropdownItems =
             await retrieveAssetListFromApi(assetType, assetData);
         assetDropdownItems = rearrangeAssetListToMyPersonalConvenience(
-            assetType, assetDropdownItems);
+          assetType,
+          assetDropdownItems,
+        );
         assetListStorage.writeAssetList(assetDropdownItems, assetType);
       }
 
@@ -242,10 +244,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   }
 
   void initializeAssetDropdownButton(
-      List<AssetDropdownItem> assetDropdownItems, AssetType assetType) {
+    List<AssetDropdownItem> assetDropdownItems,
+    AssetType assetType,
+  ) {
     if (assetDropdownItems.isNotEmpty) {
       initializeAnAssetListWithSavedDataOrApiData(
-          assetDropdownItems, assetType);
+        assetDropdownItems,
+        assetType,
+      );
     }
     if (assetDropdownItems.isEmpty) {
       initializeAnEmptyAssetList(assetType);
@@ -253,7 +259,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   }
 
   Future<List<AssetDataItem>> getAssetData(
-      List<AssetDataItem> assetData, AssetType assetType) async {
+    List<AssetDataItem> assetData,
+    AssetType assetType,
+  ) async {
     // Check persistent storage for the asset data.
     assetData = await AssetStorage().readAssetData(assetType);
     if (assetData.isEmpty) {
@@ -296,7 +304,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// [String]s appropriate for use in [AssetDropdown].
   ///
   Future<List<AssetDropdownItem>> retrieveAssetListFromApi(
-      AssetType assetType, List<AssetDataItem> newAssetData) async {
+    AssetType assetType,
+    List<AssetDataItem> newAssetData,
+  ) async {
     List<String> assetDropdownStrings = [];
     assetDropdownStrings = parseAssetDataIntoDropdownStrings(newAssetData);
     assetDropdownStrings.sort();
@@ -304,7 +314,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   }
 
   void setAnAssetDataList(
-      AssetType assetType, List<AssetDataItem> newAssetDataMapList) {
+    AssetType assetType,
+    List<AssetDataItem> newAssetDataMapList,
+  ) {
     setState(
       () {
         if (assetType == AssetType.stock) {
@@ -327,35 +339,37 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Thank you for auditing my code.
   ///
   List<AssetDropdownItem> rearrangeAssetListToMyPersonalConvenience(
-      AssetType assetType, List<AssetDropdownItem> assetDropdownItems) {
+    AssetType assetType,
+    List<AssetDropdownItem> assetDropdownItems,
+  ) {
     List<String> assetDropdownStrings =
         convertListOfAssetDropdownItemsToListOfStrings(assetDropdownItems);
     if (assetType == AssetType.stock) {
-      int gmeIndex = assetDropdownStrings.indexOf("GME GameStop Corp.");
+      int gmeIndex = assetDropdownStrings.indexOf('GME GameStop Corp.');
       assetDropdownStrings.insert(0, assetDropdownStrings.removeAt(gmeIndex));
     }
     if (assetType == AssetType.crypto) {
-      int ethIndex = assetDropdownStrings.indexOf("ETH Ethereum");
+      int ethIndex = assetDropdownStrings.indexOf('ETH Ethereum');
       assetDropdownStrings.insert(0, assetDropdownStrings.removeAt(ethIndex));
-      int xmrIndex = assetDropdownStrings.indexOf("XMR Monero");
+      int xmrIndex = assetDropdownStrings.indexOf('XMR Monero');
       assetDropdownStrings.insert(1, assetDropdownStrings.removeAt(xmrIndex));
-      int lrcIndex = assetDropdownStrings.indexOf("LRC Loopring");
+      int lrcIndex = assetDropdownStrings.indexOf('LRC Loopring');
       assetDropdownStrings.insert(2, assetDropdownStrings.removeAt(lrcIndex));
-      int imxIndex = assetDropdownStrings.indexOf("IMX ImmutableX");
+      int imxIndex = assetDropdownStrings.indexOf('IMX ImmutableX');
       assetDropdownStrings.insert(3, assetDropdownStrings.removeAt(imxIndex));
-      int mkrIndex = assetDropdownStrings.indexOf("MKR Maker");
+      int mkrIndex = assetDropdownStrings.indexOf('MKR Maker');
       assetDropdownStrings.insert(4, assetDropdownStrings.removeAt(mkrIndex));
-      int bchIndex = assetDropdownStrings.indexOf("BCH Bitcoin Cash");
+      int bchIndex = assetDropdownStrings.indexOf('BCH Bitcoin Cash');
       assetDropdownStrings.insert(5, assetDropdownStrings.removeAt(bchIndex));
     }
     if (assetType == AssetType.cash) {
-      int usdIndex = assetDropdownStrings.indexOf("USD United States Dollar");
+      int usdIndex = assetDropdownStrings.indexOf('USD United States Dollar');
       assetDropdownStrings.insert(0, assetDropdownStrings.removeAt(usdIndex));
-      int cadIndex = assetDropdownStrings.indexOf("CAD Canadian Dollar");
+      int cadIndex = assetDropdownStrings.indexOf('CAD Canadian Dollar');
       assetDropdownStrings.insert(1, assetDropdownStrings.removeAt(cadIndex));
-      int eurIndex = assetDropdownStrings.indexOf("EUR Euro");
+      int eurIndex = assetDropdownStrings.indexOf('EUR Euro');
       assetDropdownStrings.insert(2, assetDropdownStrings.removeAt(eurIndex));
-      int uyuIndex = assetDropdownStrings.indexOf("UYU Uruguayan Peso");
+      int uyuIndex = assetDropdownStrings.indexOf('UYU Uruguayan Peso');
       assetDropdownStrings.insert(3, assetDropdownStrings.removeAt(uyuIndex));
     }
     List<AssetDropdownItem> newAssetDropdownItems =
@@ -364,7 +378,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   }
 
   List<AssetDropdownItem> convertListOfStringsToListOfAssetDropdownItems(
-      List<String> assetDropdownStrings) {
+    List<String> assetDropdownStrings,
+  ) {
     List<AssetDropdownItem> newAssetDropdownItems = [];
     for (String assetDropdownText in assetDropdownStrings) {
       newAssetDropdownItems.add(
@@ -375,7 +390,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   }
 
   List<String> convertListOfAssetDropdownItemsToListOfStrings(
-      List<AssetDropdownItem> assetDropdownItems) {
+    List<AssetDropdownItem> assetDropdownItems,
+  ) {
     List<String> assetDropdownStrings = [];
     for (AssetDropdownItem assetDropdownItem in assetDropdownItems) {
       assetDropdownStrings.add(assetDropdownItem.assetDropdownString);
@@ -390,7 +406,9 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// first time if either exist.
   ///
   void initializeAnAssetListWithSavedDataOrApiData(
-      List<AssetDropdownItem> assetDropdownItems, AssetType assetType) {
+    List<AssetDropdownItem> assetDropdownItems,
+    AssetType assetType,
+  ) {
     if (assetType == AssetType.stock) {
       stockAssetDropdownItems = assetDropdownItems;
       currentlySelectedAssetDropdownElement =
@@ -406,10 +424,12 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   }
 
   String getNameFromAssetDropdownValue(
-      String assetDropdownValue, AssetType assetType) {
+    String assetDropdownValue,
+    AssetType assetType,
+  ) {
     List<String> tickerAndName = assetDropdownValue.split(' ');
     tickerAndName.removeAt(0);
-    String assetName = tickerAndName.join(" ");
+    String assetName = tickerAndName.join(' ');
     return assetName.toLowerCase();
   }
 
@@ -425,7 +445,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     if (assetType == AssetType.stock) {
       stockAssetDropdownItems = [];
       currentlySelectedAssetDropdownElement =
-          "Apologies, the list somehow failed to load.";
+          'Apologies, the list somehow failed to load.';
       currentlySelectedAssetID = null;
     }
     if (assetType == AssetType.crypto) {
@@ -444,11 +464,12 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// into that list.
   ///
   List<String> parseAssetDataIntoDropdownStrings(
-      List<AssetDataItem> assetIdDataMapList) {
+    List<AssetDataItem> assetIdDataMapList,
+  ) {
     List<String> assetDropdownStrings = [];
     for (AssetDataItem assetData in assetIdDataMapList) {
       assetDropdownStrings
-          .add("${assetData.ticker.toUpperCase()} ${assetData.name}");
+          .add('${assetData.ticker.toUpperCase()} ${assetData.name}');
     }
     return assetDropdownStrings;
   }
@@ -504,14 +525,16 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     }
     if (currentAssetList.isEmpty) {
       currentlySelectedAssetDropdownElement =
-          "Apologies, the list somehow failed to load.";
+          'Apologies, the list somehow failed to load.';
       currentlySelectedAssetID = null;
     }
   }
 
   void setCurrentlySelectedAssetId() {
     String assetName = getNameFromAssetDropdownValue(
-        currentlySelectedAssetDropdownElement, assetType);
+      currentlySelectedAssetDropdownElement,
+      assetType,
+    );
     currentlySelectedAssetID = getAssetIdFromName(assetName, assetType);
   }
 
@@ -544,7 +567,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         return AssetType.cash;
     }
     throw ArgumentError(
-        "Unsupported AssetType somehow selected in AssetTypeSelection.");
+      'Unsupported AssetType somehow selected in AssetTypeSelection.',
+    );
   }
 
   /// Triggered by the onChange listener by a callback function occuring within
@@ -568,15 +592,15 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// it entirely if it's a blockchain address or a QR code.
   ///
   void updateDataSourceKeyboardType() {
-    if (currentDataSource.endsWith("API") ||
-        currentDataSource.endsWith("Address")) {
+    if (currentDataSource.endsWith('API') ||
+        currentDataSource.endsWith('Address')) {
       dataSourceTextFieldKeyboard = TextInputType
           .none; // Nobody is going to want to type in an entire blockchain
       // address by hand on a phone, so this disables the keyboard for that use
       return;
     }
-    if (currentDataSource.endsWith("Qty") ||
-        currentDataSource.endsWith("Agent")) {
+    if (currentDataSource.endsWith('Qty') ||
+        currentDataSource.endsWith('Agent')) {
       dataSourceTextFieldKeyboard =
           const TextInputType.numberWithOptions(decimal: true);
     }
@@ -588,13 +612,13 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// code should exist given the type of data source.
   ///
   void updateDataSourceScanability() {
-    if (currentDataSource.endsWith("API") ||
-        currentDataSource.endsWith("Address")) {
+    if (currentDataSource.endsWith('API') ||
+        currentDataSource.endsWith('Address')) {
       dataSourceScannable = true;
       return;
     }
-    if (currentDataSource.endsWith("Qty") ||
-        currentDataSource.endsWith("Agent")) {
+    if (currentDataSource.endsWith('Qty') ||
+        currentDataSource.endsWith('Agent')) {
       dataSourceScannable = false;
     }
   }
@@ -605,21 +629,22 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// of data source is currently selected by [DataSourceDropdown].
   ///
   void updateDataSourceLabel() {
-    if (currentDataSource.endsWith("API")) {
-      currentDataSourceLabel = "Enter Read-Only API Key: ";
+    if (currentDataSource.endsWith('API')) {
+      currentDataSourceLabel = 'Enter Read-Only API Key: ';
       return;
     }
-    if (currentDataSource.endsWith("Address")) {
-      currentDataSourceLabel = "Enter blockchain address: ";
+    if (currentDataSource.endsWith('Address')) {
+      currentDataSourceLabel = 'Enter blockchain address: ';
       return;
     }
-    if (currentDataSource.endsWith("Qty") ||
-        currentDataSource.endsWith("Agent")) {
-      currentDataSourceLabel = "Enter quantity manually: ";
+    if (currentDataSource.endsWith('Qty') ||
+        currentDataSource.endsWith('Agent')) {
+      currentDataSourceLabel = 'Enter quantity manually: ';
       return;
     }
     throw UnsupportedError(
-        "Unknown data source when getDataSourceLabel() is called.");
+      'Unknown data source when getDataSourceLabel() is called.',
+    );
   }
 
   /// Called when the user presses the QR code icon.
@@ -631,7 +656,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   Future<void> qrIconPressed() async {
     String qrCode = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666', 'Cancel', false, ScanMode.QR);
+      '#ff6666',
+      'Cancel',
+      false,
+      ScanMode.QR,
+    );
 
     if (!mounted) return;
     setState(() {
@@ -676,11 +705,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   Future<String> getMarketCapString(Asset asset) async {
     double marketCap = await asset.getMarketCap(vsTicker: currentVsTicker);
     if (marketCap == 0) {
-      return "";
+      return '';
     }
     String formattedMktCap = formatMarketCap(marketCap);
     String marketCapString =
-        "Market Cap: $formattedMktCap ${currentVsTicker.toUpperCase()}";
+        'Market Cap: $formattedMktCap ${currentVsTicker.toUpperCase()}';
     return marketCapString;
   }
 
@@ -728,7 +757,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          title: const Text("Add New Asset"),
+          title: const Text('Add New Asset'),
           centerTitle: true,
         ),
         body: Center(
@@ -739,18 +768,21 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
               : Column(
                   children: [
                     AssetTypeSelection(
-                        assetTypeChangedCallback: assetTypeChanged),
+                      assetTypeChangedCallback: assetTypeChanged,
+                    ),
                     DataSourceDropdown(
-                        currentDataSource: currentDataSource,
-                        dataSourceDropdownValues: dataSourceDropdownValues,
-                        dataSourceChangedCallback: dataSourceChanged),
+                      currentDataSource: currentDataSource,
+                      dataSourceDropdownValues: dataSourceDropdownValues,
+                      dataSourceChangedCallback: dataSourceChanged,
+                    ),
                     AssetDropdown(
                       currentAssetName: currentlySelectedAssetDropdownElement,
                       assetType: assetType,
                       assetDropdownChangedCallback: assetDropdownChanged,
                       assetTickerAndNameList:
                           convertListOfAssetDropdownItemsToListOfStrings(
-                              chooseAssetDropdownItemListBasedOnAssetType()),
+                        chooseAssetDropdownItemListBasedOnAssetType(),
+                      ),
                     ),
                     DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
                     DataSourceTextField(
@@ -826,11 +858,12 @@ class DataSourceDropdown extends StatelessWidget {
   final String currentDataSource;
   final List<String> dataSourceDropdownValues;
   final ValueChanged<String> dataSourceChangedCallback;
-  const DataSourceDropdown(
-      {super.key,
-      required this.currentDataSource,
-      required this.dataSourceDropdownValues,
-      required this.dataSourceChangedCallback});
+  const DataSourceDropdown({
+    super.key,
+    required this.currentDataSource,
+    required this.dataSourceDropdownValues,
+    required this.dataSourceChangedCallback,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -886,8 +919,12 @@ class AssetDropdown extends StatelessWidget {
   List<DropdownMenuItem> mapListForDropdown() {
     List<DropdownMenuItem> assetNameDropdownItemsList = [];
     for (String tickerAndNameString in assetTickerAndNameList) {
-      assetNameDropdownItemsList.add(DropdownMenuItem(
-          value: tickerAndNameString, child: Text(tickerAndNameString)));
+      assetNameDropdownItemsList.add(
+        DropdownMenuItem(
+          value: tickerAndNameString,
+          child: Text(tickerAndNameString),
+        ),
+      );
     }
     return assetNameDropdownItemsList;
   }
@@ -904,16 +941,17 @@ class AssetDropdown extends StatelessWidget {
           currentAssetName,
         ),
         searchHint: const Text(
-          "Select asset",
+          'Select asset',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         closeButton: TextButton(
           onPressed: (() => {Navigator.pop(context)}),
           style: ButtonStyle(
-              foregroundColor:
-                  MaterialStateProperty.all(Theme.of(context).iconTheme.color)),
+            foregroundColor:
+                MaterialStateProperty.all(Theme.of(context).iconTheme.color),
+          ),
           child: const Text(
-            "Close",
+            'Close',
             style: TextStyle(fontSize: 16),
           ),
         ),
@@ -923,8 +961,9 @@ class AssetDropdown extends StatelessWidget {
         isExpanded: true,
         displayClearIcon: false,
         style: TextStyle(
-            backgroundColor: Theme.of(context).primaryColor,
-            color: Theme.of(context).textTheme.labelLarge?.color),
+          backgroundColor: Theme.of(context).primaryColor,
+          color: Theme.of(context).textTheme.labelLarge?.color,
+        ),
       ),
     );
   }
@@ -998,11 +1037,15 @@ class _DataSourceTextFieldState extends State<DataSourceTextField> {
             fillColor: Theme.of(context).primaryColor,
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                  color: Theme.of(context).iconTheme.color!, width: 0),
+                color: Theme.of(context).iconTheme.color!,
+                width: 0,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                  color: Theme.of(context).iconTheme.color!, width: 0),
+                color: Theme.of(context).iconTheme.color!,
+                width: 0,
+              ),
             ),
             filled: true,
             suffixIcon: widget.dataSourceInputController.text.isEmpty

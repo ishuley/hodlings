@@ -30,13 +30,14 @@ class AcceptCancelButton extends StatelessWidget {
                       shape: MaterialStateProperty.all(
                         RoundedRectangleBorder(
                           side: BorderSide(
-                              color: Theme.of(context).iconTheme.color!),
+                            color: Theme.of(context).iconTheme.color!,
+                          ),
                         ),
                       ),
                     ),
                     onPressed: acceptPushedCallback,
                     child: Text(
-                      "Accept",
+                      'Accept',
                       style:
                           TextStyle(color: Theme.of(context).iconTheme.color),
                     ),
@@ -57,7 +58,7 @@ class AcceptCancelButton extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      "Cancel",
+                      'Cancel',
                       style: TextStyle(
                         color: Theme.of(context).iconTheme.color,
                       ),

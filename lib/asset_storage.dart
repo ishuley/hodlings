@@ -64,7 +64,9 @@ class AssetStorage {
   }
 
   Future<void> writeAssetData(
-      List<AssetDataItem> assetData, AssetType assetType) async {
+    List<AssetDataItem> assetData,
+    AssetType assetType,
+  ) async {
     deleteAssetDataFile(assetType);
     String encodedAssetData = jsonEncode(assetData);
     File file = await chooseAssetDataFile(assetType);
@@ -72,7 +74,9 @@ class AssetStorage {
   }
 
   Future<void> writeAssetList(
-      List<AssetDropdownItem> assetList, AssetType assetType) async {
+    List<AssetDropdownItem> assetList,
+    AssetType assetType,
+  ) async {
     deleteAssetListFile(assetType);
     List<String> assetListAsString = [];
     for (AssetDropdownItem assetDropdownItem in assetList) {
@@ -84,7 +88,8 @@ class AssetStorage {
   }
 
   Future<List<AssetDropdownItem>> readAssetDropdownItems(
-      AssetType assetType) async {
+    AssetType assetType,
+  ) async {
     File file = await chooseAssetListFile(assetType);
     if (await file.exists()) {
       String encodedAssetList = await file.readAsString();

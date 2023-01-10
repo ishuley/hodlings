@@ -38,8 +38,13 @@ class CryptoAPI implements AssetAPI {
     final CoinGeckoResult<List<CoinShort>> result = await api.coins.listCoins();
     List<AssetDataItem> cryptoData = [];
     for (CoinShort cryptoDetails in result.data) {
-      cryptoData.add(AssetDataItem(
-          cryptoDetails.id, cryptoDetails.name, cryptoDetails.symbol));
+      cryptoData.add(
+        AssetDataItem(
+          cryptoDetails.id,
+          cryptoDetails.name,
+          cryptoDetails.symbol,
+        ),
+      );
     }
     return cryptoData;
   }
@@ -59,14 +64,16 @@ class CryptoAPI implements AssetAPI {
   }
 
   @override
-  Future<double> getMarketCap(
-      {required String id, String vsTicker = 'usd'}) async {
+  Future<double> getMarketCap({
+    required String id,
+    String vsTicker = 'usd',
+  }) async {
     id = id.toLowerCase();
     vsTicker = vsTicker.toLowerCase();
     CoinGeckoResult<List<Market>> marketData =
         await api.coins.listCoinMarkets(coinIds: [id], vsCurrency: vsTicker);
     for (Market market in marketData.data) {
-      if (market.id == id || id == "loopring" && market.name == "Loopring") {
+      if (market.id == id || id == 'loopring' && market.name == 'Loopring') {
         if (market.marketCap != null) {
           return market.marketCap!;
         }
@@ -82,8 +89,11 @@ class StockAPI implements AssetAPI {
 
   @override
   Future<List<AssetDataItem>> getListOfAssets() async {
-    Uri url = Uri.http(stockApiUrl, "/api/v3/stock/list",
-        {"apikey": stockDataApiKey, "limit": "10000"});
+    Uri url = Uri.http(
+      stockApiUrl,
+      '/api/v3/stock/list',
+      {'apikey': stockDataApiKey, 'limit': '10000'},
+    );
 
     Response response = await get(url);
     if (response.statusCode == 200) {
@@ -107,28 +117,36 @@ class StockAPI implements AssetAPI {
   Future<double> getPrice({required String id, String vsTicker = 'USD'}) async {
     id = id.toUpperCase();
     vsTicker = vsTicker.toUpperCase();
-    Uri url = Uri.http(stockApiUrl, "/api/v3/quote-short/$id",
-        {"apikey": stockDataApiKey, "symbols": id});
+    Uri url = Uri.http(
+      stockApiUrl,
+      '/api/v3/quote-short/$id',
+      {'apikey': stockDataApiKey, 'symbols': id},
+    );
     Response response = await get(url);
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body);
-      return jsonResponse[0]["price"];
+      return jsonResponse[0]['price'];
     }
     return 0.0;
   }
 
   @override
-  Future<double> getMarketCap(
-      {required String id, String vsTicker = 'USD'}) async {
+  Future<double> getMarketCap({
+    required String id,
+    String vsTicker = 'USD',
+  }) async {
     id = id.toUpperCase();
     vsTicker = vsTicker.toUpperCase();
 
-    Uri url = Uri.http(stockApiUrl, "/api/v3/market-capitalization/$id",
-        {"apikey": stockDataApiKey, "symbols": id});
+    Uri url = Uri.http(
+      stockApiUrl,
+      '/api/v3/market-capitalization/$id',
+      {'apikey': stockDataApiKey, 'symbols': id},
+    );
     Response response = await get(url);
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body);
-      return jsonResponse[0]["marketCap"].toDouble();
+      return jsonResponse[0]['marketCap'].toDouble();
     }
     return 0;
   }
@@ -140,8 +158,11 @@ class CashAPI implements AssetAPI {
 
   @override
   Future<List<AssetDataItem>> getListOfAssets() async {
-    Uri url = Uri.https(currencyApiUrl, "/exchangerates_data/symbols",
-        {"apikey": currencyExchangeDataApiKey});
+    Uri url = Uri.https(
+      currencyApiUrl,
+      '/exchangerates_data/symbols',
+      {'apikey': currencyExchangeDataApiKey},
+    );
     Response response = await get(url);
     List<AssetDataItem> currencyData = [];
     if (response.statusCode == 200) {
@@ -152,8 +173,13 @@ class CashAPI implements AssetAPI {
         Map<String, dynamic> currencyList = jsonResponse['symbols'];
 
         for (MapEntry<String, dynamic> currency in currencyList.entries) {
-          currencyData.add(AssetDataItem(currency.key.toUpperCase(),
-              currency.value, currency.key.toUpperCase()));
+          currencyData.add(
+            AssetDataItem(
+              currency.key.toUpperCase(),
+              currency.value,
+              currency.key.toUpperCase(),
+            ),
+          );
         }
       }
       return currencyData;
@@ -166,8 +192,8 @@ class CashAPI implements AssetAPI {
     if (id == vsTicker) {
       return 1.0;
     }
-    Uri url = Uri.https(currencyApiUrl, "/exchangerates_data/convert", {
-      "apikey": currencyExchangeDataApiKey,
+    Uri url = Uri.https(currencyApiUrl, '/exchangerates_data/convert', {
+      'apikey': currencyExchangeDataApiKey,
       'amount': '1',
       'from': id,
       'to': vsTicker
@@ -182,8 +208,10 @@ class CashAPI implements AssetAPI {
   }
 
   @override
-  Future<double> getMarketCap(
-      {required String id, String vsTicker = 'usd'}) async {
+  Future<double> getMarketCap({
+    required String id,
+    String vsTicker = 'usd',
+  }) async {
     return 0.0;
   }
 }

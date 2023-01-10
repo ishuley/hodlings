@@ -5,11 +5,12 @@ enum AssetType {
   crypto(Crypto.new),
   cash(Cash.new);
 
-  final Asset Function(
-      {required String assetFieldData,
-      required String assetID,
-      required String dataSource,
-      required String dataSourceField}) createAsset;
+  final Asset Function({
+    required String assetFieldData,
+    required String assetID,
+    required String dataSource,
+    required String dataSourceField,
+  }) createAsset;
   const AssetType(this.createAsset);
 }
 
@@ -23,12 +24,13 @@ abstract class Asset {
   final String dataSourceField;
   late final double quantity;
 
-  Asset(
-      {required this.assetFieldData,
-      required this.assetID,
-      required this.dataSource,
-      required this.dataSourceField}) {
-    List<String> splitAssetFieldData = assetFieldData.split(" ");
+  Asset({
+    required this.assetFieldData,
+    required this.assetID,
+    required this.dataSource,
+    required this.dataSourceField,
+  }) {
+    List<String> splitAssetFieldData = assetFieldData.split(' ');
     ticker = splitAssetFieldData.elementAt(0).toUpperCase();
     splitAssetFieldData.removeAt(0);
     name = splitAssetFieldData.join(' ');
@@ -46,11 +48,12 @@ abstract class Asset {
 
 class Crypto extends Asset {
   late final String? address;
-  Crypto(
-      {required super.assetFieldData,
-      required super.assetID,
-      required super.dataSource,
-      required super.dataSourceField}) {
+  Crypto({
+    required super.assetFieldData,
+    required super.assetID,
+    required super.dataSource,
+    required super.dataSourceField,
+  }) {
     if (dataSource.endsWith('Qty')) {
       quantity = double.parse(dataSourceField);
     }
@@ -67,11 +70,12 @@ class Crypto extends Asset {
 }
 
 class Stock extends Asset {
-  Stock(
-      {required super.assetFieldData,
-      required super.assetID,
-      required super.dataSource,
-      required super.dataSourceField}) {
+  Stock({
+    required super.assetFieldData,
+    required super.assetID,
+    required super.dataSource,
+    required super.dataSourceField,
+  }) {
     if (dataSource.endsWith('Qty')) {
       quantity = double.parse(dataSourceField);
     }
@@ -80,11 +84,12 @@ class Stock extends Asset {
 }
 
 class Cash extends Asset {
-  Cash(
-      {required super.assetFieldData,
-      required super.assetID,
-      required super.dataSource,
-      required super.dataSourceField}) {
+  Cash({
+    required super.assetFieldData,
+    required super.assetID,
+    required super.dataSource,
+    required super.dataSourceField,
+  }) {
     if (dataSource.endsWith('Qty')) {
       quantity = double.parse(dataSourceField);
     }

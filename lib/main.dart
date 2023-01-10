@@ -55,7 +55,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   double netWorth = 0;
-  String vsTicker = "USD";
+  String vsTicker = 'USD';
   List<AssetCard> assetList = [];
 
   void onNetWorthButtonPressed() {
@@ -66,10 +66,11 @@ class _MainScreenState extends State<MainScreen> {
 
   Future<void> addNewAssetScreen() async {
     final AssetCard? newAssetCard = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AddNewAssetScreen(),
-        ));
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddNewAssetScreen(),
+      ),
+    );
     if (newAssetCard != null) {
       setState(() {
         incrementNetWorth(newAssetCard.totalValue);
@@ -92,7 +93,7 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         title: Text(
-          "HODLings",
+          'HODLings',
           style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         centerTitle: true,
@@ -140,11 +141,12 @@ class NetWorthButton extends StatelessWidget {
   final String netWorth;
   final String vsTicker;
   final VoidCallback onNetWorthClickCallback;
-  const NetWorthButton(
-      {super.key,
-      required this.netWorth,
-      required this.vsTicker,
-      required this.onNetWorthClickCallback});
+  const NetWorthButton({
+    super.key,
+    required this.netWorth,
+    required this.vsTicker,
+    required this.onNetWorthClickCallback,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +158,7 @@ class NetWorthButton extends StatelessWidget {
             child: TextButton(
               onPressed: onNetWorthClickCallback,
               child: Text(
-                "$netWorth $vsTicker",
+                '$netWorth $vsTicker',
                 style: Theme.of(context).textTheme.labelLarge,
               ),
             ),
@@ -188,7 +190,7 @@ class AssetDisplay extends StatelessWidget {
     return const Align(
       alignment: Alignment.center,
       child: Text(
-        "No assets entered yet",
+        'No assets entered yet',
         textAlign: TextAlign.center,
       ),
     );

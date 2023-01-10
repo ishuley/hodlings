@@ -50,7 +50,7 @@ class AssetCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Qty: ",
+                    'Qty: ',
                     style: TextStyle(color: textColor),
                   ),
                   Text(
@@ -63,7 +63,7 @@ class AssetCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Price (${vsTicker.toUpperCase()}):",
+                    'Price (${vsTicker.toUpperCase()}):',
                     style: TextStyle(color: textColor),
                   ),
                   Text(price.toStringAsFixed(2)),
@@ -74,7 +74,7 @@ class AssetCard extends StatelessWidget {
                 children: [
                   Text(
                     textAlign: TextAlign.center,
-                    "Total (${vsTicker.toUpperCase()}): ",
+                    'Total (${vsTicker.toUpperCase()}): ',
                     style: TextStyle(
                         fontWeight: FontWeight.bold, color: textColor),
                   ),
