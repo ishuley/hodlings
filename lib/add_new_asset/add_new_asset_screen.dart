@@ -1,21 +1,20 @@
-// ignore_for_file: unused_import
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:hodlings/asset_data_item.dart';
-import 'package:hodlings/asset_dropdown_item.dart';
+import 'package:hodlings/add_new_asset/asset_dropdown.dart';
+import 'package:hodlings/add_new_asset/asset_type_selection.dart';
+import 'package:hodlings/add_new_asset/data_source_input.dart';
+import 'package:hodlings/api_service/api_service.dart';
+import 'package:hodlings/persistence/asset_data_item.dart';
+import 'package:hodlings/persistence/asset_dropdown_item.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
-import 'api_service.dart';
 import 'accept_cancel_button.dart';
-import 'asset.dart';
-import 'package:search_choices/search_choices.dart';
-import 'asset_card.dart';
-import 'asset_storage.dart';
-import 'main.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-// ignore: depend_on_referenced_packages
+import '../asset.dart';
+import '../asset_card.dart';
+import '../persistence/asset_storage.dart';
+import '../main.dart';
 import 'package:intl/intl.dart';
+
+import 'data_source_dropdown.dart';
 
 // "Ticker" and "symbol" mean the same thing throughout this program. They
 // both refer to the 3-5 character identifier used to identify securities, for
@@ -227,10 +226,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       if (assetDropdownItems.isEmpty) {
         assetDropdownItems =
             await retrieveAssetListFromApi(assetType, assetData);
-        assetDropdownItems = rearrangeAssetListToMyPersonalConvenience(
-          assetType,
-          assetDropdownItems,
-        );
+        // assetDropdownItems = rearrangeAssetListToMyPersonalConvenience(
+        //   assetType,
+        //   assetDropdownItems,
+        // );
         assetListStorage.writeAssetList(assetDropdownItems, assetType);
       }
 
@@ -805,294 +804,5 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
         ),
       ),
     );
-  }
-}
-
-/// The rounded selection widget at the top of [AddNewAssetScreen].
-///
-/// Labeled "Stocks | Crypto | Cash" this widget lets the user select which
-/// [AssetType] to add to their portfolio.
-///
-class AssetTypeSelection extends StatefulWidget {
-  final ValueChanged<int> assetTypeChangedCallback;
-  const AssetTypeSelection({
-    super.key,
-    required this.assetTypeChangedCallback,
-  });
-  @override
-  State<AssetTypeSelection> createState() => _AssetTypeSelectionState();
-}
-
-class _AssetTypeSelectionState extends State<AssetTypeSelection> {
-  int _assetSelection = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Center(
-        child: CupertinoSlidingSegmentedControl(
-          backgroundColor: Theme.of(context).primaryColor,
-          thumbColor: Theme.of(context).toggleableActiveColor,
-          groupValue: _assetSelection,
-          onValueChanged: (int? choice) {
-            widget.assetTypeChangedCallback(choice!);
-            setState(() {
-              _assetSelection = choice;
-            });
-          },
-          children: const {
-            0: Text('Stocks'),
-            1: Text('Crypto'),
-            2: Text('Cash'),
-            // 3: Text('NFT'),
-          },
-        ),
-      ),
-    );
-  }
-}
-
-/// A [DropdownButton] menu where the user selects their quantity source.
-///
-/// Quanity can be specified manually, through a blockchain address that
-/// automatically keeps itself updated, or when implemented, a Read-only
-/// exchange API key.
-///
-class DataSourceDropdown extends StatelessWidget {
-  final String currentDataSource;
-  final List<String> dataSourceDropdownValues;
-  final ValueChanged<String> dataSourceChangedCallback;
-
-  const DataSourceDropdown({
-    super.key,
-    required this.currentDataSource,
-    required this.dataSourceDropdownValues,
-    required this.dataSourceChangedCallback,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(6, 0, 6, 0),
-      decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-      child: Padding(
-        padding: const EdgeInsets.all(6.0),
-        child: DropdownButton<String>(
-          dropdownColor: Theme.of(context).primaryColor,
-          onChanged: ((String? selectedDataSource) {
-            dataSourceChangedCallback(selectedDataSource!);
-          }),
-          value: currentDataSource,
-          items: dataSourceDropdownValues
-              .map<DropdownMenuItem<String>>((String dataSourceName) {
-            return DropdownMenuItem<String>(
-              value: dataSourceName,
-              child: Text(dataSourceName),
-            );
-          }).toList(),
-          isExpanded: true,
-        ),
-      ),
-    );
-  }
-}
-
-/// A [SearchChoices] object that lets the user specify the desired [Asset].
-///
-/// [Asset]s come from a different API for each possible [AssetType].
-/// [SearchChoices] is a type of [DropdownButton] that permits the user to
-/// search for the desired [Asset] in addition to clicking on it as a
-/// conventional [DropdownButton].
-///
-class AssetDropdown extends StatelessWidget {
-  final AssetType assetType;
-  final String currentAssetName;
-  final ValueChanged<String> assetDropdownChangedCallback;
-  final List<String> assetTickerAndNameList;
-
-  const AssetDropdown({
-    super.key,
-    required this.assetType,
-    required this.currentAssetName,
-    required this.assetDropdownChangedCallback,
-    required this.assetTickerAndNameList,
-  });
-
-  List<DropdownMenuItem> mapListForDropdown() {
-    List<DropdownMenuItem> assetNameDropdownItemsList = [];
-    for (String tickerAndNameString in assetTickerAndNameList) {
-      assetNameDropdownItemsList.add(
-        DropdownMenuItem(
-          value: tickerAndNameString,
-          child: Text(tickerAndNameString),
-        ),
-      );
-    }
-    return assetNameDropdownItemsList;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).primaryColor,
-      child: SearchChoices.single(
-        searchInputDecoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Theme.of(context).iconTheme.color!,
-              width: 0,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Theme.of(context).iconTheme.color!,
-              width: 0,
-            ),
-          ),
-        ),
-        menuBackgroundColor: Theme.of(context).primaryColor,
-        items: mapListForDropdown(),
-        value: currentAssetName,
-        hint: Text(
-          currentAssetName,
-        ),
-        searchHint: const Text(
-          'Select asset',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-        closeButton: TextButton(
-          onPressed: (() => {
-                Navigator.pop(context),
-              }),
-          style: ButtonStyle(
-            foregroundColor:
-                MaterialStateProperty.all(Theme.of(context).iconTheme.color),
-          ),
-          child: const Text(
-            'Close',
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-        onChanged: ((String? chosenAssetName) {
-          assetDropdownChangedCallback(chosenAssetName!);
-        }),
-        isExpanded: true,
-        displayClearIcon: false,
-        style: TextStyle(
-          backgroundColor: Theme.of(context).primaryColor,
-          color: Theme.of(context).textTheme.labelLarge?.color,
-        ),
-      ),
-    );
-  }
-}
-
-/// A simple [Text] object to label the [DataSourceTextField].
-///
-/// Instructs the user what to enter in the [DataSourceTextField] directly
-/// beneath this widget.
-///
-class DataSourceLabel extends StatelessWidget {
-  const DataSourceLabel({super.key, required this.dataSourceLabel});
-
-  final String dataSourceLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 24.0),
-      child: Align(
-        alignment: Alignment.bottomLeft,
-        child: Text(dataSourceLabel),
-      ),
-    );
-  }
-}
-
-/// Enter the source of user's [Asset] quantity data and other related data.
-///
-/// Can accept a manual entry, a blackchain address, or later, an exchange API
-/// key.
-///
-class DataSourceTextField extends StatefulWidget {
-  const DataSourceTextField({
-    super.key,
-    required this.dataSourceScannable,
-    required this.qrIconPressedCallback,
-    required this.qrCodeResult,
-    required this.dataSourceTextFieldKeyboard,
-    required this.dataSourceInputController,
-  });
-  final bool dataSourceScannable;
-  final VoidCallback qrIconPressedCallback;
-  final String qrCodeResult;
-  final TextInputType dataSourceTextFieldKeyboard;
-  final TextEditingController dataSourceInputController;
-
-  @override
-  State<DataSourceTextField> createState() => _DataSourceTextFieldState();
-}
-
-class _DataSourceTextFieldState extends State<DataSourceTextField> {
-  @override
-  void initState() {
-    super.initState();
-    widget.dataSourceInputController.addListener(
-      () {},
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: SizedBox(
-        height: 50.0,
-        child: TextField(
-          cursorColor: Theme.of(context).iconTheme.color,
-          controller: widget.dataSourceInputController,
-          decoration: InputDecoration(
-            fillColor: Theme.of(context).primaryColor,
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).iconTheme.color!,
-                width: 0,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).iconTheme.color!,
-                width: 0,
-              ),
-            ),
-            filled: true,
-            suffixIcon: widget.dataSourceInputController.text.isEmpty
-                ? widget.dataSourceScannable
-                    ? IconButton(
-                        onPressed: onQRIconPressed,
-                        icon: Icon(
-                          Icons.qr_code_scanner,
-                          color: Theme.of(context).iconTheme.color,
-                        ),
-                      )
-                    : Container(width: 0)
-                : IconButton(
-                    onPressed: () => widget.dataSourceInputController.clear(),
-                    icon: Icon(
-                      Icons.close,
-                      color: Theme.of(context).iconTheme.color,
-                    ),
-                  ),
-          ),
-          keyboardType: widget.dataSourceTextFieldKeyboard,
-        ),
-      ),
-    );
-  }
-
-  void onQRIconPressed() {
-    widget.qrIconPressedCallback();
-    widget.dataSourceInputController.text = widget.qrCodeResult;
   }
 }

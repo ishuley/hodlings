@@ -1,4 +1,4 @@
-import 'api_service.dart';
+import 'package:hodlings/api_service/api_service.dart';
 
 enum AssetType {
   stock(Stock.new),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hodlings/themes.dart';
-import 'add_new_asset_screen.dart';
+import 'add_new_asset/add_new_asset_screen.dart';
 import 'asset_card.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';

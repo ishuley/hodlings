@@ -3,8 +3,8 @@ import 'package:coingecko_api/coingecko_result.dart';
 import 'package:coingecko_api/data/coin_short.dart';
 import 'package:coingecko_api/data/market.dart';
 import 'package:coingecko_api/data/price_info.dart';
-import 'package:hodlings/asset_data_item.dart';
-import 'asset.dart';
+import 'package:hodlings/asset.dart';
+import 'package:hodlings/persistence/asset_data_item.dart';
 import 'package:coingecko_api/coingecko_api.dart';
 import 'package:http/http.dart';
 import 'api_keys.dart';
@@ -96,7 +96,7 @@ class StockAPI implements AssetAPI {
     );
 
     Response response = await get(url);
-    // print(response.statusCode);
+
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body) as List<dynamic>;
       List<AssetDataItem> stockNamesAndTickers = [];

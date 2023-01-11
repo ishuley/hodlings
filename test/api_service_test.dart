@@ -1,4 +1,4 @@
-import 'package:hodlings/api_service.dart';
+import 'package:hodlings/api_service/api_service.dart';
 import 'package:test/test.dart';
 
 Future<void> main() async {
