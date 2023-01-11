@@ -156,6 +156,15 @@ class _MainScreenState extends State<MainScreen> {
     assetList.add(newAssetCard!);
   }
 
+  void deleteAssetCard(int index) {
+    setState(() {
+      decrementNetWorth(assetList[index].totalValue);
+      assetList.removeAt(index);
+    });
+  }
+
+  void editQuantity(int index) {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,6 +193,8 @@ class _MainScreenState extends State<MainScreen> {
             Expanded(
               child: AssetDisplay(
                 assetList: assetList,
+                deleteAssetCardCallback: deleteAssetCard,
+                editAssetCardQuantityCallback: editQuantity,
               ),
             ),
             AddNewAssetButton(
@@ -305,8 +316,15 @@ class NetWorthButton extends StatelessWidget {
 
 class AssetDisplay extends StatefulWidget {
   final List<AssetCard> assetList;
+  final ValueChanged<int> deleteAssetCardCallback;
+  final ValueChanged<int> editAssetCardQuantityCallback;
 
-  const AssetDisplay({super.key, required this.assetList});
+  const AssetDisplay({
+    super.key,
+    required this.assetList,
+    required this.deleteAssetCardCallback,
+    required this.editAssetCardQuantityCallback,
+  });
 
   @override
   State<AssetDisplay> createState() => _AssetDisplayState();
@@ -331,7 +349,6 @@ class _AssetDisplayState extends State<AssetDisplay> {
             },
             onLongPress: () {
               _showContextMenu(context);
-              // _executeChosenAction();
             },
             child: Card(
               child: widget.assetList[index],
@@ -366,6 +383,7 @@ class _AssetDisplayState extends State<AssetDisplay> {
     if (userChoice != null) {
       contextChoice = userChoice;
     }
+    _executeChosenAction();
   }
 
   Future<String?> _showMenu(BuildContext context, RenderObject? overlay) async {
@@ -394,14 +412,14 @@ class _AssetDisplayState extends State<AssetDisplay> {
     return userChoice;
   }
 
-  // void _executeChosenAction() {
-  //   if (contextChoice == 'Delete asset') {
-  //     widget.deleteAssetCardCallback(tappedCardIndex);
-  //   }
-  //   if (contextChoice == 'Edit quantity') {
-  //     widget.editAssetCardQuantityCallback(tappedCardIndex);
-  //   }
-  // }
+  void _executeChosenAction() {
+    if (contextChoice == 'delete') {
+      widget.deleteAssetCardCallback(tappedCardIndex);
+    }
+    if (contextChoice == 'edit') {
+      widget.editAssetCardQuantityCallback(tappedCardIndex);
+    }
+  }
 }
 
 class AddNewAssetButton extends StatefulWidget {
