@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:hodlings/add_new_asset/asset_dropdown.dart';
-import 'package:hodlings/add_new_asset/asset_type_selection.dart';
-import 'package:hodlings/add_new_asset/data_source_input.dart';
+import 'package:hodlings/add_new_asset_screen/asset_dropdown.dart';
+import 'package:hodlings/add_new_asset_screen/asset_type_selection.dart';
+import 'package:hodlings/add_new_asset_screen/data_source_input.dart';
 import 'package:hodlings/api_service/api_service.dart';
 import 'package:hodlings/persistence/asset_data_item.dart';
 import 'package:hodlings/persistence/asset_dropdown_item.dart';
