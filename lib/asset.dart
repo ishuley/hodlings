@@ -1,4 +1,5 @@
 import 'package:hodlings/api_service/api_service.dart';
+import 'package:intl/intl.dart';
 
 enum AssetType {
   stock(Stock.new),
@@ -43,6 +44,23 @@ abstract class Asset {
   Future<double> getMarketCap({String vsTicker = 'usd'}) async {
     return await AssetAPI(assetType)
         .getMarketCap(id: assetID, vsTicker: vsTicker);
+  }
+
+  Future<String> getMarketCapString({String vsTicker = 'usd'}) async {
+    double marketCap = await getMarketCap(vsTicker: vsTicker);
+    if (marketCap == 0) {
+      return '';
+    }
+
+    String formattedMktCap = formatMarketCap(marketCap);
+    String marketCapString =
+        'Market Cap: $formattedMktCap ${vsTicker.toUpperCase()}';
+    return marketCapString;
+  }
+
+  String formatMarketCap(double marketCap) {
+    String formattedMktCap = NumberFormat().format(marketCap);
+    return formattedMktCap;
   }
 }
 

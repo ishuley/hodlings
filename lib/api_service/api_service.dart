@@ -53,8 +53,10 @@ class CryptoAPI implements AssetAPI {
   Future<double> getPrice({required String id, String vsTicker = 'usd'}) async {
     id = id.toLowerCase();
     vsTicker = vsTicker.toLowerCase();
+
     CoinGeckoResult<List<PriceInfo>> priceData =
         await api.simple.listPrices(ids: [id], vsCurrencies: [vsTicker]);
+
     for (PriceInfo price in priceData.data) {
       if (price.id == id) {
         return price.getPriceIn('usd')!;

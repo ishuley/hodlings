@@ -12,7 +12,6 @@ import '../asset.dart';
 import '../asset_card.dart';
 import '../persistence/asset_storage.dart';
 import '../main.dart';
-import 'package:intl/intl.dart';
 
 import 'data_source_dropdown.dart';
 
@@ -702,7 +701,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
   Future<AssetCard> createNewAssetCard(Asset asset) async {
     double price = await retrievePrice(asset);
-    String marketCapString = await getMarketCapString(asset);
+    String marketCapString =
+        await asset.getMarketCapString(vsTicker: currentVsTicker);
 
     AssetCard newAssetCard = AssetCard(
       key: UniqueKey(),
@@ -712,22 +712,6 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       vsTicker: currentVsTicker,
     );
     return newAssetCard;
-  }
-
-  Future<String> getMarketCapString(Asset asset) async {
-    double marketCap = await asset.getMarketCap(vsTicker: currentVsTicker);
-    if (marketCap == 0) {
-      return '';
-    }
-    String formattedMktCap = formatMarketCap(marketCap);
-    String marketCapString =
-        'Market Cap: $formattedMktCap ${currentVsTicker.toUpperCase()}';
-    return marketCapString;
-  }
-
-  String formatMarketCap(double marketCap) {
-    String formattedMktCap = NumberFormat().format(marketCap);
-    return formattedMktCap;
   }
 
   Future<double> retrievePrice(Asset asset) async {
