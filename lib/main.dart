@@ -7,15 +7,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO LIST:
 
-// 3) Add the ability to delete AssetCards.
 // 4) Add the ability to persist AssetCard list.
 // 5) Add the ability to refresh AssetCard list's data.
 // 6) Add ability to reload asset lists. Limit the frequency that API calls can be made.
 // 7) Add the ability to sort by specific AssetCard elements like total, market
 // cap, or alphabetically by ticker. Default it to total. Persist chosen sort
 // order.
-// 7.5) Add attributiona to CoinGecko and FinancialModelingPrep.
-// 8) Divide the app into many smaller pieces and into appropriate folders.
+// 7.5) Add attributiona to CoinGecko.
 // 9) Finish blockchain based address lookup.
 // 10) Add daily volume and % change. Give user option for displayed % change
 // time frame. Persist it.
@@ -163,7 +161,13 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void editQuantity(int index) {}
+  void editQuantity(int index, double newQty) {
+    double difference = newQty - assetList[index].asset.quantity;
+    setState(() {
+      incrementNetWorth(difference * assetList[index].price);
+      assetList[index].asset.quantity += difference;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -192,6 +196,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             Expanded(
               child: AssetDisplay(
+                key: UniqueKey(),
                 assetList: assetList,
                 deleteAssetCardCallback: deleteAssetCard,
                 editAssetCardQuantityCallback: editQuantity,
@@ -316,8 +321,8 @@ class NetWorthButton extends StatelessWidget {
 
 class AssetDisplay extends StatefulWidget {
   final List<AssetCard> assetList;
-  final ValueChanged<int> deleteAssetCardCallback;
-  final ValueChanged<int> editAssetCardQuantityCallback;
+  final Function(int) deleteAssetCardCallback;
+  final Function(int, double) editAssetCardQuantityCallback;
 
   const AssetDisplay({
     super.key,
@@ -334,6 +339,14 @@ class _AssetDisplayState extends State<AssetDisplay> {
   Offset _tapPosition = Offset.zero;
   int tappedCardIndex = 0;
   String contextChoice = '';
+  late TextEditingController editQtyController;
+  double? newQty;
+
+  @override
+  void initState() {
+    super.initState();
+    editQtyController = TextEditingController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -379,14 +392,62 @@ class _AssetDisplayState extends State<AssetDisplay> {
     final RenderObject? overlay =
         Overlay.of(context)?.context.findRenderObject();
 
-    String? userChoice = await _showMenu(context, overlay);
+    String? userChoice = await _showLongpressMenu(context, overlay);
     if (userChoice != null) {
       contextChoice = userChoice;
+    }
+    if (userChoice == 'edit') {
+      await getNewQuantityFromUser();
     }
     _executeChosenAction();
   }
 
-  Future<String?> _showMenu(BuildContext context, RenderObject? overlay) async {
+  Future<void> getNewQuantityFromUser() async {
+    String inputQty;
+    inputQty = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Edit quantity',
+          ),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: 'New quantity',
+            ),
+            controller: editQtyController,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(editQtyController.text);
+              },
+              child: const Text(
+                'Accept',
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+              ),
+            )
+          ],
+        );
+      },
+    );
+    if (inputQty.isNotEmpty) {
+      newQty = double.parse(inputQty);
+    }
+  }
+
+  Future<String?> _showLongpressMenu(
+    BuildContext context,
+    RenderObject? overlay,
+  ) async {
     String? userChoice = await showMenu(
       context: context,
       position: RelativeRect.fromRect(
@@ -416,8 +477,8 @@ class _AssetDisplayState extends State<AssetDisplay> {
     if (contextChoice == 'delete') {
       widget.deleteAssetCardCallback(tappedCardIndex);
     }
-    if (contextChoice == 'edit') {
-      widget.editAssetCardQuantityCallback(tappedCardIndex);
+    if (newQty != null) {
+      widget.editAssetCardQuantityCallback(tappedCardIndex, newQty!);
     }
   }
 }

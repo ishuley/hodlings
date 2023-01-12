@@ -184,7 +184,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
   String currentVsTicker = 'usd';
 
-  TextEditingController dataSourceInputController = TextEditingController();
+  late TextEditingController dataSourceInputController;
 
   List<AssetDataItem> stockAssetData = [];
   List<AssetDataItem> cryptoAssetData = [];
@@ -200,7 +200,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   @override
   void initState() {
     super.initState();
+    dataSourceInputController = TextEditingController();
     initAssetDropdownAndData();
+  }
+
+  @override
+  void dispose() {
+    dataSourceInputController.dispose();
+    super.dispose();
   }
 
   /// Assigns a list of [AssetDropdown] choices to the appropriate variable.
@@ -698,6 +705,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     String marketCapString = await getMarketCapString(asset);
 
     AssetCard newAssetCard = AssetCard(
+      key: UniqueKey(),
       asset: asset,
       price: price,
       marketCapString: marketCapString,

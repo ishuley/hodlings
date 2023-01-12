@@ -22,7 +22,7 @@ abstract class Asset {
   late final String assetID;
   final String dataSource;
   final String dataSourceField;
-  late final double quantity;
+  late double quantity;
 
   Asset({
     required this.assetFieldData,
