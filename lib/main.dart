@@ -7,9 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO LIST:
 
+// ditch CoinGecko package, pull directly from API.
+//
 // 4) Add the ability to persist AssetCard list.
-// 5) Add the ability to refresh AssetCard list's data.
-// 6) Add ability to reload asset lists. Limit the frequency that API calls can be made.
+// 6) Add ability to reload asset listsfrequency that API calls can be made.
 // 7) Add the ability to sort by specific AssetCard elements like total, market
 // cap, or alphabetically by ticker. Default it to total. Persist chosen sort
 // order.
@@ -169,6 +170,24 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  Future<void> onRefresh() async {
+    List<AssetCard> newAssetList = [];
+    for (AssetCard card in assetList) {
+      AssetCard refreshedAssetCard = AssetCard(
+        key: UniqueKey(),
+        asset: card.asset,
+        vsTicker: vsTicker,
+        price: await card.asset.getPrice(vsTicker: vsTicker),
+        marketCapString:
+            await card.asset.getMarketCapString(vsTicker: vsTicker),
+      );
+      newAssetList.add(refreshedAssetCard);
+    }
+    setState(() {
+      assetList = newAssetList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -200,6 +219,7 @@ class _MainScreenState extends State<MainScreen> {
                 assetList: assetList,
                 deleteAssetCardCallback: deleteAssetCard,
                 editAssetCardQuantityCallback: editQuantity,
+                refreshCallback: onRefresh,
               ),
             ),
             AddNewAssetButton(
@@ -323,12 +343,14 @@ class AssetDisplay extends StatefulWidget {
   final List<AssetCard> assetList;
   final Function(int) deleteAssetCardCallback;
   final Function(int, double) editAssetCardQuantityCallback;
+  final Future<void> Function() refreshCallback;
 
   const AssetDisplay({
     super.key,
     required this.assetList,
     required this.deleteAssetCardCallback,
     required this.editAssetCardQuantityCallback,
+    required this.refreshCallback,
   });
 
   @override
@@ -351,23 +373,26 @@ class _AssetDisplayState extends State<AssetDisplay> {
   @override
   Widget build(BuildContext context) {
     if (widget.assetList.isNotEmpty) {
-      return ListView.builder(
-        physics: const ClampingScrollPhysics(),
-        itemCount: widget.assetList.length,
-        itemBuilder: (BuildContext newContext, int index) {
-          return GestureDetector(
-            onTapDown: (details) {
-              _getTapPosition(details, context);
-              _storeIndex(index);
-            },
-            onLongPress: () {
-              _showContextMenu(context);
-            },
-            child: Card(
-              child: widget.assetList[index],
-            ),
-          );
-        },
+      return RefreshIndicator(
+        onRefresh: widget.refreshCallback,
+        child: ListView.builder(
+          // physics: const ClampingScrollPhysics(),
+          itemCount: widget.assetList.length,
+          itemBuilder: (BuildContext newContext, int index) {
+            return GestureDetector(
+              onTapDown: (details) {
+                _getTapPosition(details, context);
+                _storeIndex(index);
+              },
+              onLongPress: () {
+                _showContextMenu(context);
+              },
+              child: Card(
+                child: widget.assetList[index],
+              ),
+            );
+          },
+        ),
       );
     }
     return const Align(
