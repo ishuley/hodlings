@@ -91,10 +91,10 @@ class StockAPI implements AssetAPI {
 
   @override
   Future<List<AssetDataItem>> getListOfAssets() async {
-    Uri url = Uri.http(
-      stockApiUrl,
-      '/api/v3/stock/list',
-      {'apikey': stockDataApiKey, 'limit': '10000'},
+    Uri url = Uri.https(
+      iexApiUrl,
+      '/stable/ref-data/symbols',
+      {'token': iexApiKey},
     );
 
     Response response = await get(url);
@@ -118,17 +118,18 @@ class StockAPI implements AssetAPI {
 
   @override
   Future<double> getPrice({required String id, String vsTicker = 'USD'}) async {
-    id = id.toUpperCase();
-    vsTicker = vsTicker.toUpperCase();
-    Uri url = Uri.http(
-      stockApiUrl,
-      '/api/v3/quote-short/$id',
-      {'apikey': stockDataApiKey, 'symbols': id},
+    id = id.toLowerCase();
+    vsTicker = vsTicker.toLowerCase();
+    Uri url = Uri.https(
+      iexApiUrl,
+      '/stable/stock/$id/quote/latestPrice',
+      {'token': iexApiKey},
     );
+
     Response response = await get(url);
+
     if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = jsonDecode(response.body);
-      return jsonResponse[0]['price'];
+      return jsonDecode(response.body).toDouble();
     }
     return 0.0;
   }
@@ -136,20 +137,18 @@ class StockAPI implements AssetAPI {
   @override
   Future<double> getMarketCap({
     required String id,
-    String vsTicker = 'USD',
+    String vsTicker = 'usd',
   }) async {
-    id = id.toUpperCase();
-    vsTicker = vsTicker.toUpperCase();
-
-    Uri url = Uri.http(
-      stockApiUrl,
-      '/api/v3/market-capitalization/$id',
-      {'apikey': stockDataApiKey, 'symbols': id},
+    id = id.toLowerCase();
+    vsTicker = vsTicker.toLowerCase();
+    Uri url = Uri.https(
+      iexApiUrl,
+      '/stable/stock/$id/quote/marketCap',
+      {'token': iexApiKey},
     );
     Response response = await get(url);
     if (response.statusCode == 200) {
-      List<dynamic> jsonResponse = jsonDecode(response.body);
-      return jsonResponse[0]['marketCap'].toDouble();
+      return jsonDecode(response.body).toDouble();
     }
     return 0;
   }
