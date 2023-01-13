@@ -680,17 +680,19 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// back to [MainScreen] by "popping" it along with the context.
   ///
   Future<void> onAcceptButtonPressed() async {
-    toggleProgressIndicator();
-    Asset asset = assetType.createAsset(
-      assetFieldData: currentlySelectedAssetDropdownElement,
-      assetID: currentlySelectedAssetID!,
-      dataSource: currentDataSource,
-      dataSourceField: dataSourceInputController.text,
-    );
+    if (dataSourceInputController.text.isNotEmpty) {
+      toggleProgressIndicator();
+      Asset asset = assetType.createAsset(
+        assetFieldData: currentlySelectedAssetDropdownElement,
+        assetID: currentlySelectedAssetID!,
+        dataSource: currentDataSource,
+        dataSourceField: dataSourceInputController.text,
+      );
 
-    AssetCard newAssetCard = await createNewAssetCard(asset);
-    toggleProgressIndicator();
-    popContextWithCard(newAssetCard);
+      AssetCard newAssetCard = await createNewAssetCard(asset);
+      toggleProgressIndicator();
+      popContextWithCard(newAssetCard);
+    }
   }
 
   void toggleProgressIndicator() {
