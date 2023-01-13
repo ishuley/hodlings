@@ -144,11 +144,11 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void incrementNetWorth(double incrementAmount) {
-    netWorth += incrementAmount;
+    netWorth = netWorth + incrementAmount;
   }
 
   void decrementNetWorth(double decrementAmount) {
-    netWorth -= decrementAmount;
+    netWorth = netWorth - decrementAmount;
   }
 
   void addToAssetList(AssetCard? newAssetCard) {
