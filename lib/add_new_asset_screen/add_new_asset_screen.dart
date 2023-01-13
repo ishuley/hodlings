@@ -232,10 +232,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       if (assetDropdownItems.isEmpty) {
         assetDropdownItems =
             await retrieveAssetListFromApi(assetType, assetData);
-        // assetDropdownItems = rearrangeAssetListToMyPersonalConvenience(
-        //   assetType,
-        //   assetDropdownItems,
-        // );
+        assetDropdownItems = rearrangeAssetListToMyPersonalConvenience(
+          assetType,
+          assetDropdownItems,
+        );
         assetListStorage.writeAssetList(assetDropdownItems, assetType);
       }
 
@@ -348,7 +348,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     List<String> assetDropdownStrings =
         convertListOfAssetDropdownItemsToListOfStrings(assetDropdownItems);
     if (assetType == AssetType.stock) {
-      int gmeIndex = assetDropdownStrings.indexOf('GME GameStop Corp.');
+      int gmeIndex =
+          assetDropdownStrings.indexOf('GME Gamestop Corporation - Class A');
       assetDropdownStrings.insert(0, assetDropdownStrings.removeAt(gmeIndex));
     }
     if (assetType == AssetType.crypto) {

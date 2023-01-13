@@ -7,8 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO LIST:
 
-// ditch CoinGecko package, pull directly from API.
-//
 // 4) Add the ability to persist AssetCard list.
 // 6) Add ability to reload asset lists
 // 7) Add the ability to sort by specific AssetCard elements like total, market

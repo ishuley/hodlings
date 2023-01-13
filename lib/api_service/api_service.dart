@@ -165,6 +165,7 @@ class CashAPI implements AssetAPI {
       '/exchangerates_data/symbols',
       {'apikey': currencyExchangeDataApiKey},
     );
+
     Response response = await get(url);
     List<AssetDataItem> currencyData = [];
     if (response.statusCode == 200) {
@@ -191,7 +192,7 @@ class CashAPI implements AssetAPI {
 
   @override
   Future<double> getPrice({required String id, String vsTicker = 'usd'}) async {
-    if (id == vsTicker) {
+    if (id.toLowerCase() == vsTicker.toLowerCase()) {
       return 1.0;
     }
     Uri url = Uri.https(currencyApiUrl, '/exchangerates_data/convert', {
