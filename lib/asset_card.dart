@@ -44,7 +44,8 @@ class AssetCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    asset.name.replaceAll(' ', '\n').substring(0, 20),
+                    asset.name.replaceAll(' ', '\n'),
+                    maxLines: 2,
                     style: TextStyle(
                       fontSize: 10,
                       color: textColor,
