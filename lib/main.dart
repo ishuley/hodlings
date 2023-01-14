@@ -193,6 +193,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         incrementNetWorth(newAssetCard.totalValue);
         addToAssetList(newAssetCard);
       });
+      saveAssetCardListState();
     }
   }
 
