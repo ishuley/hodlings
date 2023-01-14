@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hodlings/main_screen/asset.dart';
+import 'package:hodlings/persistence/asset_storage.dart';
 
 class RefreshAssetListsButton extends StatefulWidget {
   const RefreshAssetListsButton({super.key});
@@ -26,7 +28,12 @@ class _RefreshAssetListsButtonState extends State<RefreshAssetListsButton> {
     );
   }
 
-  void onPressed() {}
+  void onPressed() async {
+    for (AssetType assetType in AssetType.values) {
+      await AssetStorage().deleteAssetDataFile(assetType);
+      await AssetStorage().deleteAssetListFile(assetType);
+    }
+  }
 }
 
 class RefreshAssetHelpIcon extends StatelessWidget {

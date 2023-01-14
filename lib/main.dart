@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hodlings/drawer_menu/drawer_menu.dart';
+import 'package:hodlings/main_screen/drawer_menu/drawer_menu.dart';
 import 'package:hodlings/main_screen/add_new_asset_button.dart';
 import 'package:hodlings/main_screen/asset_card.dart';
 import 'package:hodlings/main_screen/asset_card_display.dart';
@@ -12,17 +12,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO LIST:
 
-// 6) Add ability to reload asset lists (as opposed to assetCardLists, in
-// case a new security is released)
 // 7) Add the ability to sort by specific AssetCard elements like total, market
 // cap, or alphabetically by ticker. Default it to total. Persist chosen sort
 // order.
-// 7.5) Add attributions to CoinGecko.
+// 7.5) Add attributions to CoinGecko and IEX Cloud.
 // 9) Finish blockchain based address lookup.
 // 9.5) Add ability to scan an address for select platforms and add a card or
 // update a card for everything it finds
+// 9.75) Add a selection of different vsCurrencies (if not the capability to convert and use any)
 // 10) Add daily volume and % change. Give user option for displayed % change
-// time frame. Persist it.
+// time frame. Persist it.RefreshAssetListsButton
 // 10.5) Add option to toggle whether market cap is described in words or numbers. Persist it.
 // 11) Add support for different vs currencies, and the necessary conversions.
 // as well as customized lists of preferred vs currencies that can be toggled
@@ -227,7 +226,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     saveAssetCardListState();
   }
 
-  Future<void> onRefreshAssetCards() async {
+  Future<void> refreshAssetCards() async {
     List<AssetCard> newAssetCardsList = [];
     for (AssetCard card in assetCardsList) {
       AssetCard refreshedAssetCard = AssetCard(
@@ -263,11 +262,16 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ),
         centerTitle: true,
         iconTheme: Theme.of(context).appBarTheme.iconTheme,
+        actions: [
+          const SortAppBarIcon(),
+          RefreshAppBarIcon(
+            onRefreshedCallback: refreshAssetCards,
+          ),
+        ],
       ),
       drawer: DrawerMenu(
         onThemeChangedCallback: widget.onThemeChangedCallback,
         currentThemeDescription: widget.currentThemeDescription,
-        onRefreshAssetCardsCallback: onRefreshAssetCards,
       ),
       body: Center(
         child: Column(
@@ -284,7 +288,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                 assetList: assetCardsList,
                 deleteAssetCardCallback: deleteAssetCard,
                 editAssetCardQuantityCallback: editQuantity,
-                onRefreshedCallback: onRefreshAssetCards,
+                onRefreshedCallback: refreshAssetCards,
               ),
             ),
             AddNewAssetButton(
@@ -294,5 +298,43 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+}
+
+class RefreshAppBarIcon extends StatefulWidget {
+  final void Function() onRefreshedCallback;
+
+  const RefreshAppBarIcon({super.key, required this.onRefreshedCallback});
+
+  @override
+  State<RefreshAppBarIcon> createState() => _RefreshAppBarIconState();
+}
+
+class _RefreshAppBarIconState extends State<RefreshAppBarIcon> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+      child: GestureDetector(
+        onTap: widget.onRefreshedCallback,
+        child: const Icon(
+          Icons.refresh,
+        ),
+      ),
+    );
+  }
+}
+
+class SortAppBarIcon extends StatefulWidget {
+  const SortAppBarIcon({super.key});
+
+  @override
+  State<SortAppBarIcon> createState() => _SortAppBarIconState();
+}
+
+class _SortAppBarIconState extends State<SortAppBarIcon> {
+  @override
+  Widget build(BuildContext context) {
+    return const Icon(Icons.sort);
   }
 }
