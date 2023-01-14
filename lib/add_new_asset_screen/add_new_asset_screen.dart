@@ -4,12 +4,12 @@ import 'package:hodlings/add_new_asset_screen/asset_dropdown.dart';
 import 'package:hodlings/add_new_asset_screen/asset_type_selection.dart';
 import 'package:hodlings/add_new_asset_screen/data_source_input.dart';
 import 'package:hodlings/api_service/api_service.dart';
+import 'package:hodlings/main_screen/asset.dart';
+import 'package:hodlings/main_screen/asset_card.dart';
 import 'package:hodlings/persistence/asset_data_item.dart';
 import 'package:hodlings/persistence/asset_dropdown_item.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'accept_cancel_button.dart';
-import '../asset.dart';
-import '../asset_card.dart';
 import '../persistence/asset_storage.dart';
 import '../main.dart';
 

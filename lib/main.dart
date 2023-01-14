@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:hodlings/drawer_menu/drawer_menu.dart';
+import 'package:hodlings/main_screen/add_new_asset_button.dart';
+import 'package:hodlings/main_screen/asset_card.dart';
+import 'package:hodlings/main_screen/asset_card_display.dart';
+import 'package:hodlings/main_screen/net_worth_button.dart';
 import 'package:hodlings/persistence/asset_card_list_storage.dart';
 import 'package:hodlings/themes.dart';
 import 'add_new_asset_screen/add_new_asset_screen.dart';
-import 'asset_card.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO LIST:
-
-// have assetCardLists load prices and marketcap for multiple symbols in the
-// same call where possible to save on API calls
 
 // 6) Add ability to reload asset lists (as opposed to assetCardLists, in
 // case a new security is released)
@@ -226,7 +227,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     saveAssetCardListState();
   }
 
-  Future<void> onRefresh() async {
+  Future<void> onRefreshAssetCards() async {
     List<AssetCard> newAssetCardsList = [];
     for (AssetCard card in assetCardsList) {
       AssetCard refreshedAssetCard = AssetCard(
@@ -266,6 +267,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       drawer: DrawerMenu(
         onThemeChangedCallback: widget.onThemeChangedCallback,
         currentThemeDescription: widget.currentThemeDescription,
+        onRefreshAssetCardsCallback: onRefreshAssetCards,
       ),
       body: Center(
         child: Column(
@@ -282,7 +284,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                 assetList: assetCardsList,
                 deleteAssetCardCallback: deleteAssetCard,
                 editAssetCardQuantityCallback: editQuantity,
-                onRefreshedCallback: onRefresh,
+                onRefreshedCallback: onRefreshAssetCards,
               ),
             ),
             AddNewAssetButton(
@@ -290,318 +292,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class DrawerMenu extends StatelessWidget {
-  final ValueChanged<String> onThemeChangedCallback;
-  final String currentThemeDescription;
-  const DrawerMenu({
-    super.key,
-    required this.onThemeChangedCallback,
-    required this.currentThemeDescription,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      child: ListView(
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(10, 20, 0, 10),
-            child: Text(
-              'Theme:',
-              style: TextStyle(decoration: TextDecoration.underline),
-            ),
-          ),
-          ThemeChoiceDropdown(
-            onThemeChangedCallback: onThemeChangedCallback,
-            currentThemeDescription: currentThemeDescription,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ThemeChoiceDropdown extends StatefulWidget {
-  final ValueChanged<String> onThemeChangedCallback;
-  final String currentThemeDescription;
-
-  const ThemeChoiceDropdown({
-    super.key,
-    required this.onThemeChangedCallback,
-    required this.currentThemeDescription,
-  });
-
-  @override
-  State<ThemeChoiceDropdown> createState() => _ThemeChoiceDropdownState();
-}
-
-class _ThemeChoiceDropdownState extends State<ThemeChoiceDropdown> {
-  late String currentThemeChoice;
-
-  @override
-  Widget build(BuildContext context) {
-    currentThemeChoice = widget.currentThemeDescription;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-      decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-      child: DropdownButton<String>(
-        isExpanded: true,
-        dropdownColor: Theme.of(context).primaryColor,
-        onChanged: ((String? selectedTheme) {
-          currentThemeChoice = selectedTheme!;
-          widget.onThemeChangedCallback(currentThemeChoice);
-        }),
-        value: currentThemeChoice,
-        items: const ['System theme', 'Dark theme', 'Light theme']
-            .map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
-
-class NetWorthButton extends StatelessWidget {
-  final String netWorth;
-  final String vsTicker;
-  final VoidCallback onNetWorthClickCallback;
-  const NetWorthButton({
-    super.key,
-    required this.netWorth,
-    required this.vsTicker,
-    required this.onNetWorthClickCallback,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 75,
-            child: TextButton(
-              onPressed: onNetWorthClickCallback,
-              child: Text(
-                '$netWorth $vsTicker',
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class AssetDisplay extends StatefulWidget {
-  final List<AssetCard> assetList;
-  final Function(int) deleteAssetCardCallback;
-  final Function(int, double) editAssetCardQuantityCallback;
-  final Future<void> Function() onRefreshedCallback;
-
-  const AssetDisplay({
-    super.key,
-    required this.assetList,
-    required this.deleteAssetCardCallback,
-    required this.editAssetCardQuantityCallback,
-    required this.onRefreshedCallback,
-  });
-
-  @override
-  State<AssetDisplay> createState() => _AssetDisplayState();
-}
-
-class _AssetDisplayState extends State<AssetDisplay> {
-  Offset _tapPosition = Offset.zero;
-  int tappedCardIndex = 0;
-  String contextChoice = '';
-  late TextEditingController editQtyController;
-  double? newQty;
-
-  @override
-  void initState() {
-    super.initState();
-    editQtyController = TextEditingController();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.assetList.isNotEmpty) {
-      return RefreshIndicator(
-        onRefresh: widget.onRefreshedCallback,
-        child: ListView.builder(
-          itemCount: widget.assetList.length,
-          itemBuilder: (BuildContext newContext, int index) {
-            return GestureDetector(
-              onTapDown: (details) {
-                _getTapPosition(details, context);
-                _storeIndex(index);
-              },
-              onLongPress: () {
-                _showContextMenu(context);
-              },
-              child: Card(
-                child: widget.assetList[index],
-              ),
-            );
-          },
-        ),
-      );
-    }
-    return const Align(
-      alignment: Alignment.center,
-      child: Text(
-        'No assets entered yet',
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  void _getTapPosition(TapDownDetails details, BuildContext context) {
-    final RenderBox referenceBox = context.findRenderObject() as RenderBox;
-    _tapPosition = referenceBox.globalToLocal(details.globalPosition);
-  }
-
-  void _storeIndex(int index) {
-    tappedCardIndex = index;
-  }
-
-  void _showContextMenu(BuildContext context) async {
-    final RenderObject? overlay =
-        Overlay.of(context)?.context.findRenderObject();
-
-    String? userChoice = await _showLongpressMenu(context, overlay);
-    if (userChoice != null) {
-      contextChoice = userChoice;
-    }
-    if (userChoice == 'edit') {
-      await getNewQuantityFromUser();
-    }
-    _executeChosenAction();
-  }
-
-  Future<void> getNewQuantityFromUser() async {
-    String inputQty;
-    inputQty = await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text(
-            'Edit quantity',
-          ),
-          content: TextField(
-            onEditingComplete: (() =>
-                Navigator.of(context).pop(editQtyController.text)),
-            autofocus: true,
-            decoration: const InputDecoration(
-              hintText: 'New quantity',
-            ),
-            controller: editQtyController,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(editQtyController.text);
-              },
-              child: const Text(
-                'Accept',
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Cancel',
-              ),
-            ),
-          ],
-        );
-      },
-    );
-    if (inputQty.isNotEmpty) {
-      newQty = double.parse(inputQty);
-    }
-  }
-
-  Future<String?> _showLongpressMenu(
-    BuildContext context,
-    RenderObject? overlay,
-  ) async {
-    String? userChoice = await showMenu(
-      context: context,
-      position: RelativeRect.fromRect(
-        Rect.fromLTWH(_tapPosition.dx + 140, _tapPosition.dy + 85, 30, 30),
-        Rect.fromLTWH(
-          0,
-          0,
-          overlay!.paintBounds.size.width,
-          overlay.paintBounds.size.height,
-        ),
-      ),
-      items: [
-        const PopupMenuItem(
-          value: 'edit',
-          child: Text('Edit quantity'),
-        ),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Text('Delete asset'),
-        ),
-      ],
-    );
-    return userChoice;
-  }
-
-  void _executeChosenAction() {
-    if (contextChoice == 'delete') {
-      widget.deleteAssetCardCallback(tappedCardIndex);
-    }
-    if (newQty != null) {
-      widget.editAssetCardQuantityCallback(tappedCardIndex, newQty!);
-    }
-  }
-}
-
-class AddNewAssetButton extends StatefulWidget {
-  final VoidCallback addNewAssetCallback;
-
-  const AddNewAssetButton({super.key, required this.addNewAssetCallback});
-
-  @override
-  State<AddNewAssetButton> createState() => _AddNewAssetButtonState();
-}
-
-class _AddNewAssetButtonState extends State<AddNewAssetButton> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.bottomCenter,
-      child: Row(
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: 75,
-              child: TextButton(
-                onPressed: widget.addNewAssetCallback,
-                child: Icon(
-                  Icons.add,
-                  size: Theme.of(context).iconTheme.size,
-                  color: Theme.of(context).iconTheme.color,
-                ),
-              ),
-            ),
-          )
-        ],
       ),
     );
   }

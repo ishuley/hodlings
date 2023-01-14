@@ -59,9 +59,7 @@ class AcceptCancelButton extends StatelessWidget {
                     ),
                     child: Text(
                       'Cancel',
-                      style: TextStyle(
-                        color: Theme.of(context).iconTheme.color,
-                      ),
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
                   ),
                 ),

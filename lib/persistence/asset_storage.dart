@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:hodlings/main_screen/asset.dart';
 import 'package:hodlings/persistence/asset_data_item.dart';
 import 'package:hodlings/persistence/asset_dropdown_item.dart';
 import 'package:path_provider/path_provider.dart';
-import '../asset.dart';
 
 /// Presistent storage for the lists of selectable assets.
 ///

@@ -3,7 +3,7 @@ import 'package:coingecko_api/coingecko_result.dart';
 import 'package:coingecko_api/data/coin_short.dart';
 import 'package:coingecko_api/data/market.dart';
 import 'package:coingecko_api/data/price_info.dart';
-import 'package:hodlings/asset.dart';
+import 'package:hodlings/main_screen/asset.dart';
 import 'package:hodlings/persistence/asset_data_item.dart';
 import 'package:coingecko_api/coingecko_api.dart';
 import 'package:http/http.dart';

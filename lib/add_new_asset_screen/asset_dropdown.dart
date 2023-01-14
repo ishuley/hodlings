@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hodlings/asset.dart';
+import 'package:hodlings/main_screen/asset.dart';
 import 'package:search_choices/search_choices.dart';
 
 /// A [SearchChoices] object that lets the user specify the desired [Asset].

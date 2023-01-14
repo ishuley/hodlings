@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:hodlings/asset.dart';
-import 'package:hodlings/asset_card.dart';
+import 'package:hodlings/main_screen/asset.dart';
+import 'package:hodlings/main_screen/asset_card.dart';
 import 'package:hodlings/persistence/asset_card_item.dart';
 import 'package:path_provider/path_provider.dart';
 

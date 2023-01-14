@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 
 class Themes {
   static final darkTheme = ThemeData(
-    scaffoldBackgroundColor: Colors.grey.shade900,
+    scaffoldBackgroundColor: Colors.grey[850],
     colorScheme: const ColorScheme.dark(),
-    primaryColor: Colors.grey.shade900,
+    primaryColor: Colors.grey[850],
     appBarTheme: AppBarTheme(
-      color: Colors.black38,
+      color: Colors.black12,
       titleTextStyle: TextStyle(
-        color: Colors.grey[500],
+        color: Colors.grey[400],
         fontSize: 22,
         fontWeight: FontWeight.bold,
       ),
-      iconTheme: IconThemeData(color: Colors.grey[400], size: 30),
+      iconTheme: IconThemeData(color: Colors.grey[300], size: 30),
     ),
     cardColor: Colors.grey.shade800,
     textButtonTheme: TextButtonThemeData(
@@ -36,6 +36,7 @@ class Themes {
       ),
       labelSmall: TextStyle(
         color: Colors.white70,
+        fontSize: 13,
       ),
     ),
   );
@@ -75,6 +76,7 @@ class Themes {
       ),
       labelSmall: TextStyle(
         color: Colors.black,
+        fontSize: 12,
       ),
     ),
   );
