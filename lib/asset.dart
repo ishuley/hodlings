@@ -35,7 +35,7 @@ abstract class Asset {
   late final AssetType assetType;
   late final String assetID;
   final String dataSource;
-  final String dataSourceField;
+  String dataSourceField;
   late final String name;
   late final String ticker;
   late double quantity;

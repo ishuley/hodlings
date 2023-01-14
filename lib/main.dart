@@ -215,12 +215,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     });
   }
 
-  void editQuantity(int index, double newQty) {
+  void editQuantity(int index, double newQty) async {
     double difference = newQty - assetCardsList[index].asset.quantity;
     setState(() {
       incrementNetWorth(difference * assetCardsList[index].price);
       assetCardsList[index].asset.quantity += difference;
+      assetCardsList[index].asset.dataSourceField =
+          assetCardsList[index].asset.quantity.toString();
     });
+    saveAssetCardListState();
   }
 
   Future<void> onRefresh() async {
@@ -518,7 +521,7 @@ class _AssetDisplayState extends State<AssetDisplay> {
               child: const Text(
                 'Cancel',
               ),
-            )
+            ),
           ],
         );
       },
