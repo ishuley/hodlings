@@ -11,8 +11,8 @@ class AssetCard extends StatelessWidget {
   final Asset asset;
   final String vsTicker;
   final double price;
-  double get totalValue => price * asset.quantity;
   final String marketCapString;
+  double get totalValue => price * asset.quantity;
 
   const AssetCard({
     super.key,

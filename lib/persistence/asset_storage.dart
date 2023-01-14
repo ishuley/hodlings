@@ -15,7 +15,7 @@ import '../asset.dart';
 ///
 class AssetStorage {
   Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
+    final directory = await getApplicationSupportDirectory();
     return directory.path;
   }
 
@@ -50,10 +50,9 @@ class AssetStorage {
   }
 
   Future<List<AssetDataItem>> readAssetData(AssetType assetType) async {
-    File file = await chooseAssetDataFile(assetType);
-    if (await file.exists()) {
-      String encodedAssetData = await file.readAsString();
-      List<dynamic> decodedAssetData = jsonDecode(encodedAssetData);
+    File assetDataFile = await chooseAssetDataFile(assetType);
+    if (await assetDataFile.exists()) {
+      List decodedAssetData = await decodeJsonFromFile(assetDataFile);
       List<AssetDataItem> assetData = [];
       for (Map<String, dynamic> assetDataItem in decodedAssetData) {
         assetData.add(AssetDataItem.fromJson(assetDataItem));
@@ -69,8 +68,8 @@ class AssetStorage {
   ) async {
     deleteAssetDataFile(assetType);
     String encodedAssetData = jsonEncode(assetData);
-    File file = await chooseAssetDataFile(assetType);
-    await file.writeAsString(encodedAssetData);
+    File assetDatafile = await chooseAssetDataFile(assetType);
+    await assetDatafile.writeAsString(encodedAssetData);
   }
 
   Future<void> writeAssetList(
@@ -83,17 +82,16 @@ class AssetStorage {
       assetListAsString.add(assetDropdownItem.assetDropdownString);
     }
     String encodedAssetList = jsonEncode(assetListAsString);
-    File file = await chooseAssetListFile(assetType);
-    await file.writeAsString(encodedAssetList);
+    File assetListFile = await chooseAssetListFile(assetType);
+    await assetListFile.writeAsString(encodedAssetList);
   }
 
-  Future<List<AssetDropdownItem>> readAssetDropdownItems(
+  Future<List<AssetDropdownItem>> readAssetListFile(
     AssetType assetType,
   ) async {
-    File file = await chooseAssetListFile(assetType);
-    if (await file.exists()) {
-      String encodedAssetList = await file.readAsString();
-      List<dynamic> decodedAssetList = jsonDecode(encodedAssetList);
+    File assetListFile = await chooseAssetListFile(assetType);
+    if (await assetListFile.exists()) {
+      List<dynamic> decodedAssetList = await decodeJsonFromFile(assetListFile);
       List<AssetDropdownItem> assetList = [];
       for (String jsonElement in decodedAssetList) {
         assetList.add(AssetDropdownItem(jsonElement));
@@ -101,6 +99,14 @@ class AssetStorage {
       return assetList;
     }
     return [];
+  }
+
+  Future<List<dynamic>> decodeJsonFromFile(
+    File fileToReadAndDecode,
+  ) async {
+    List<dynamic> decodedAssetList =
+        jsonDecode(await fileToReadAndDecode.readAsString());
+    return decodedAssetList;
   }
 
   Future<void> deleteAssetListFile(AssetType assetType) async {

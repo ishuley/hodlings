@@ -227,7 +227,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       // The list I use for the [AssetDropdown] menu is stored separately from
       // the list of data, which contains names, tickers, and and unique identifier.
       List<AssetDropdownItem> assetDropdownItems =
-          await assetListStorage.readAssetDropdownItems(assetType);
+          await assetListStorage.readAssetListFile(assetType);
 
       if (assetDropdownItems.isEmpty) {
         assetDropdownItems =

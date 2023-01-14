@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hodlings/persistence/asset_card_list_storage.dart';
 import 'package:hodlings/themes.dart';
 import 'add_new_asset_screen/add_new_asset_screen.dart';
 import 'asset_card.dart';
@@ -7,21 +8,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO LIST:
 
+// have assetCardLists load prices and marketcap for multiple symbols in the
+// same call where possible to save on API calls
+
 // 4) Add the ability to persist AssetCard list.
-// 6) Add ability to reload asset lists
+// 6) Add ability to reload asset lists (as opposed to assetCardLists, in
+// case a new security is released)
 // 7) Add the ability to sort by specific AssetCard elements like total, market
 // cap, or alphabetically by ticker. Default it to total. Persist chosen sort
 // order.
-// 7.5) Add attributiona to CoinGecko.
+// 7.5) Add attributions to CoinGecko.
 // 9) Finish blockchain based address lookup.
+// 9.5) Add ability to scan an address for select platforms and add a card or
+// update a card for everything it finds
 // 10) Add daily volume and % change. Give user option for displayed % change
 // time frame. Persist it.
 // 10.5) Add option to toggle whether market cap is described in words or numbers. Persist it.
 // 11) Add support for different vs currencies, and the necessary conversions.
 // as well as customized lists of preferred vs currencies that can be toggled
 // through by pushing the net worth button.
-// 12) Add the ability to back up AssetCard list to the cloud and restore using
-// a seed.
+// 12) Add the ability to back up AssetCard list to the cloud and restore by
+// logging into firebase through SSO.
+// 12.5 Add ability to secure the app locally, using a pin or biometric login
 // 13) Add a chart to each AssetCard based one the chosen % change time interval.
 // Provide option to toggle chart on or off, add to settings, persist it.
 // 14) Add the ability to back up settings to the cloud (which should be
@@ -115,10 +123,57 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   double netWorth = 0;
   String vsTicker = 'USD';
-  List<AssetCard> assetList = [];
+  List<AssetCard> assetCardsList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    readAssetCardListState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    saveAssetCardListState();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      return;
+    }
+    final appHasBeenClosed = state == AppLifecycleState.detached ||
+        state == AppLifecycleState.inactive;
+
+    if (appHasBeenClosed) {
+      saveAssetCardListState();
+    }
+  }
+
+  void saveAssetCardListState() async {
+    await AssetCardListStorage().writeAssetCardsData(assetCardsList);
+  }
+
+  void setNetWorthFromZero() {
+    for (AssetCard assetCard in assetCardsList) {
+      incrementNetWorth(assetCard.totalValue);
+    }
+  }
+
+  void readAssetCardListState() async {
+    List<AssetCard> newAssetCardList =
+        await AssetCardListStorage().readAssetCardsData();
+    setState(() {
+      assetCardsList = newAssetCardList;
+      refreshNetWorth();
+    });
+  }
 
   void onNetWorthButtonPressed() {
     setState(() {
@@ -150,27 +205,27 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void addToAssetList(AssetCard? newAssetCard) {
-    assetList.add(newAssetCard!);
+    assetCardsList.add(newAssetCard!);
   }
 
   void deleteAssetCard(int index) {
     setState(() {
-      decrementNetWorth(assetList[index].totalValue);
-      assetList.removeAt(index);
+      decrementNetWorth(assetCardsList[index].totalValue);
+      assetCardsList.removeAt(index);
     });
   }
 
   void editQuantity(int index, double newQty) {
-    double difference = newQty - assetList[index].asset.quantity;
+    double difference = newQty - assetCardsList[index].asset.quantity;
     setState(() {
-      incrementNetWorth(difference * assetList[index].price);
-      assetList[index].asset.quantity += difference;
+      incrementNetWorth(difference * assetCardsList[index].price);
+      assetCardsList[index].asset.quantity += difference;
     });
   }
 
   Future<void> onRefresh() async {
-    List<AssetCard> newAssetList = [];
-    for (AssetCard card in assetList) {
+    List<AssetCard> newAssetCardsList = [];
+    for (AssetCard card in assetCardsList) {
       AssetCard refreshedAssetCard = AssetCard(
         key: UniqueKey(),
         asset: card.asset,
@@ -179,11 +234,18 @@ class _MainScreenState extends State<MainScreen> {
         marketCapString:
             await card.asset.getMarketCapString(vsTicker: vsTicker),
       );
-      newAssetList.add(refreshedAssetCard);
+      newAssetCardsList.add(refreshedAssetCard);
     }
     setState(() {
-      assetList = newAssetList;
+      assetCardsList = newAssetCardsList;
+      netWorth = 0;
+      setNetWorthFromZero();
     });
+  }
+
+  void refreshNetWorth() {
+    netWorth = 0;
+    setNetWorthFromZero();
   }
 
   @override
@@ -214,10 +276,10 @@ class _MainScreenState extends State<MainScreen> {
             Expanded(
               child: AssetDisplay(
                 key: UniqueKey(),
-                assetList: assetList,
+                assetList: assetCardsList,
                 deleteAssetCardCallback: deleteAssetCard,
                 editAssetCardQuantityCallback: editQuantity,
-                refreshCallback: onRefresh,
+                onRefreshedCallback: onRefresh,
               ),
             ),
             AddNewAssetButton(
@@ -341,14 +403,14 @@ class AssetDisplay extends StatefulWidget {
   final List<AssetCard> assetList;
   final Function(int) deleteAssetCardCallback;
   final Function(int, double) editAssetCardQuantityCallback;
-  final Future<void> Function() refreshCallback;
+  final Future<void> Function() onRefreshedCallback;
 
   const AssetDisplay({
     super.key,
     required this.assetList,
     required this.deleteAssetCardCallback,
     required this.editAssetCardQuantityCallback,
-    required this.refreshCallback,
+    required this.onRefreshedCallback,
   });
 
   @override
@@ -372,9 +434,8 @@ class _AssetDisplayState extends State<AssetDisplay> {
   Widget build(BuildContext context) {
     if (widget.assetList.isNotEmpty) {
       return RefreshIndicator(
-        onRefresh: widget.refreshCallback,
+        onRefresh: widget.onRefreshedCallback,
         child: ListView.builder(
-          // physics: const ClampingScrollPhysics(),
           itemCount: widget.assetList.length,
           itemBuilder: (BuildContext newContext, int index) {
             return GestureDetector(

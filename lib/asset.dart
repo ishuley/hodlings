@@ -15,14 +15,29 @@ enum AssetType {
   const AssetType(this.createAsset);
 }
 
+extension AssetTypeString on AssetType {
+  String? get asString {
+    switch (this) {
+      case AssetType.stock:
+        return 'stock';
+      case AssetType.crypto:
+        return 'crypto';
+      case AssetType.cash:
+        return 'cash';
+      default:
+        return null;
+    }
+  }
+}
+
 abstract class Asset {
   final String assetFieldData;
-  late final String name;
-  late final String ticker;
   late final AssetType assetType;
   late final String assetID;
   final String dataSource;
   final String dataSourceField;
+  late final String name;
+  late final String ticker;
   late double quantity;
 
   Asset({
