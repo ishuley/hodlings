@@ -13,21 +13,24 @@ class NetWorthButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 75,
-            child: TextButton(
-              onPressed: onNetWorthClickCallback,
-              child: Text(
-                '$netWorth $vsTicker',
-                style: Theme.of(context).textTheme.labelLarge,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 2),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 75,
+              child: TextButton(
+                onPressed: onNetWorthClickCallback,
+                child: Text(
+                  '$netWorth $vsTicker',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

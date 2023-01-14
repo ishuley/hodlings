@@ -26,7 +26,7 @@ class AssetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color textColor = Theme.of(context).textTheme.labelSmall!.color!;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
       child: Column(
         children: [
           Row(
