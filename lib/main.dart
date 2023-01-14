@@ -499,6 +499,8 @@ class _AssetDisplayState extends State<AssetDisplay> {
             'Edit quantity',
           ),
           content: TextField(
+            onEditingComplete: (() =>
+                Navigator.of(context).pop(editQtyController.text)),
             autofocus: true,
             decoration: const InputDecoration(
               hintText: 'New quantity',

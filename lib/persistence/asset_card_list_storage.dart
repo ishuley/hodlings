@@ -21,7 +21,6 @@ class AssetCardListStorage {
     File assetCardsFile = await _assetCardsFile;
     List<AssetCard> assetCardsList = [];
     if (await assetCardsFile.exists()) {
-      print('assetCardsFile exists');
       String encodedAssetCardsData = await assetCardsFile.readAsString();
       List<dynamic> decodedAssetCardsData = jsonDecode(encodedAssetCardsData);
       List<AssetCardItem> assetCardItemList = [];
@@ -54,12 +53,8 @@ class AssetCardListStorage {
     }
     String encodedAssetCardItemList = jsonEncode(assetCardItemList);
 
-    print(encodedAssetCardItemList);
-
-    print('about to write:');
     File assetCardsFile = await _assetCardsFile;
 
-    print(assetCardsFile.toString());
     await assetCardsFile.writeAsString(encodedAssetCardItemList);
   }
 
