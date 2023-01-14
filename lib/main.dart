@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 // have assetCardLists load prices and marketcap for multiple symbols in the
 // same call where possible to save on API calls
 
-// 4) Add the ability to persist AssetCard list.
 // 6) Add ability to reload asset lists (as opposed to assetCardLists, in
 // case a new security is released)
 // 7) Add the ability to sort by specific AssetCard elements like total, market
