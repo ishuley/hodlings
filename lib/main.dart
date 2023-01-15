@@ -60,9 +60,13 @@ class _HODLingsState extends State<HODLings> {
 
   Future<void> initTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? storedTheme = prefs.getString('lastTheme');
+    final String? storedTheme = prefs.getString(
+      'lastTheme',
+    );
     if (storedTheme != null) {
-      setTheme(storedTheme);
+      setTheme(
+        storedTheme,
+      );
     }
   }
 
@@ -77,7 +81,10 @@ class _HODLingsState extends State<HODLings> {
     setTheme(chosenTheme);
     final prefs = await SharedPreferences.getInstance();
 
-    await prefs.setString('lastTheme', currentThemeDescription);
+    await prefs.setString(
+      'lastTheme',
+      currentThemeDescription,
+    );
   }
 
   ThemeMode getThemeFromChoice(String themeChoice) {
@@ -131,19 +138,25 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     readAssetCardListState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addObserver(
+      this,
+    );
   }
 
   @override
   void dispose() {
     saveAssetCardListState();
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(
+      this,
+    );
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
+    super.didChangeAppLifecycleState(
+      state,
+    );
     if (state == AppLifecycleState.paused) {
       return;
     }
@@ -156,12 +169,16 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   void saveAssetCardListState() async {
-    await AssetCardListStorage().writeAssetCardsData(assetCardsList);
+    await AssetCardListStorage().writeAssetCardsData(
+      assetCardsList,
+    );
   }
 
   void setNetWorthFromZero() {
     for (AssetCard assetCard in assetCardsList) {
-      incrementNetWorth(assetCard.totalValue);
+      incrementNetWorth(
+        assetCard.totalValue,
+      );
     }
   }
 
@@ -189,36 +206,50 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
     if (newAssetCard != null) {
       setState(() {
-        incrementNetWorth(newAssetCard.totalValue);
+        incrementNetWorth(
+          newAssetCard.totalValue,
+        );
         addToAssetList(newAssetCard);
       });
       saveAssetCardListState();
     }
   }
 
-  void incrementNetWorth(double incrementAmount) {
+  void incrementNetWorth(
+    double incrementAmount,
+  ) {
     netWorth = netWorth + incrementAmount;
   }
 
-  void decrementNetWorth(double decrementAmount) {
+  void decrementNetWorth(
+    double decrementAmount,
+  ) {
     netWorth = netWorth - decrementAmount;
   }
 
   void addToAssetList(AssetCard? newAssetCard) {
-    assetCardsList.add(newAssetCard!);
+    assetCardsList.add(
+      newAssetCard!,
+    );
   }
 
   void deleteAssetCard(int index) {
     setState(() {
-      decrementNetWorth(assetCardsList[index].totalValue);
-      assetCardsList.removeAt(index);
+      decrementNetWorth(
+        assetCardsList[index].totalValue,
+      );
+      assetCardsList.removeAt(
+        index,
+      );
     });
   }
 
   void editQuantity(int index, double newQty) async {
     double difference = newQty - assetCardsList[index].asset.quantity;
     setState(() {
-      incrementNetWorth(difference * assetCardsList[index].price);
+      incrementNetWorth(
+        difference * assetCardsList[index].price,
+      );
       assetCardsList[index].asset.quantity += difference;
       assetCardsList[index].asset.dataSourceField =
           assetCardsList[index].asset.quantity.toString();
@@ -233,9 +264,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         key: UniqueKey(),
         asset: card.asset,
         vsTicker: vsTicker,
-        price: await card.asset.getPrice(vsTicker: vsTicker),
-        marketCapString:
-            await card.asset.getMarketCapString(vsTicker: vsTicker),
+        price: await card.asset.getPrice(
+          vsTicker: vsTicker,
+        ),
+        marketCapString: await card.asset.getMarketCapString(
+          vsTicker: vsTicker,
+        ),
       );
       newAssetCardsList.add(refreshedAssetCard);
     }
@@ -283,7 +317,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
               onNetWorthClickCallback: onNetWorthButtonPressed,
             ),
             Expanded(
-              child: AssetDisplay(
+              child: AssetCardDisplay(
                 key: UniqueKey(),
                 assetList: assetCardsList,
                 deleteAssetCardCallback: deleteAssetCard,
@@ -304,7 +338,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 class RefreshAppBarIcon extends StatefulWidget {
   final void Function() onRefreshedCallback;
 
-  const RefreshAppBarIcon({super.key, required this.onRefreshedCallback});
+  const RefreshAppBarIcon({
+    super.key,
+    required this.onRefreshedCallback,
+  });
 
   @override
   State<RefreshAppBarIcon> createState() => _RefreshAppBarIconState();
@@ -314,7 +351,12 @@ class _RefreshAppBarIconState extends State<RefreshAppBarIcon> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+      padding: const EdgeInsets.fromLTRB(
+        8,
+        0,
+        12,
+        0,
+      ),
       child: GestureDetector(
         onTap: widget.onRefreshedCallback,
         child: const Icon(
@@ -326,7 +368,9 @@ class _RefreshAppBarIconState extends State<RefreshAppBarIcon> {
 }
 
 class SortAppBarIcon extends StatefulWidget {
-  const SortAppBarIcon({super.key});
+  const SortAppBarIcon({
+    super.key,
+  });
 
   @override
   State<SortAppBarIcon> createState() => _SortAppBarIconState();
@@ -335,6 +379,11 @@ class SortAppBarIcon extends StatefulWidget {
 class _SortAppBarIconState extends State<SortAppBarIcon> {
   @override
   Widget build(BuildContext context) {
-    return const Icon(Icons.sort);
+    return GestureDetector(
+      onTap: () {},
+      child: const Icon(
+        Icons.sort,
+      ),
+    );
   }
 }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hodlings/main_screen/asset_card.dart';
 
-class AssetDisplay extends StatefulWidget {
+class AssetCardDisplay extends StatefulWidget {
   final List<AssetCard> assetList;
   final Function(int) deleteAssetCardCallback;
   final Function(int, double) editAssetCardQuantityCallback;
   final Future<void> Function() onRefreshedCallback;
 
-  const AssetDisplay({
+  const AssetCardDisplay({
     super.key,
     required this.assetList,
     required this.deleteAssetCardCallback,
@@ -16,10 +16,10 @@ class AssetDisplay extends StatefulWidget {
   });
 
   @override
-  State<AssetDisplay> createState() => _AssetDisplayState();
+  State<AssetCardDisplay> createState() => _AssetCardDisplayState();
 }
 
-class _AssetDisplayState extends State<AssetDisplay> {
+class _AssetCardDisplayState extends State<AssetCardDisplay> {
   Offset _tapPosition = Offset.zero;
   int tappedCardIndex = 0;
   String contextChoice = '';

@@ -26,7 +26,10 @@ class AssetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color textColor = Theme.of(context).textTheme.labelSmall!.color!;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(
+        vertical: 8.0,
+        horizontal: 12.0,
+      ),
       child: Column(
         children: [
           Row(
@@ -44,11 +47,15 @@ class AssetCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    asset.name.replaceAll(' ', '\n'),
+                    asset.name.replaceAll(
+                      ' ',
+                      '\n',
+                    ),
                     maxLines: 2,
                     style: TextStyle(
                       fontSize: 10,
                       color: textColor,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -58,11 +65,19 @@ class AssetCard extends StatelessWidget {
                 children: [
                   Text(
                     'Qty: ',
-                    style: TextStyle(color: textColor),
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
-                    NumberFormat.compact().format(asset.quantity),
-                    style: TextStyle(color: textColor),
+                    NumberFormat.compact().format(
+                      asset.quantity,
+                    ),
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   )
                 ],
               ),
@@ -71,11 +86,18 @@ class AssetCard extends StatelessWidget {
                 children: [
                   Text(
                     'Price \n(${vsTicker.toUpperCase()}):',
-                    style: TextStyle(color: textColor),
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
-                    NumberFormat('###,###,###,###,###.00', 'en_US')
-                        .format(price),
+                    NumberFormat('###,###,###,###,###.00', 'en_US').format(
+                      price,
+                    ),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -92,8 +114,12 @@ class AssetCard extends StatelessWidget {
                   ),
                   Text(
                     textAlign: TextAlign.center,
-                    NumberFormat('###,###,###,###,###.00', 'en_US')
-                        .format(totalValue),
+                    NumberFormat(
+                      '###,###,###,###,###.00',
+                      'en_US',
+                    ).format(
+                      totalValue,
+                    ),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: textColor,
@@ -106,10 +132,16 @@ class AssetCard extends StatelessWidget {
           Row(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 7),
+                padding: const EdgeInsets.only(
+                  top: 7,
+                ),
                 child: Text(
                   marketCapString,
-                  style: TextStyle(fontSize: 12, color: textColor),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: textColor,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               )
             ],
