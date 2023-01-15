@@ -22,7 +22,7 @@ class AssetCardDisplay extends StatefulWidget {
 class _AssetCardDisplayState extends State<AssetCardDisplay> {
   Offset _tapPosition = Offset.zero;
   int tappedCardIndex = 0;
-  String contextChoice = '';
+  late ContextMenuSelection contextChoice;
   late TextEditingController editQtyController;
   double? newQty;
 
@@ -78,11 +78,12 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
     final RenderObject? overlay =
         Overlay.of(context)?.context.findRenderObject();
 
-    String? userChoice = await _showLongpressMenu(context, overlay);
+    ContextMenuSelection? userChoice =
+        await _showLongpressMenu(context, overlay);
     if (userChoice != null) {
       contextChoice = userChoice;
     }
-    if (userChoice == 'edit') {
+    if (userChoice == ContextMenuSelection.edit) {
       await getNewQuantityFromUser();
     }
     _executeChosenAction();
@@ -132,11 +133,11 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
     }
   }
 
-  Future<String?> _showLongpressMenu(
+  Future<ContextMenuSelection?> _showLongpressMenu(
     BuildContext context,
     RenderObject? overlay,
   ) async {
-    String? userChoice = await showMenu(
+    ContextMenuSelection? userChoice = await showMenu(
       context: context,
       position: RelativeRect.fromRect(
         Rect.fromLTWH(_tapPosition.dx + 140, _tapPosition.dy + 85, 30, 30),
@@ -149,11 +150,11 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
       ),
       items: [
         const PopupMenuItem(
-          value: 'edit',
+          value: ContextMenuSelection.edit,
           child: Text('Edit quantity'),
         ),
         const PopupMenuItem(
-          value: 'delete',
+          value: ContextMenuSelection.delete,
           child: Text('Delete asset'),
         ),
       ],
@@ -162,7 +163,7 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
   }
 
   void _executeChosenAction() {
-    if (contextChoice == 'delete') {
+    if (contextChoice == ContextMenuSelection.delete) {
       widget.deleteAssetCardCallback(tappedCardIndex);
     }
     if (newQty != null) {
@@ -170,3 +171,5 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
     }
   }
 }
+
+enum ContextMenuSelection { delete, edit }

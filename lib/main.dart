@@ -153,7 +153,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(
+    AppLifecycleState state,
+  ) {
     super.didChangeAppLifecycleState(
       state,
     );
@@ -259,14 +261,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   Future<void> refreshAssetCards() async {
     List<AssetCard> newAssetCardsList = [];
+
     for (AssetCard card in assetCardsList) {
+      dynamic newPrice = await card.asset.getPrice(
+        vsTicker: vsTicker,
+      );
+
+      if (newPrice == 0) {
+        newPrice = card.price;
+      }
       AssetCard refreshedAssetCard = AssetCard(
         key: UniqueKey(),
         asset: card.asset,
         vsTicker: vsTicker,
-        price: await card.asset.getPrice(
-          vsTicker: vsTicker,
-        ),
+        price: newPrice,
         marketCapString: await card.asset.getMarketCapString(
           vsTicker: vsTicker,
         ),
@@ -351,16 +359,14 @@ class _RefreshAppBarIconState extends State<RefreshAppBarIcon> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        8,
-        0,
+      padding: const EdgeInsets.all(
         12,
-        0,
       ),
-      child: GestureDetector(
-        onTap: widget.onRefreshedCallback,
+      child: InkWell(
+        onTap: () => widget.onRefreshedCallback,
+        splashColor: Colors.purple,
         child: const Icon(
-          Icons.refresh,
+          Icons.refresh_outlined,
         ),
       ),
     );
@@ -376,12 +382,46 @@ class SortAppBarIcon extends StatefulWidget {
   State<SortAppBarIcon> createState() => _SortAppBarIconState();
 }
 
+enum SortType { totalValue, marketCap, price, quantity, name }
+
 class _SortAppBarIconState extends State<SortAppBarIcon> {
+  // TODO persist sortSelection and grab it on initialization
+  SortType sortSelection = SortType.totalValue;
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-      child: const Icon(
+    return PopupMenuButton(
+      onSelected: (SortType newSelection) {
+        setState(() {
+          sortSelection = newSelection;
+        });
+      },
+      splashRadius: 22,
+      position: PopupMenuPosition.under,
+      initialValue: sortSelection,
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<SortType>>[
+        const PopupMenuItem<SortType>(
+          value: SortType.totalValue,
+          child: Text('Value'),
+        ),
+        const PopupMenuItem<SortType>(
+          value: SortType.marketCap,
+          child: Text('Market Cap'),
+        ),
+        const PopupMenuItem<SortType>(
+          value: SortType.price,
+          child: Text('Price'),
+        ),
+        const PopupMenuItem<SortType>(
+          value: SortType.quantity,
+          child: Text('Quantity'),
+        ),
+        const PopupMenuItem<SortType>(
+          value: SortType.name,
+          child: Text('Name'),
+        ),
+      ],
+      icon: const Icon(
         Icons.sort,
       ),
     );
