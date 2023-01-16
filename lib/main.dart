@@ -265,8 +265,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   Future<void> refreshAssetCards() async {
-    print('made it');
-
     /// Crypto assets refreshed seperately because CoinGecko lets us save on
     /// API calls by getting all the updated data with one call, whereas the
     /// other APIs do not.
