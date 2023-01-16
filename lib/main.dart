@@ -45,7 +45,9 @@ class _HODLingsState extends State<HODLings> {
 
   void setTheme(String newTheme) {
     setState(() {
-      currentTheme = getThemeFromChoice(newTheme);
+      currentTheme = getThemeFromChoice(
+        newTheme,
+      );
       currentThemeDescription = newTheme;
     });
   }
@@ -60,7 +62,9 @@ class _HODLingsState extends State<HODLings> {
     );
   }
 
-  ThemeMode getThemeFromChoice(String themeChoice) {
+  ThemeMode getThemeFromChoice(
+    String themeChoice,
+  ) {
     switch (themeChoice) {
       case 'Dark theme':
         return ThemeMode.dark;
@@ -185,7 +189,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         incrementNetWorth(
           newAssetCard.totalValue,
         );
-        addToAssetList(newAssetCard);
+        addToAssetList(
+          newAssetCard,
+        );
       });
       saveAssetCardsListState();
     }
@@ -203,7 +209,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     netWorth = netWorth - decrementAmount;
   }
 
-  void addToAssetList(AssetCard? newAssetCard) {
+  void addToAssetList(
+    AssetCard? newAssetCard,
+  ) {
     assetCardsList.add(
       newAssetCard!,
     );
@@ -274,8 +282,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   Future<List<AssetCard>> getRefreshedCryptoCardList() async {
     List<AssetCard> cryptoCards = separateCryptoCardsListFromOldAssetCardList();
     List<String> cryptoIdList = extractCryptoIdList(cryptoCards);
-    Map<String, dynamic> cryptoData =
-        await CryptoAPI().getData(ids: cryptoIdList, vsTickers: [vsTicker]);
+    Map<String, dynamic> cryptoData = await CryptoAPI().getData(
+      ids: cryptoIdList,
+      vsTickers: [vsTicker],
+    );
 
     List<AssetCard> newAssetCardsList = await extractNewCryptoCardListFromData(
       cryptoData,
@@ -289,7 +299,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     for (AssetCard card in assetCardsList) {
       if (card.asset.assetType == AssetType.crypto) {
-        cryptoCards.add(card);
+        cryptoCards.add(
+          card,
+        );
       }
     }
     return cryptoCards;
@@ -298,7 +310,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   List<String> extractCryptoIdList(List<AssetCard> cryptoCards) {
     List<String> cryptoIdList = [];
     for (AssetCard cryptoCard in cryptoCards) {
-      cryptoIdList.add(cryptoCard.asset.assetId);
+      cryptoIdList.add(
+        cryptoCard.asset.assetId,
+      );
     }
     return cryptoIdList;
   }
@@ -417,8 +431,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         child: Column(
           children: [
             NetWorthButton(
-              netWorth: NumberFormat('###,###,###,###,###,###', 'en_US')
-                  .format(netWorth),
+              netWorth: NumberFormat(
+                '###,###,###,###,###,###',
+                'en_US',
+              ).format(
+                netWorth,
+              ),
               vsTicker: vsTicker,
               onNetWorthClickCallback: onNetWorthButtonPressed,
             ),
@@ -483,7 +501,7 @@ class SortAppBarIcon extends StatefulWidget {
 enum SortType { totalValue, marketCap, price, quantity, name }
 
 class _SortAppBarIconState extends State<SortAppBarIcon> {
-  // TODO persist sortSelection and grab it on initialization
+  // TODO persist sortSelection and grab it on app's initialization
   SortType sortSelection = SortType.totalValue;
 
   @override
@@ -500,23 +518,33 @@ class _SortAppBarIconState extends State<SortAppBarIcon> {
       itemBuilder: (BuildContext context) => <PopupMenuEntry<SortType>>[
         const PopupMenuItem<SortType>(
           value: SortType.totalValue,
-          child: Text('Value'),
+          child: Text(
+            'Value',
+          ),
         ),
         const PopupMenuItem<SortType>(
           value: SortType.marketCap,
-          child: Text('Market Cap'),
+          child: Text(
+            'Market Cap',
+          ),
         ),
         const PopupMenuItem<SortType>(
           value: SortType.price,
-          child: Text('Price'),
+          child: Text(
+            'Price',
+          ),
         ),
         const PopupMenuItem<SortType>(
           value: SortType.quantity,
-          child: Text('Quantity'),
+          child: Text(
+            'Quantity',
+          ),
         ),
         const PopupMenuItem<SortType>(
           value: SortType.name,
-          child: Text('Name'),
+          child: Text(
+            'Name',
+          ),
         ),
       ],
       icon: const Icon(
