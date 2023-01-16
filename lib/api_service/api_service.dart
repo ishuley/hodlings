@@ -1,15 +1,10 @@
 import 'dart:convert';
-import 'package:coingecko_api/coingecko_result.dart';
-import 'package:coingecko_api/data/coin_short.dart';
 import 'package:hodlings/main_screen/asset.dart';
 import 'package:hodlings/persistence/asset_data_item.dart';
-import 'package:coingecko_api/coingecko_api.dart';
 import 'package:http/http.dart';
 import 'api_keys.dart';
 
 abstract class AssetAPI {
-  late AssetType assetType;
-
   factory AssetAPI(AssetType assetType) {
     switch (assetType) {
       case AssetType.stock:
@@ -26,31 +21,43 @@ abstract class AssetAPI {
 }
 
 class CryptoAPI implements AssetAPI {
-  final api = CoinGeckoApi();
-
-  @override
-  late AssetType assetType;
-
   @override
   Future<List<AssetDataItem>> getListOfAssets() async {
-    final CoinGeckoResult<List<CoinShort>> result = await api.coins.listCoins();
-    List<AssetDataItem> cryptoData = [];
-    for (CoinShort cryptoDetails in result.data) {
-      cryptoData.add(
-        AssetDataItem(
-          cryptoDetails.id,
-          cryptoDetails.name,
-          cryptoDetails.symbol,
-        ),
-      );
+    List<AssetDataItem> cryptoDatum = [];
+    Uri url = Uri.https(
+      coinGeckoUrl,
+      '/api/v3/coins/list',
+      {
+        'include_platform': 'false',
+      },
+    );
+    Response response = await get(url);
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonResponse = jsonDecode(response.body);
+      for (Map<String, dynamic> cryptoData in jsonResponse) {
+        cryptoDatum.add(
+          AssetDataItem(
+            cryptoData['id'],
+            cryptoData['name'],
+            cryptoData['symbol'],
+          ),
+        );
+      }
     }
-    return cryptoData;
+    return cryptoDatum;
   }
 
   Future<Map<String, dynamic>> getData({
     required List<String> ids,
     List<String> vsTickers = const ['usd'],
   }) async {
+    for (String id in ids) {
+      id = id.toLowerCase();
+    }
+    for (String vsTicker in vsTickers) {
+      vsTicker = vsTicker.toLowerCase();
+    }
     Uri url = Uri.https(
       coinGeckoUrl,
       '/api/v3/simple/price',
@@ -125,9 +132,6 @@ class CryptoAPI implements AssetAPI {
 
 class StockAPI implements AssetAPI {
   @override
-  late AssetType assetType;
-
-  @override
   Future<List<AssetDataItem>> getListOfAssets() async {
     Uri url = Uri.https(
       iexApiUrl,
@@ -193,9 +197,6 @@ class StockAPI implements AssetAPI {
 }
 
 class CashAPI implements AssetAPI {
-  @override
-  late AssetType assetType;
-
   @override
   Future<List<AssetDataItem>> getListOfAssets() async {
     Uri url = Uri.https(
