@@ -265,6 +265,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   Future<void> refreshAssetCards() async {
+    print('made it');
+
     /// Crypto assets refreshed seperately because CoinGecko lets us save on
     /// API calls by getting all the updated data with one call, whereas the
     /// other APIs do not.
@@ -464,7 +466,7 @@ class _RefreshAppBarIconState extends State<RefreshAppBarIcon> {
         12,
       ),
       child: InkWell(
-        onTap: () => widget.onRefreshedCallback,
+        onTap: () => widget.onRefreshedCallback(),
         splashColor: Colors.purple,
         child: const Icon(
           Icons.refresh_outlined,
