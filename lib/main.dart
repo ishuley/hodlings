@@ -268,15 +268,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     /// Crypto assets refreshed seperately because CoinGecko lets us save on
     /// API calls by getting all the updated data with one call, whereas the
     /// other APIs do not.
-    List<AssetCard> newAssetCardsList = await getRefreshedCryptoCards();
-    newAssetCardsList.addAll(await addNonCryptoRefreshedAssetCardsToList());
+    List<AssetCard> newAssetCardsList = await getRefreshedCryptoCardList();
+    newAssetCardsList.addAll(await getRefreshedNonCryptoAssetCardList());
     setState(() {
       assetCardsList = newAssetCardsList;
       refreshNetWorth();
     });
   }
 
-  Future<List<AssetCard>> addNonCryptoRefreshedAssetCardsToList() async {
+  Future<List<AssetCard>> getRefreshedNonCryptoAssetCardList() async {
     List<AssetCard> newAssetCardsList = [];
     for (AssetCard card in assetCardsList) {
       if (card.asset.assetType != AssetType.crypto) {
@@ -302,20 +302,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return newAssetCardsList;
   }
 
-  Future<List<AssetCard>> getRefreshedCryptoCards() async {
-    List<AssetCard> cryptoCards = createListOfOnlyCryptoAssetCards();
+  Future<List<AssetCard>> getRefreshedCryptoCardList() async {
+    List<AssetCard> cryptoCards = separateOldCryptoCardsListFromAssetCardList();
     List<String> cryptoIdList = extractCryptoIdList(cryptoCards);
     Map<String, dynamic> cryptoData =
         await CryptoAPI().getData(ids: cryptoIdList, vsTickers: [vsTicker]);
 
-    List<AssetCard> newAssetCardsList = await extractNewCryptoListsFromData(
+    List<AssetCard> newAssetCardsList = await extractNewCryptoCardListFromData(
       cryptoData,
       cryptoIdList,
     );
     return newAssetCardsList;
   }
 
-  Future<List<AssetCard>> extractNewCryptoListsFromData(
+  Future<List<AssetCard>> extractNewCryptoCardListFromData(
     Map<String, dynamic> cryptoData,
     List<String> cryptoIdList,
   ) async {
@@ -325,22 +325,18 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       for (String cryptoId in cryptoIdList) {
         for (AssetCard assetCard in assetCardsList) {
           if (cryptoId == assetCard.asset.assetId) {
-            double newPrice = assetCard.price;
-            String newMarketCapString = assetCard.marketCapString;
-            if (cryptoData[cryptoId][lowerCaseVsTicker] != null &&
-                cryptoData[cryptoId][lowerCaseVsTicker] != 0) {
-              newPrice = cryptoData[cryptoId][lowerCaseVsTicker];
-            }
-            if (cryptoData[cryptoId]['${lowerCaseVsTicker}_market_cap'] !=
-                    null &&
-                cryptoData[cryptoId][lowerCaseVsTicker] != 0) {
-              double newMarketCap =
-                  cryptoData[cryptoId]['${lowerCaseVsTicker}_market_cap'];
-              newMarketCapString =
-                  assetCard.asset.formatMarketCap(newMarketCap);
-              newMarketCapString =
-                  'Market Cap: $newMarketCapString ${lowerCaseVsTicker.toUpperCase()}';
-            }
+            double newPrice = extractNewPriceFromCryptoData(
+              assetCard,
+              cryptoData,
+              cryptoId,
+              lowerCaseVsTicker,
+            );
+            String newMarketCapString = extractNewMktCapStringFromCryptoData(
+              assetCard,
+              cryptoData,
+              cryptoId,
+              lowerCaseVsTicker,
+            );
             newAssetCardsList.add(
               await refreshAnAssetCard(
                 assetCard.asset,
@@ -355,7 +351,39 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return newAssetCardsList;
   }
 
-  List<AssetCard> createListOfOnlyCryptoAssetCards() {
+  String extractNewMktCapStringFromCryptoData(
+    AssetCard assetCard,
+    Map<String, dynamic> cryptoData,
+    String cryptoId,
+    String lowerCaseVsTicker,
+  ) {
+    String newMarketCapString = assetCard.marketCapString;
+    if (cryptoData[cryptoId]['${lowerCaseVsTicker}_market_cap'] != null &&
+        cryptoData[cryptoId][lowerCaseVsTicker] != 0) {
+      double newMarketCap =
+          cryptoData[cryptoId]['${lowerCaseVsTicker}_market_cap'];
+      newMarketCapString = assetCard.asset.formatMarketCap(newMarketCap);
+      newMarketCapString =
+          'Market Cap: $newMarketCapString ${lowerCaseVsTicker.toUpperCase()}';
+    }
+    return newMarketCapString;
+  }
+
+  double extractNewPriceFromCryptoData(
+    AssetCard assetCard,
+    Map<String, dynamic> cryptoData,
+    String cryptoId,
+    String lowerCaseVsTicker,
+  ) {
+    double newPrice = assetCard.price;
+    if (cryptoData[cryptoId][lowerCaseVsTicker] != null &&
+        cryptoData[cryptoId][lowerCaseVsTicker] != 0) {
+      newPrice = cryptoData[cryptoId][lowerCaseVsTicker];
+    }
+    return newPrice;
+  }
+
+  List<AssetCard> separateOldCryptoCardsListFromAssetCardList() {
     List<AssetCard> cryptoCards = [];
 
     for (AssetCard card in assetCardsList) {
