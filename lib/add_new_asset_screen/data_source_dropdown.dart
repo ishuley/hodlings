@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 ///
 class DataSourceDropdown extends StatelessWidget {
   final String currentDataSource;
-  final List<String> dataSourceDropdownValues;
+  final Set<String> dataSourceDropdownValues;
   final ValueChanged<String> dataSourceChangedCallback;
 
   const DataSourceDropdown({

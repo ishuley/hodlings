@@ -4,7 +4,7 @@ import 'package:hodlings/main_screen/asset_card.dart';
 class AssetCardItem {
   final String assetFieldData;
   final String assetType;
-  final String assetID;
+  final String assetId;
   final String dataSource;
   final String dataSourceField;
   final String vsTicker;
@@ -13,7 +13,7 @@ class AssetCardItem {
   AssetCardItem(
     this.assetType,
     this.assetFieldData,
-    this.assetID,
+    this.assetId,
     this.dataSource,
     this.dataSourceField,
     this.vsTicker,
@@ -26,7 +26,7 @@ class AssetCardItem {
     return AssetCardItem(
       jsonDecodedAsset['assetType']!,
       jsonDecodedAsset['assetFieldData']!,
-      jsonDecodedAsset['assetID']!,
+      jsonDecodedAsset['assetId']!,
       jsonDecodedAsset['dataSource']!,
       jsonDecodedAsset['dataSourceField']!,
       jsonDecodedAsset['vsTicker']!,
@@ -38,7 +38,7 @@ class AssetCardItem {
     return {
       'assetType': assetType,
       'assetFieldData': assetFieldData,
-      'assetID': assetID,
+      'assetId': assetId,
       'dataSource': dataSource,
       'dataSourceField': dataSourceField,
       'vsTicker': vsTicker,
@@ -50,7 +50,7 @@ class AssetCardItem {
     AssetType assetTypeEnum = getEnumFromString()!;
     Asset asset = assetTypeEnum.createAsset(
       assetFieldData: assetFieldData,
-      assetID: assetID,
+      assetId: assetId,
       dataSource: dataSource,
       dataSourceField: dataSourceField,
     );

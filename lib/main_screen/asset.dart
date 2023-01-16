@@ -8,7 +8,7 @@ enum AssetType {
 
   final Asset Function({
     required String assetFieldData,
-    required String assetID,
+    required String assetId,
     required String dataSource,
     required String dataSourceField,
   }) createAsset;
@@ -33,7 +33,7 @@ extension AssetTypeString on AssetType {
 abstract class Asset {
   final String assetFieldData;
   late final AssetType assetType;
-  late final String assetID;
+  late final String assetId;
   final String dataSource;
   String dataSourceField;
   late final String name;
@@ -42,7 +42,7 @@ abstract class Asset {
 
   Asset({
     required this.assetFieldData,
-    required this.assetID,
+    required this.assetId,
     required this.dataSource,
     required this.dataSourceField,
   }) {
@@ -53,12 +53,12 @@ abstract class Asset {
   }
 
   Future<double> getPrice({String vsTicker = 'usd'}) async {
-    return await AssetAPI(assetType).getPrice(id: assetID, vsTicker: vsTicker);
+    return await AssetAPI(assetType).getPrice(id: assetId, vsTicker: vsTicker);
   }
 
   Future<double> getMarketCap({String vsTicker = 'usd'}) async {
     return await AssetAPI(assetType)
-        .getMarketCap(id: assetID, vsTicker: vsTicker);
+        .getMarketCap(id: assetId, vsTicker: vsTicker);
   }
 
   Future<String> getMarketCapString({String vsTicker = 'usd'}) async {
@@ -66,7 +66,6 @@ abstract class Asset {
     if (marketCap == 0) {
       return '';
     }
-
     String formattedMktCap = formatMarketCap(marketCap);
     String marketCapString =
         'Market Cap: $formattedMktCap ${vsTicker.toUpperCase()}';
@@ -83,7 +82,7 @@ class Crypto extends Asset {
   late final String? address;
   Crypto({
     required super.assetFieldData,
-    required super.assetID,
+    required super.assetId,
     required super.dataSource,
     required super.dataSourceField,
   }) {
@@ -105,7 +104,7 @@ class Crypto extends Asset {
 class Stock extends Asset {
   Stock({
     required super.assetFieldData,
-    required super.assetID,
+    required super.assetId,
     required super.dataSource,
     required super.dataSourceField,
   }) {
@@ -119,7 +118,7 @@ class Stock extends Asset {
 class Cash extends Asset {
   Cash({
     required super.assetFieldData,
-    required super.assetID,
+    required super.assetId,
     required super.dataSource,
     required super.dataSourceField,
   }) {

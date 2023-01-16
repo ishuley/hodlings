@@ -36,11 +36,10 @@ class AddNewAssetScreen extends StatefulWidget {
   /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
   /// will only rarely change, if ever.
   ///
-  static const stockDataSourcesList = <String>[
+  static const stockDataSourcesList = {
     'Manual Qty',
-    // 'Transfer Agent',
     // 'Broker API',
-  ];
+  };
 
   /// The types of input possible for a given asset category.
   ///
@@ -49,11 +48,11 @@ class AddNewAssetScreen extends StatefulWidget {
   /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
   /// will only rarely change, if ever.
   ///
-  static const cryptoDataSourcesList = <String>[
+  static const cryptoDataSourcesList = {
     'Manual Qty',
     // 'Blockchain Address',
     // 'Exchange API',
-  ];
+  };
 
   /// The types of input possible for a given asset category.
   ///
@@ -62,10 +61,10 @@ class AddNewAssetScreen extends StatefulWidget {
   /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
   /// will only rarely change, if ever.
   ///
-  static const cashDataSourcesList = <String>[
+  static const cashDataSourcesList = {
     'Manual Qty',
     // 'Bank API',
-  ];
+  };
 
   @override
   State<AddNewAssetScreen> createState() => _AddNewAssetScreenState();
@@ -84,8 +83,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Defaults to stocks because because that's the arbitrarily chosen default
   /// [assetType] selected in [AssetTypeSelection].
   ///
-  List<String> dataSourceDropdownValues =
-      AddNewAssetScreen.stockDataSourcesList;
+  Set<String> dataSourceDropdownValues = AddNewAssetScreen.stockDataSourcesList;
 
   /// The currently selected asset type.
   ///
@@ -102,7 +100,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   String currentlySelectedAssetDropdownElement = 'GME - GameStop Corp.';
 
-  String? currentlySelectedAssetID;
+  String? currentlySelectedAssetId;
 
   /// This label identifies what is supposed to go in [DataSourceDropdown].
   ///
@@ -450,7 +448,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       stockAssetDropdownItems = [];
       currentlySelectedAssetDropdownElement =
           'Apologies, the list somehow failed to load.';
-      currentlySelectedAssetID = null;
+      currentlySelectedAssetId = null;
     }
     if (assetType == AssetType.crypto) {
       cryptoAssetDropdownItems = [];
@@ -486,7 +484,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// [assetType]. For an example, see any of the corresponding properties
   /// like [AddNewAssetScreen.stockDataSourcesList].
   ///
-  List<String> getDataSourcesDropdownValues() {
+  Set<String> getDataSourcesDropdownValues() {
     switch (assetType) {
       case AssetType.stock:
         return AddNewAssetScreen.stockDataSourcesList;
@@ -530,7 +528,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     if (currentAssetList.isEmpty) {
       currentlySelectedAssetDropdownElement =
           'Apologies, the list somehow failed to load.';
-      currentlySelectedAssetID = null;
+      currentlySelectedAssetId = null;
     }
   }
 
@@ -539,7 +537,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       currentlySelectedAssetDropdownElement,
       assetType,
     );
-    currentlySelectedAssetID = getAssetIdFromName(assetName, assetType);
+    currentlySelectedAssetId = getAssetIdFromName(assetName, assetType);
   }
 
   /// Triggered by the onChange listener in [DataSourceDropdown].
@@ -583,7 +581,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   void assetDropdownChanged(String currentAssetName) {
     setState(() {
       currentlySelectedAssetDropdownElement = currentAssetName;
-      currentlySelectedAssetID =
+      currentlySelectedAssetId =
           getAssetIdFromName(currentAssetName, assetType);
       setCurrentlySelectedAssetId();
     });
@@ -685,7 +683,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       toggleProgressIndicator();
       Asset asset = assetType.createAsset(
         assetFieldData: currentlySelectedAssetDropdownElement,
-        assetID: currentlySelectedAssetID!,
+        assetId: currentlySelectedAssetId!,
         dataSource: currentDataSource,
         dataSourceField: dataSourceInputController.text,
       );

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:coingecko_api/coingecko_result.dart';
 import 'package:coingecko_api/data/coin_short.dart';
-import 'package:coingecko_api/data/market.dart';
 import 'package:hodlings/main_screen/asset.dart';
 import 'package:hodlings/persistence/asset_data_item.dart';
 import 'package:coingecko_api/coingecko_api.dart';
@@ -48,11 +47,51 @@ class CryptoAPI implements AssetAPI {
     return cryptoData;
   }
 
+  Future<Map<String, dynamic>> getData({
+    required List<String> ids,
+    List<String> vsTickers = const ['usd'],
+  }) async {
+    Uri url = Uri.https(
+      coinGeckoUrl,
+      '/api/v3/simple/price',
+      {
+        'ids': ids.join(','),
+        'vs_currencies': vsTickers,
+        'include_market_cap': 'true',
+        // I intend to implement these later so I left them in as comments
+        // 'include_24hr_vol': 'true',
+        // 'include_24hr_change': 'true',
+        // 'include_last_updated_at': 'true',
+      },
+    );
+
+    Response response = await get(url);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    return {};
+  }
+
   @override
   Future<double> getPrice({required String id, String vsTicker = 'usd'}) async {
     id = id.toLowerCase();
     vsTicker = vsTicker.toLowerCase();
 
+    Uri url = Uri.https(
+      coinGeckoUrl,
+      '/api/v3/simple/price',
+      {
+        'ids': id,
+        'vs_currencies': vsTicker,
+      },
+    );
+
+    Response response = await get(url);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      return jsonResponse[id][vsTicker];
+    }
     return 0;
   }
 
@@ -63,14 +102,22 @@ class CryptoAPI implements AssetAPI {
   }) async {
     id = id.toLowerCase();
     vsTicker = vsTicker.toLowerCase();
-    CoinGeckoResult<List<Market>> marketData =
-        await api.coins.listCoinMarkets(coinIds: [id], vsCurrency: vsTicker);
-    for (Market market in marketData.data) {
-      if (market.id == id || id == 'loopring' && market.name == 'Loopring') {
-        if (market.marketCap != null) {
-          return market.marketCap!;
-        }
-      }
+
+    Uri url = Uri.https(
+      coinGeckoUrl,
+      '/api/v3/simple/price',
+      {
+        'ids': id,
+        'vs_currencies': vsTicker,
+        'include_market_cap': 'true',
+      },
+    );
+
+    Response response = await get(url);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      return jsonResponse[id]['${vsTicker}_market_cap'];
     }
     return 0;
   }

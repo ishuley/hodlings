@@ -41,7 +41,7 @@ class AssetCardListStorage {
       AssetCardItem assetCardItem = AssetCardItem(
         assetCard.asset.assetType.asString!,
         assetCard.asset.assetFieldData,
-        assetCard.asset.assetID,
+        assetCard.asset.assetId,
         assetCard.asset.dataSource,
         assetCard.asset.dataSourceField,
         assetCard.vsTicker,
