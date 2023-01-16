@@ -12,37 +12,6 @@ import 'add_new_asset_screen/add_new_asset_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// TODO LIST:
-
-// 1) Add the ability to sort by specific AssetCard elements like total, market
-// cap, or alphabetically by ticker. Default it to total. Persist chosen sort
-// order.
-// 2) "Add to existing entry, or create new?"
-// 3) Add attributions to CoinGecko and IEX Cloud.
-// 4) Finish blockchain based address lookup.
-// 5) Add ability to scan an address for select platforms and add a card or
-// update a card for everything it finds
-// 6) Add a selection of different vsCurrencies (if not the capability to convert and use any)
-// 7) Add daily volume and % change. Give user option for displayed % change
-// time frame. Persist it.
-// 8) Add option to toggle whether market cap is described in words or numbers. Persist it.
-// 9) Add support for different vs currencies, and the necessary conversions.
-// as well as customized lists of preferred vs currencies that can be toggled
-// through by pushing the net worth button.
-// 10) Add the ability to back up AssetCard list to the cloud and restore by
-// logging into firebase through SSO.
-// 11) Add price alerts
-// 12) Add ability to secure the app locally, using a pin or biometric login
-// 13) Add a chart to each AssetCard based one the chosen % change time interval.
-// Provide option to toggle chart on or off, add to settings, persist it.
-// 14) Add the ability to back up settings to the cloud (which should be
-// persistent already).
-// 15) Add API support for exchanges and brokers where possible.
-// 16) Add support for NFTs and scrape GameStops marketplace to support it,
-// if necessary and permissible.
-// 17) Add precious metal support.
-// 18) Add more themes
-
 void main() => runApp(const HODLings());
 
 class HODLings extends StatefulWidget {
@@ -148,15 +117,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   @override
-  void dispose() {
-    saveAssetCardListState();
-    WidgetsBinding.instance.removeObserver(
-      this,
-    );
-    super.dispose();
-  }
-
-  @override
   void didChangeAppLifecycleState(
     AppLifecycleState state,
   ) {
@@ -170,14 +130,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         state == AppLifecycleState.inactive;
 
     if (appHasBeenClosed) {
-      saveAssetCardListState();
+      saveAssetCardsListState();
     }
   }
 
-  void saveAssetCardListState() async {
-    await AssetCardListStorage().writeAssetCardsData(
-      assetCardsList,
+  @override
+  void dispose() {
+    saveAssetCardsListState();
+    WidgetsBinding.instance.removeObserver(
+      this,
     );
+    super.dispose();
+  }
+
+  void readAssetCardListState() async {
+    List<AssetCard> newAssetCardList =
+        await AssetCardListStorage().readAssetCardsData();
+    setState(() {
+      assetCardsList = newAssetCardList;
+      refreshNetWorth();
+    });
   }
 
   void refreshNetWorth() {
@@ -189,13 +161,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
   }
 
-  void readAssetCardListState() async {
-    List<AssetCard> newAssetCardList =
-        await AssetCardListStorage().readAssetCardsData();
-    setState(() {
-      assetCardsList = newAssetCardList;
-      refreshNetWorth();
-    });
+  void saveAssetCardsListState() async {
+    await AssetCardListStorage().writeAssetCardsData(
+      assetCardsList,
+    );
   }
 
   void onNetWorthButtonPressed() {
@@ -218,7 +187,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         );
         addToAssetList(newAssetCard);
       });
-      saveAssetCardListState();
+      saveAssetCardsListState();
     }
   }
 
@@ -261,7 +230,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       assetCardsList[index].asset.dataSourceField =
           assetCardsList[index].asset.quantity.toString();
     });
-    saveAssetCardListState();
+    saveAssetCardsListState();
   }
 
   Future<void> refreshAssetCards() async {
@@ -303,7 +272,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   Future<List<AssetCard>> getRefreshedCryptoCardList() async {
-    List<AssetCard> cryptoCards = separateOldCryptoCardsListFromAssetCardList();
+    List<AssetCard> cryptoCards = separateCryptoCardsListFromOldAssetCardList();
     List<String> cryptoIdList = extractCryptoIdList(cryptoCards);
     Map<String, dynamic> cryptoData =
         await CryptoAPI().getData(ids: cryptoIdList, vsTickers: [vsTicker]);
@@ -313,6 +282,25 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       cryptoIdList,
     );
     return newAssetCardsList;
+  }
+
+  List<AssetCard> separateCryptoCardsListFromOldAssetCardList() {
+    List<AssetCard> cryptoCards = [];
+
+    for (AssetCard card in assetCardsList) {
+      if (card.asset.assetType == AssetType.crypto) {
+        cryptoCards.add(card);
+      }
+    }
+    return cryptoCards;
+  }
+
+  List<String> extractCryptoIdList(List<AssetCard> cryptoCards) {
+    List<String> cryptoIdList = [];
+    for (AssetCard cryptoCard in cryptoCards) {
+      cryptoIdList.add(cryptoCard.asset.assetId);
+    }
+    return cryptoIdList;
   }
 
   Future<List<AssetCard>> extractNewCryptoCardListFromData(
@@ -351,6 +339,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return newAssetCardsList;
   }
 
+  double extractNewPriceFromCryptoData(
+    AssetCard assetCard,
+    Map<String, dynamic> cryptoData,
+    String cryptoId,
+    String lowerCaseVsTicker,
+  ) {
+    double newPrice = assetCard.price;
+    if (cryptoData[cryptoId][lowerCaseVsTicker] != null &&
+        cryptoData[cryptoId][lowerCaseVsTicker] != 0) {
+      newPrice = cryptoData[cryptoId][lowerCaseVsTicker];
+    }
+    return newPrice;
+  }
+
   String extractNewMktCapStringFromCryptoData(
     AssetCard assetCard,
     Map<String, dynamic> cryptoData,
@@ -367,39 +369,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           'Market Cap: $newMarketCapString ${lowerCaseVsTicker.toUpperCase()}';
     }
     return newMarketCapString;
-  }
-
-  double extractNewPriceFromCryptoData(
-    AssetCard assetCard,
-    Map<String, dynamic> cryptoData,
-    String cryptoId,
-    String lowerCaseVsTicker,
-  ) {
-    double newPrice = assetCard.price;
-    if (cryptoData[cryptoId][lowerCaseVsTicker] != null &&
-        cryptoData[cryptoId][lowerCaseVsTicker] != 0) {
-      newPrice = cryptoData[cryptoId][lowerCaseVsTicker];
-    }
-    return newPrice;
-  }
-
-  List<AssetCard> separateOldCryptoCardsListFromAssetCardList() {
-    List<AssetCard> cryptoCards = [];
-
-    for (AssetCard card in assetCardsList) {
-      if (card.asset.assetType == AssetType.crypto) {
-        cryptoCards.add(card);
-      }
-    }
-    return cryptoCards;
-  }
-
-  List<String> extractCryptoIdList(List<AssetCard> cryptoCards) {
-    List<String> cryptoIdList = [];
-    for (AssetCard cryptoCard in cryptoCards) {
-      cryptoIdList.add(cryptoCard.asset.assetId);
-    }
-    return cryptoIdList;
   }
 
   Future<AssetCard> refreshAnAssetCard(
