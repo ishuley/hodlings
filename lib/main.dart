@@ -111,7 +111,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   String vsTicker = 'USD';
   List<AssetCard> assetCardsList = [];
   bool ascending = false;
-
   SortType sortType = SortType.totalValue;
 
   @override
@@ -121,6 +120,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(
       this,
     );
+    initSortTypeFromPrefs();
+    sortAssetCards();
   }
 
   @override
@@ -138,16 +139,62 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     if (appHasBeenClosed) {
       saveAssetCardsListState();
+      saveSortType();
     }
   }
 
   @override
   void dispose() {
     saveAssetCardsListState();
+    saveSortType();
     WidgetsBinding.instance.removeObserver(
       this,
     );
     super.dispose();
+  }
+
+  void saveSortType() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString(
+      'lastSortType',
+      getSortTypeStringFromEnum(),
+    );
+    await prefs.setBool('isAscending', ascending);
+    print(getSortTypeStringFromEnum());
+    print(ascending.toString());
+    print('called');
+  }
+
+  String getSortTypeStringFromEnum() {
+    switch (sortType) {
+      case SortType.totalValue:
+        return 'totalValue';
+      case SortType.quantity:
+        return 'quantity';
+      case SortType.price:
+        return 'price';
+      case SortType.name:
+        return 'name';
+      case SortType.marketCap:
+        return 'marketCap';
+    }
+  }
+
+  Future<void> initSortTypeFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? sortTypeString = prefs.getString(
+      'lastSortType',
+    );
+    final bool? isAscending = prefs.getBool(
+      'isAscending',
+    );
+    if (sortTypeString != null) {
+      sortType = getSortTypeFromString(sortTypeString);
+    }
+    if (isAscending != null) {
+      ascending = isAscending;
+    }
   }
 
   void readAssetCardListState() async {
@@ -473,6 +520,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     setState(() {
       sortType = newSortType;
     });
+    saveSortType();
   }
 
   void toggleSortDirectionAscending() {
@@ -480,6 +528,24 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       () {
         ascending = !ascending;
       },
+    );
+  }
+
+  SortType getSortTypeFromString(String sortTypeString) {
+    switch (sortTypeString) {
+      case 'totalValue':
+        return SortType.totalValue;
+      case 'marketCap':
+        return SortType.marketCap;
+      case 'price':
+        return SortType.price;
+      case 'quantity':
+        return SortType.quantity;
+      case 'name':
+        return SortType.name;
+    }
+    throw ArgumentError(
+      'invalid sort type read from prefs somehow, should not be happening',
     );
   }
 
@@ -504,6 +570,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           SortAppBarIcon(
             sortCallback: sortAssetCards,
             setSortTypeCallback: setSortType,
+            currentSortType: sortType,
           ),
           RefreshAppBarIcon(
             onRefreshedCallback: refreshAssetCards,
@@ -580,10 +647,13 @@ class SortAppBarIcon extends StatefulWidget {
   final void Function() sortCallback;
   final void Function(SortType) setSortTypeCallback;
 
+  final SortType currentSortType;
+
   const SortAppBarIcon({
     super.key,
     required this.sortCallback,
     required this.setSortTypeCallback,
+    required this.currentSortType,
   });
 
   @override
@@ -594,21 +664,21 @@ enum SortType { totalValue, marketCap, price, quantity, name }
 
 class _SortAppBarIconState extends State<SortAppBarIcon> {
   // TODO persist sortSelection and grab it on app's initialization
-  SortType sortSelection = SortType.totalValue;
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
       onSelected: (SortType newSelection) {
-        setState(() {
-          sortSelection = newSelection;
-          widget.setSortTypeCallback(sortSelection);
-          widget.sortCallback();
-        });
+        setState(
+          () {
+            widget.setSortTypeCallback(newSelection);
+            widget.sortCallback();
+          },
+        );
       },
       splashRadius: 22,
       position: PopupMenuPosition.under,
-      initialValue: sortSelection,
+      initialValue: widget.currentSortType,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<SortType>>[
         const PopupMenuItem<SortType>(
           value: SortType.totalValue,
