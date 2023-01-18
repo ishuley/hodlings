@@ -1,3 +1,4 @@
+0) Add toggle sort ascending button
 1) Add the ability to sort by specific AssetCard elements like total, market
 cap, or alphabetically by ticker. Default it to total. Persist chosen sort
 order.

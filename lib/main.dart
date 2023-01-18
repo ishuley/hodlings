@@ -110,6 +110,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   double netWorth = 0;
   String vsTicker = 'USD';
   List<AssetCard> assetCardsList = [];
+  bool ascending = false;
+
+  SortType sortType = SortType.totalValue;
 
   @override
   void initState() {
@@ -252,6 +255,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       assetCardsList = newAssetCardsList;
       updateNetWorth();
     });
+    sortAssetCards();
   }
 
   Future<List<AssetCard>> getRefreshedNonCryptoAssetCardList() async {
@@ -408,6 +412,77 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
+  void sortAssetCards() {
+    setState(() {
+      switch (sortType) {
+        case SortType.totalValue:
+          if (ascending == true) {
+            assetCardsList
+                .sort(((a, b) => a.totalValue.compareTo(b.totalValue)));
+          }
+          if (ascending == false) {
+            assetCardsList
+                .sort(((b, a) => a.totalValue.compareTo(b.totalValue)));
+          }
+          break;
+        case SortType.marketCap:
+          if (ascending == true) {
+            assetCardsList.sort(
+              ((a, b) => a.asset.marketCap.compareTo(b.asset.marketCap)),
+            );
+          }
+          if (ascending == false) {
+            assetCardsList.sort(
+              ((b, a) => a.asset.marketCap.compareTo(b.asset.marketCap)),
+            );
+          }
+          break;
+        case SortType.price:
+          if (ascending == true) {
+            assetCardsList.sort(((a, b) => a.price.compareTo(b.price)));
+          }
+          if (ascending == false) {
+            assetCardsList.sort(((b, a) => a.price.compareTo(b.price)));
+          }
+          break;
+        case SortType.quantity:
+          if (ascending == true) {
+            assetCardsList
+                .sort(((a, b) => a.asset.quantity.compareTo(b.asset.quantity)));
+          }
+          if (ascending == false) {
+            assetCardsList
+                .sort(((b, a) => a.asset.quantity.compareTo(b.asset.quantity)));
+          }
+          break;
+        case SortType.name:
+          if (ascending == true) {
+            assetCardsList
+                .sort(((b, a) => a.asset.name.compareTo(b.asset.name)));
+          }
+          if (ascending == false) {
+            assetCardsList
+                .sort(((a, b) => a.asset.name.compareTo(b.asset.name)));
+          }
+          break;
+      }
+    });
+  }
+
+  void setSortType(SortType newSortType) {
+    setState(() {
+      sortType = newSortType;
+    });
+  }
+
+  void toggleSortDirectionAscending() {
+    setState(
+      () {
+        ascending = !ascending;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -426,7 +501,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           context,
         ).appBarTheme.iconTheme,
         actions: [
-          const SortAppBarIcon(),
+          SortAppBarIcon(
+            sortCallback: sortAssetCards,
+            setSortTypeCallback: setSortType,
+          ),
           RefreshAppBarIcon(
             onRefreshedCallback: refreshAssetCards,
           ),
@@ -499,8 +577,13 @@ class _RefreshAppBarIconState extends State<RefreshAppBarIcon> {
 }
 
 class SortAppBarIcon extends StatefulWidget {
+  final void Function() sortCallback;
+  final void Function(SortType) setSortTypeCallback;
+
   const SortAppBarIcon({
     super.key,
+    required this.sortCallback,
+    required this.setSortTypeCallback,
   });
 
   @override
@@ -519,6 +602,8 @@ class _SortAppBarIconState extends State<SortAppBarIcon> {
       onSelected: (SortType newSelection) {
         setState(() {
           sortSelection = newSelection;
+          widget.setSortTypeCallback(sortSelection);
+          widget.sortCallback();
         });
       },
       splashRadius: 22,
@@ -528,7 +613,7 @@ class _SortAppBarIconState extends State<SortAppBarIcon> {
         const PopupMenuItem<SortType>(
           value: SortType.totalValue,
           child: Text(
-            'Value',
+            'Total Value',
           ),
         ),
         const PopupMenuItem<SortType>(

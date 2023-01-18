@@ -40,6 +40,7 @@ abstract class Asset {
   late final String name;
   late final String ticker;
   late double quantity;
+  late double marketCap;
 
   Asset({
     required this.assetFieldData,
@@ -53,6 +54,10 @@ abstract class Asset {
     name = splitAssetFieldData.join(' ');
   }
 
+  Future<void> initMarketCap({String vsTicker = 'usd'}) async {
+    marketCap = await getMarketCap(vsTicker: vsTicker);
+  }
+
   Future<double> getPrice({String vsTicker = 'usd'}) async {
     return await AssetAPI(assetType).getPrice(id: assetId, vsTicker: vsTicker);
   }
@@ -63,7 +68,7 @@ abstract class Asset {
   }
 
   Future<String> getMarketCapString({String vsTicker = 'usd'}) async {
-    double marketCap = await getMarketCap(vsTicker: vsTicker);
+    marketCap = await getMarketCap(vsTicker: vsTicker);
     if (marketCap == 0) {
       return '';
     }
@@ -95,6 +100,7 @@ class Crypto extends Asset {
       quantity = getQuantityFromBlockchainAddress(address!);
     }
     assetType = AssetType.crypto;
+    initMarketCap();
   }
 
   double getQuantityFromBlockchainAddress(String address) {
@@ -113,6 +119,7 @@ class Stock extends Asset {
       quantity = double.parse(dataSourceField);
     }
     assetType = AssetType.stock;
+    initMarketCap();
   }
 
   Future<double> getExtendedHoursPrice() async {
@@ -182,5 +189,6 @@ class Cash extends Asset {
       quantity = double.parse(dataSourceField);
     }
     assetType = AssetType.cash;
+    initMarketCap();
   }
 }
