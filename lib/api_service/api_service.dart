@@ -194,6 +194,23 @@ class StockAPI implements AssetAPI {
     }
     return 0;
   }
+
+  getExtendedHoursPrice({required String id, String vsTicker = 'usd'}) async {
+    id = id.toLowerCase();
+    vsTicker = vsTicker.toLowerCase();
+    Uri url = Uri.https(
+      iexApiUrl,
+      '/stable/stock/$id/quote/extendedPrice',
+      {'token': iexApiKey},
+    );
+
+    Response response = await get(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body).toDouble();
+    }
+    return 0.0;
+  }
 }
 
 class CashAPI implements AssetAPI {

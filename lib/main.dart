@@ -152,11 +152,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         await AssetCardListStorage().readAssetCardsData();
     setState(() {
       assetCardsList = newAssetCardList;
-      refreshNetWorth();
+      updateNetWorth();
     });
   }
 
-  void refreshNetWorth() {
+  void updateNetWorth() {
     netWorth = 0;
     for (AssetCard assetCard in assetCardsList) {
       incrementNetWorth(
@@ -247,14 +247,16 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     /// other APIs do not.
     List<AssetCard> newAssetCardsList = await getRefreshedCryptoCardList();
     newAssetCardsList.addAll(await getRefreshedNonCryptoAssetCardList());
+
     setState(() {
       assetCardsList = newAssetCardsList;
-      refreshNetWorth();
+      updateNetWorth();
     });
   }
 
   Future<List<AssetCard>> getRefreshedNonCryptoAssetCardList() async {
     List<AssetCard> newAssetCardsList = [];
+    double extendedHoursPrice = 0;
     for (AssetCard card in assetCardsList) {
       if (card.asset.assetType != AssetType.crypto) {
         double newPrice = await card.asset.getPrice(
@@ -263,15 +265,20 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         String newMarketCapString = await card.asset.getMarketCapString(
           vsTicker: vsTicker,
         );
+        if (card.asset.assetType == AssetType.stock) {
+          Stock asset = card.asset as Stock;
+          extendedHoursPrice = await asset.getExtendedHoursPrice();
+        }
 
         if (newPrice == 0) {
           newPrice = card.price;
         }
         newAssetCardsList.add(
           await refreshAnAssetCard(
-            card.asset,
-            newPrice,
-            newMarketCapString,
+            asset: card.asset,
+            newPrice: newPrice,
+            newMarketCapString: newMarketCapString,
+            extendedHoursPrice: extendedHoursPrice,
           ),
         );
       }
@@ -341,9 +348,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             );
             newAssetCardsList.add(
               await refreshAnAssetCard(
-                assetCard.asset,
-                newPrice,
-                newMarketCapString,
+                asset: assetCard.asset,
+                newPrice: newPrice,
+                newMarketCapString: newMarketCapString,
               ),
             );
           }
@@ -385,17 +392,19 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return newMarketCapString;
   }
 
-  Future<AssetCard> refreshAnAssetCard(
-    Asset asset,
-    double newPrice,
-    String marketCapString,
-  ) async {
+  Future<AssetCard> refreshAnAssetCard({
+    required Asset asset,
+    required double newPrice,
+    required String newMarketCapString,
+    double extendedHoursPrice = 0,
+  }) async {
     return AssetCard(
       key: UniqueKey(),
       asset: asset,
       vsTicker: vsTicker,
       price: newPrice,
-      marketCapString: marketCapString,
+      marketCapString: newMarketCapString,
+      extendedHoursPrice: extendedHoursPrice,
     );
   }
 

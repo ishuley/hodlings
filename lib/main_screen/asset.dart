@@ -1,4 +1,5 @@
 import 'package:hodlings/api_service/api_service.dart';
+import 'package:hodlings/main_screen/asset_card.dart';
 import 'package:intl/intl.dart';
 
 enum AssetType {
@@ -112,6 +113,61 @@ class Stock extends Asset {
       quantity = double.parse(dataSourceField);
     }
     assetType = AssetType.stock;
+  }
+
+  Future<double> getExtendedHoursPrice() async {
+    double extendedHoursPrice = 0;
+    if (getExtendedHoursStatus() != MarketStatus.open) {
+      extendedHoursPrice = await StockAPI().getExtendedHoursPrice(id: assetId);
+    }
+    return extendedHoursPrice;
+  }
+
+  MarketStatus getExtendedHoursStatus() {
+    final currentTime = DateTime.now().toUtc();
+    final premarketStart = DateTime.utc(
+      currentTime.year,
+      currentTime.month,
+      currentTime.day,
+      13,
+      0,
+    );
+    final premarketEnd = DateTime.utc(
+      currentTime.year,
+      currentTime.month,
+      currentTime.day,
+      17,
+      30,
+    );
+    final aftermarketStart = DateTime.utc(
+      currentTime.year,
+      currentTime.month,
+      currentTime.day,
+      21,
+      0,
+    );
+    final aftermarketEnd = DateTime.utc(
+      currentTime.year,
+      currentTime.month,
+      currentTime.day,
+      1,
+      0,
+    );
+
+    if (currentTime.isAfter(premarketStart) &&
+        currentTime.isBefore(premarketEnd)) {
+      return MarketStatus.premarket;
+    }
+    if (currentTime.isAfter(aftermarketStart) ||
+        currentTime.isBefore(aftermarketEnd)) {
+      return MarketStatus.afterhours;
+    }
+    if (currentTime.isAfter(premarketEnd) &&
+        currentTime.isBefore(aftermarketStart)) {
+      return MarketStatus.open;
+    }
+
+    return MarketStatus.closed;
   }
 }
 

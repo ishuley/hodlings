@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'asset.dart';
 import 'package:intl/intl.dart';
 
+enum MarketStatus { premarket, afterhours, open, closed }
+
 /// This is the class that creates the cards that display the information about
 /// each user specified asset. vsTicker is passed in because tapping the
 /// NetWorthButton toggles
@@ -12,6 +14,7 @@ class AssetCard extends StatelessWidget {
   final String vsTicker;
   final double price;
   final String marketCapString;
+  final double extendedHoursPrice;
   double get totalValue => price * asset.quantity;
 
   const AssetCard({
@@ -20,7 +23,24 @@ class AssetCard extends StatelessWidget {
     required this.vsTicker,
     required this.price,
     required this.marketCapString,
+    this.extendedHoursPrice = 0,
   });
+
+  String getExtendedHoursString() {
+    if (extendedHoursPrice == 0 || asset.assetType != AssetType.stock) {
+      return '';
+    }
+
+    switch ((asset as Stock).getExtendedHoursStatus()) {
+      case MarketStatus.afterhours:
+      case MarketStatus.closed:
+        return 'After Hours: $extendedHoursPrice';
+      case MarketStatus.open:
+        return '';
+      case MarketStatus.premarket:
+        return 'Pre-market: $extendedHoursPrice';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,13 +149,14 @@ class AssetCard extends StatelessWidget {
               ),
             ],
           ),
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  top: 7,
-                ),
-                child: Text(
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 7,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
                   marketCapString,
                   style: TextStyle(
                     fontSize: 12,
@@ -143,9 +164,17 @@ class AssetCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              )
-            ],
-          )
+                Text(
+                  getExtendedHoursString(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: textColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

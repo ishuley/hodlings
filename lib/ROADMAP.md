@@ -1,7 +1,7 @@
 1) Add the ability to sort by specific AssetCard elements like total, market
 cap, or alphabetically by ticker. Default it to total. Persist chosen sort
 order.
-2) "Add to existing entry, or create new?"
+2) "Add to existing entry, or create new?" when user tries to create an asset that's already represented.
 3) Add attributions to CoinGecko and IEX Cloud.
 4) Finish blockchain based address lookup.
 4.1) Create automated tests for entire program, start keeping up on that.
@@ -10,7 +10,7 @@ order.
 update a card for everything it finds
 6) Add a selection of different vsCurrencies (if not the capability to convert and use any)
 7) Add daily volume and % change. Give user option for displayed % change
-time frame. Persist it.
+time frame.
 8) Add option to toggle whether market cap is described in words or numbers. Persist it.
 9) Add support for different vs currencies, and the necessary conversions.
 as well as customized lists of preferred vs currencies that can be toggled
