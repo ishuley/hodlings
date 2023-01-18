@@ -139,14 +139,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     if (appHasBeenClosed) {
       saveAssetCardsListState();
-      saveSortType();
     }
   }
 
   @override
   void dispose() {
     saveAssetCardsListState();
-    saveSortType();
     WidgetsBinding.instance.removeObserver(
       this,
     );
@@ -161,9 +159,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       getSortTypeStringFromEnum(),
     );
     await prefs.setBool('isAscending', ascending);
-    print(getSortTypeStringFromEnum());
-    print(ascending.toString());
-    print('called');
   }
 
   String getSortTypeStringFromEnum() {
