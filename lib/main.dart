@@ -151,7 +151,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  void saveSortType() async {
+  void _saveSortType() async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setString(
@@ -185,7 +185,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       'isAscending',
     );
     if (sortTypeString != null) {
-      sortType = getSortTypeFromString(sortTypeString);
+      sortType = _getSortTypeFromString(sortTypeString);
     }
     if (isAscending != null) {
       ascending = isAscending;
@@ -238,7 +238,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           newAssetCard,
         );
       });
+      sortAssetCards();
       saveAssetCardsListState();
+      _saveSortType();
     }
   }
 
@@ -515,7 +517,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     setState(() {
       sortType = newSortType;
     });
-    saveSortType();
+    _saveSortType();
   }
 
   void toggleSortDirectionAscending() {
@@ -526,7 +528,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
-  SortType getSortTypeFromString(String sortTypeString) {
+  SortType _getSortTypeFromString(String sortTypeString) {
     switch (sortTypeString) {
       case 'totalValue':
         return SortType.totalValue;
