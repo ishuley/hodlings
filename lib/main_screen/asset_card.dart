@@ -14,7 +14,7 @@ class AssetCard extends StatelessWidget {
   final String vsTicker;
   final double price;
   final String marketCapString;
-  final double extendedHoursPrice;
+  // final double extendedHoursPrice;
   double get totalValue => price * asset.quantity;
 
   const AssetCard({
@@ -23,24 +23,24 @@ class AssetCard extends StatelessWidget {
     required this.vsTicker,
     required this.price,
     required this.marketCapString,
-    this.extendedHoursPrice = 0,
+    // this.extendedHoursPrice = 0,
   });
 
-  String getExtendedHoursString() {
-    if (extendedHoursPrice == 0 || asset.assetType != AssetType.stock) {
-      return '';
-    }
+  // String getExtendedHoursString() {
+  //   if (extendedHoursPrice == 0 || asset.assetType != AssetType.stock) {
+  //     return '';
+  //   }
 
-    switch ((asset as Stock).getExtendedHoursStatus()) {
-      case MarketStatus.afterhours:
-      case MarketStatus.closed:
-        return 'After Hours: $extendedHoursPrice';
-      case MarketStatus.open:
-        return '';
-      case MarketStatus.premarket:
-        return 'Pre-market: $extendedHoursPrice';
-    }
-  }
+  //   switch ((asset as Stock).getExtendedHoursStatus()) {
+  //     case MarketStatus.afterhours:
+  //     case MarketStatus.closed:
+  //       return 'After Hours: $extendedHoursPrice';
+  //     case MarketStatus.open:
+  //       return '';
+  //     case MarketStatus.premarket:
+  //       return 'Pre-market: $extendedHoursPrice';
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -164,14 +164,14 @@ class AssetCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Text(
-                  getExtendedHoursString(),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: textColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                // Text(
+                //   getExtendedHoursString(),
+                //   style: TextStyle(
+                //     fontSize: 12,
+                //     color: textColor,
+                //     fontWeight: FontWeight.w500,
+                //   ),
+                // ),
               ],
             ),
           ),

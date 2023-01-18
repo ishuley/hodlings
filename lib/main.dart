@@ -122,6 +122,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
     initSortTypeFromPrefs();
     sortAssetCards();
+    refreshAssetCards();
   }
 
   @override
@@ -304,7 +305,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   Future<List<AssetCard>> getRefreshedNonCryptoAssetCardList() async {
     List<AssetCard> newAssetCardsList = [];
-    double extendedHoursPrice = 0;
+    // double extendedHoursPrice = 0;
     for (AssetCard card in assetCardsList) {
       if (card.asset.assetType != AssetType.crypto) {
         double newPrice = await card.asset.getPrice(
@@ -313,10 +314,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         String newMarketCapString = await card.asset.getMarketCapString(
           vsTicker: vsTicker,
         );
-        if (card.asset.assetType == AssetType.stock) {
-          Stock asset = card.asset as Stock;
-          extendedHoursPrice = await asset.getExtendedHoursPrice();
-        }
+        // if (card.asset.assetType == AssetType.stock) {
+        //   Stock asset = card.asset as Stock;
+        //   extendedHoursPrice = await asset.getExtendedHoursPrice();
+        // }
 
         if (newPrice == 0) {
           newPrice = card.price;
@@ -326,7 +327,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             asset: card.asset,
             newPrice: newPrice,
             newMarketCapString: newMarketCapString,
-            extendedHoursPrice: extendedHoursPrice,
+            // extendedHoursPrice: extendedHoursPrice,
           ),
         );
       }
@@ -444,7 +445,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     required Asset asset,
     required double newPrice,
     required String newMarketCapString,
-    double extendedHoursPrice = 0,
+    // double extendedHoursPrice = 0,
   }) async {
     return AssetCard(
       key: UniqueKey(),
@@ -452,7 +453,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       vsTicker: vsTicker,
       price: newPrice,
       marketCapString: newMarketCapString,
-      extendedHoursPrice: extendedHoursPrice,
+      // extendedHoursPrice: extendedHoursPrice,
     );
   }
 

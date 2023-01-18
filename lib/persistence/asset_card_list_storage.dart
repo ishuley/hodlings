@@ -45,7 +45,7 @@ class AssetCardListStorage {
         assetCard.asset.dataSourceField,
         assetCard.vsTicker,
         assetCard.marketCapString,
-        assetCard.extendedHoursPrice,
+        // assetCard.extendedHoursPrice,
       );
 
       assetCardItemList.add(assetCardItem);

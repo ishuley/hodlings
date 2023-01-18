@@ -9,7 +9,7 @@ class AssetCardItem {
   final String dataSourceField;
   final String vsTicker;
   final String marketCapString;
-  final double extendedHoursPrice;
+  // final double extendedHoursPrice;
 
   AssetCardItem(
     this.assetType,
@@ -19,7 +19,7 @@ class AssetCardItem {
     this.dataSourceField,
     this.vsTicker,
     this.marketCapString,
-    this.extendedHoursPrice,
+    // this.extendedHoursPrice,
   );
 
   factory AssetCardItem.fromJson(
@@ -33,7 +33,7 @@ class AssetCardItem {
       jsonDecodedAsset['dataSourceField']!,
       jsonDecodedAsset['vsTicker']!,
       jsonDecodedAsset['marketCapString']!,
-      jsonDecodedAsset['extendedHoursPrice']!,
+      // jsonDecodedAsset['extendedHoursPrice']!,
     );
   }
 
@@ -46,7 +46,7 @@ class AssetCardItem {
       'dataSourceField': dataSourceField,
       'vsTicker': vsTicker,
       'marketCapString': marketCapString,
-      'extendedHoursPrice': extendedHoursPrice,
+      // 'extendedHoursPrice': extendedHoursPrice,
     };
   }
 
@@ -63,7 +63,7 @@ class AssetCardItem {
       vsTicker: vsTicker,
       price: await asset.getPrice(),
       marketCapString: marketCapString,
-      extendedHoursPrice: extendedHoursPrice,
+      // extendedHoursPrice: extendedHoursPrice,
     );
   }
 
