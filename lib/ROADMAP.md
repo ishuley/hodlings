@@ -1,7 +1,5 @@
 0) Add toggle sort ascending button
-1) Add the ability to sort by specific AssetCard elements like total, market
-cap, or alphabetically by ticker. Default it to total. Persist chosen sort
-order.
+
 2) "Add to existing entry, or create new?" when user tries to create an asset that's already represented.
 3) Add attributions to CoinGecko and IEX Cloud.
 4) Finish blockchain based address lookup.
