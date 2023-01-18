@@ -78,7 +78,9 @@ abstract class Asset {
   }
 
   String formatMarketCap(double marketCap) {
-    String formattedMktCap = NumberFormat().format(marketCap);
+    String formattedMktCap =
+        NumberFormat('###,###,###,###,###,###,###.##', 'en_US')
+            .format(marketCap);
     return formattedMktCap;
   }
 }

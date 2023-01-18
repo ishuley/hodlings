@@ -1,6 +1,6 @@
 
-0) Figure out if init and dispose methods are doing anything or if you hacked around them.
 0.5) Figure out which functions and variables should be set to private and refactor accordingly.
+0.7) Scrape extended hours data from somewhere, make that work since it's a paid endpoint at IEXCloud.
 1) Add toggle sort ascending button
 2) "Add to existing entry, or create new?" when user tries to create an asset that's already represented.
 3) Add attributions to CoinGecko and IEX Cloud.
