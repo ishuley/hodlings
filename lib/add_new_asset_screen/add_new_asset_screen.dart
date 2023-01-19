@@ -36,7 +36,7 @@ class AddNewAssetScreen extends StatefulWidget {
   /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
   /// will only rarely change, if ever.
   ///
-  static const stockDataSourcesList = {
+  static const _stockDataSourcesList = {
     'Manual Qty',
     // 'Broker API',
   };
@@ -48,7 +48,7 @@ class AddNewAssetScreen extends StatefulWidget {
   /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
   /// will only rarely change, if ever.
   ///
-  static const cryptoDataSourcesList = {
+  static const _cryptoDataSourcesList = {
     'Manual Qty',
     // 'Blockchain Address',
     // 'Exchange API',
@@ -61,7 +61,7 @@ class AddNewAssetScreen extends StatefulWidget {
   /// user chooses in [AssetTypeSelection]. Hardcoded because these approaches
   /// will only rarely change, if ever.
   ///
-  static const cashDataSourcesList = {
+  static const _cashDataSourcesList = {
     'Manual Qty',
     // 'Bank API',
   };
@@ -76,14 +76,15 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Stores the current single asset displayed in [DataSourceDropdown]
   /// by default (ie, Manual Qty, Blockchain Address, etc...).
   ///
-  String currentDataSource = AddNewAssetScreen.stockDataSourcesList.first;
+  String _currentDataSource = AddNewAssetScreen._stockDataSourcesList.first;
 
   /// List of [DataSourceDropdown] options.
   ///
   /// Defaults to stocks because because that's the arbitrarily chosen default
-  /// [assetType] selected in [AssetTypeSelection].
+  /// [_assetType] selected in [AssetTypeSelection].
   ///
-  Set<String> dataSourceDropdownValues = AddNewAssetScreen.stockDataSourcesList;
+  Set<String> _dataSourceDropdownValues =
+      AddNewAssetScreen._stockDataSourcesList;
 
   /// The currently selected asset type.
   ///
@@ -91,34 +92,34 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// selected by [AssetTypeSelection]. Also tells main.dart which API is
   /// needed to retrieve each individual asset's price.
   ///
-  AssetType assetType = AssetType.stock;
+  AssetType _assetType = AssetType.stock;
 
   /// Stores the currently selected asset from [AssetDropdown].
   ///
   /// This is passed back to the main.dart to tell the program which asset's
   /// price it needs to retrieve from the API.
   ///
-  String currentlySelectedAssetDropdownElement = 'GME - GameStop Corp.';
+  String _currentlySelectedAssetDropdownElement = 'GME - GameStop Corp.';
 
-  String? currentlySelectedAssetId;
+  String? _currentlySelectedAssetId;
 
   /// This label identifies what is supposed to go in [DataSourceDropdown].
   ///
-  /// Stock is the default [assetType] so the default data source (chosen
+  /// Stock is the default [_assetType] so the default data source (chosen
   /// arbitrarily) is coincidentally manual entry, until API functionality is
   /// added.
   ///
-  String currentDataSourceLabel = 'Enter quantity manually:';
+  String _currentDataSourceLabel = 'Enter quantity manually:';
 
   /// Indicates if the current data source makes sense to input with a QR code.
   ///
-  /// If [currentDataSource] is scannable, then the implication is that they
+  /// If [_currentDataSource] is scannable, then the implication is that they
   /// want to enter an API key or a blockchain address, and nobody wants to key
   /// those in by hand. They will either scan a QR code or paste the data.
   /// Therefore if this property is true, I throw up a QR code icon and
   /// disable the keyboard.
   ///
-  bool dataSourceScannable = false;
+  bool _dataSourceScannable = false;
 
   /// QR code scan results.
   ///
@@ -126,7 +127,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// clicking the icon in [DataSourceTextField]. This data should either be a
   /// blockchain address or an API key once that gets implemented.
   ///
-  String qrCodeResult = '';
+  String _qrCodeResult = '';
 
   /// The type of keyboard that should be associated with a given [TextField].
   ///
@@ -134,7 +135,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// about quantity into [DataSourceTextField] or to specify an asset in
   /// [AssetDropdown].
   ///
-  TextInputType dataSourceTextFieldKeyboard =
+  TextInputType _dataSourceTextFieldKeyboard =
       const TextInputType.numberWithOptions(decimal: true);
 
   /// Lists of strings to be converted into [DropdownMenuItem]s for
@@ -146,7 +147,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// because [AssetDropdown] does not need to execute an API call every single
   /// time.
   ///
-  List<AssetDropdownItem> stockAssetDropdownItems = [];
+  List<AssetDropdownItem> _stockAssetDropdownItems = [];
 
   /// Lists of strings to be converted into [DropdownMenuItem]s for
   /// [AssetDropdown].
@@ -157,7 +158,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// because [AssetDropdown] does not need to execute an API call every single
   /// time.
   ///
-  List<AssetDropdownItem> cryptoAssetDropdownItems = [];
+  List<AssetDropdownItem> _cryptoAssetDropdownItems = [];
 
   /// Lists of strings to be converted into [DropdownMenuItem]s for
   /// [AssetDropdown].
@@ -168,7 +169,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// because [AssetDropdown] does not need to execute an API call every single
   /// time.
   ///
-  List<AssetDropdownItem> cashAssetDropdownItems = [];
+  List<AssetDropdownItem> _cashAssetDropdownItems = [];
 
   /// Determines whether the necessary API data is loaded.
   ///
@@ -177,15 +178,15 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// boolean tells the app whether to throw up a progress indicator to let the
   /// user know that it is thinking and hasn't crashed.
   ///
-  bool progressIndicatorVisible = true;
+  bool _progressIndicatorVisible = true;
 
-  String currentVsTicker = 'usd';
+  final String _currentVsTicker = 'usd';
 
-  late TextEditingController dataSourceInputController;
+  late TextEditingController _dataSourceInputController;
 
-  List<AssetDataItem> stockAssetData = [];
-  List<AssetDataItem> cryptoAssetData = [];
-  List<AssetDataItem> cashAssetData = [];
+  List<AssetDataItem> _stockAssetData = [];
+  List<AssetDataItem> _cryptoAssetData = [];
+  List<AssetDataItem> _cashAssetData = [];
 
   /// Assigns the default asset values to [AssetDropdown].
   ///
@@ -197,13 +198,13 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   @override
   void initState() {
     super.initState();
-    dataSourceInputController = TextEditingController();
-    initAssetDropdownAndData();
+    _dataSourceInputController = TextEditingController();
+    _initAssetDropdownAndData();
   }
 
   @override
   void dispose() {
-    dataSourceInputController.dispose();
+    _dataSourceInputController.dispose();
     super.dispose();
   }
 
@@ -211,17 +212,17 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   /// Called upon initialization of the program to establish the default
   /// choices for [AssetDropdown], based on API data.
-  /// [getAssetIdDataFromApi] gets the raw data from the appropriate
-  /// API, and [parseAssetDataIntoDropdownStrings] converts
+  /// [_getAssetData] gets the raw data from the appropriate
+  /// API, and [_parseAssetDataIntoDropdownStrings] converts
   /// it into a format appropriate for [AssetDropdown] to use.
   ///
-  void initAssetDropdownAndData() async {
+  void _initAssetDropdownAndData() async {
     AssetStorage assetListStorage = AssetStorage();
     List<AssetDataItem> assetData = [];
 
     for (AssetType assetType in AssetType.values) {
-      assetData = await getAssetData(assetData, assetType);
-      setAnAssetDataList(assetType, assetData);
+      assetData = await _getAssetData(assetData, assetType);
+      _setAnAssetDataList(assetType, assetData);
       // The list I use for the [AssetDropdown] menu is stored separately from
       // the list of data, which contains names, tickers, and and unique identifier.
       List<AssetDropdownItem> assetDropdownItems =
@@ -229,8 +230,8 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
       if (assetDropdownItems.isEmpty) {
         assetDropdownItems =
-            await retrieveAssetListFromApi(assetType, assetData);
-        assetDropdownItems = rearrangeAssetListToMyPersonalConvenience(
+            await _retrieveAssetListFromApi(assetType, assetData);
+        assetDropdownItems = _rearrangeAssetListToMyPersonalConvenience(
           assetType,
           assetDropdownItems,
         );
@@ -238,28 +239,28 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       }
 
       setState(() {
-        initializeAssetDropdownButton(assetDropdownItems, assetType);
+        _initializeAssetDropdownButton(assetDropdownItems, assetType);
       });
     }
-    toggleProgressIndicator();
+    _toggleProgressIndicator();
   }
 
-  void initializeAssetDropdownButton(
+  void _initializeAssetDropdownButton(
     List<AssetDropdownItem> assetDropdownItems,
     AssetType assetType,
   ) {
     if (assetDropdownItems.isNotEmpty) {
-      initializeAnAssetListWithSavedDataOrApiData(
+      _initializeAnAssetListWithSavedDataOrApiData(
         assetDropdownItems,
         assetType,
       );
     }
     if (assetDropdownItems.isEmpty) {
-      initializeAnEmptyAssetList(assetType);
+      _initializeAnEmptyAssetList(assetType);
     }
   }
 
-  Future<List<AssetDataItem>> getAssetData(
+  Future<List<AssetDataItem>> _getAssetData(
     List<AssetDataItem> assetData,
     AssetType assetType,
   ) async {
@@ -274,7 +275,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     return assetData;
   }
 
-  String getAssetIdFromName(String assetName, AssetType assetType) {
+  String _getAssetIdFromName(String assetName, AssetType assetType) {
     List<AssetDataItem> assetDataList =
         chooseAssetDataBasedOnAssetType(assetType);
 
@@ -291,11 +292,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   List<AssetDataItem> chooseAssetDataBasedOnAssetType(AssetType assetType) {
     switch (assetType) {
       case AssetType.stock:
-        return stockAssetData;
+        return _stockAssetData;
       case AssetType.crypto:
-        return cryptoAssetData;
+        return _cryptoAssetData;
       case AssetType.cash:
-        return cashAssetData;
+        return _cashAssetData;
     }
   }
 
@@ -304,30 +305,32 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Gets a [List] of [Map] objects from the API and parses them into a list
   /// [String]s appropriate for use in [AssetDropdown].
   ///
-  Future<List<AssetDropdownItem>> retrieveAssetListFromApi(
+  Future<List<AssetDropdownItem>> _retrieveAssetListFromApi(
     AssetType assetType,
     List<AssetDataItem> newAssetData,
   ) async {
     List<String> assetDropdownStrings = [];
-    assetDropdownStrings = parseAssetDataIntoDropdownStrings(newAssetData);
+    assetDropdownStrings = _parseAssetDataIntoDropdownStrings(newAssetData);
     assetDropdownStrings.sort();
-    return convertListOfStringsToListOfAssetDropdownItems(assetDropdownStrings);
+    return _convertListOfStringsToListOfAssetDropdownItems(
+      assetDropdownStrings,
+    );
   }
 
-  void setAnAssetDataList(
+  void _setAnAssetDataList(
     AssetType assetType,
     List<AssetDataItem> newAssetDataMapList,
   ) {
     setState(
       () {
         if (assetType == AssetType.stock) {
-          stockAssetData = newAssetDataMapList;
+          _stockAssetData = newAssetDataMapList;
         }
         if (assetType == AssetType.crypto) {
-          cryptoAssetData = newAssetDataMapList;
+          _cryptoAssetData = newAssetDataMapList;
         }
         if (assetType == AssetType.cash) {
-          cashAssetData = newAssetDataMapList;
+          _cashAssetData = newAssetDataMapList;
         }
       },
     );
@@ -339,12 +342,12 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   /// Thank you for auditing my code.
   ///
-  List<AssetDropdownItem> rearrangeAssetListToMyPersonalConvenience(
+  List<AssetDropdownItem> _rearrangeAssetListToMyPersonalConvenience(
     AssetType assetType,
     List<AssetDropdownItem> assetDropdownItems,
   ) {
     List<String> assetDropdownStrings =
-        convertListOfAssetDropdownItemsToListOfStrings(assetDropdownItems);
+        _convertListOfAssetDropdownItemsToListOfStrings(assetDropdownItems);
     if (assetType == AssetType.stock) {
       int gmeIndex =
           assetDropdownStrings.indexOf('GME Gamestop Corporation - Class A');
@@ -375,11 +378,11 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
       assetDropdownStrings.insert(3, assetDropdownStrings.removeAt(uyuIndex));
     }
     List<AssetDropdownItem> newAssetDropdownItems =
-        convertListOfStringsToListOfAssetDropdownItems(assetDropdownStrings);
+        _convertListOfStringsToListOfAssetDropdownItems(assetDropdownStrings);
     return newAssetDropdownItems;
   }
 
-  List<AssetDropdownItem> convertListOfStringsToListOfAssetDropdownItems(
+  List<AssetDropdownItem> _convertListOfStringsToListOfAssetDropdownItems(
     List<String> assetDropdownStrings,
   ) {
     List<AssetDropdownItem> newAssetDropdownItems = [];
@@ -391,7 +394,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
     return newAssetDropdownItems;
   }
 
-  List<String> convertListOfAssetDropdownItemsToListOfStrings(
+  List<String> _convertListOfAssetDropdownItemsToListOfStrings(
     List<AssetDropdownItem> assetDropdownItems,
   ) {
     List<String> assetDropdownStrings = [];
@@ -407,25 +410,25 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// the objects representing those lists in memory are initialized for the
   /// first time if either exist.
   ///
-  void initializeAnAssetListWithSavedDataOrApiData(
+  void _initializeAnAssetListWithSavedDataOrApiData(
     List<AssetDropdownItem> assetDropdownItems,
     AssetType assetType,
   ) {
     if (assetType == AssetType.stock) {
-      stockAssetDropdownItems = assetDropdownItems;
-      currentlySelectedAssetDropdownElement =
+      _stockAssetDropdownItems = assetDropdownItems;
+      _currentlySelectedAssetDropdownElement =
           assetDropdownItems[0].assetDropdownString;
-      setCurrentlySelectedAssetId();
+      _setCurrentlySelectedAssetId();
     }
     if (assetType == AssetType.crypto) {
-      cryptoAssetDropdownItems = assetDropdownItems;
+      _cryptoAssetDropdownItems = assetDropdownItems;
     }
     if (assetType == AssetType.cash) {
-      cashAssetDropdownItems = assetDropdownItems;
+      _cashAssetDropdownItems = assetDropdownItems;
     }
   }
 
-  String getNameFromAssetDropdownValue(
+  String _getNameFromAssetDropdownValue(
     String assetDropdownValue,
     AssetType assetType,
   ) {
@@ -439,22 +442,22 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   /// In the event an appropriate list can't be found, we use an empty list so
   /// that the program can move forward with the other [assetType] options.
-  /// [currentlySelectedAssetDropdownElement] is only specified for stocks because it
-  /// changes if the [assetType] changes, and [assetTypeChanged] handles the
+  /// [_currentlySelectedAssetDropdownElement] is only specified for stocks because it
+  /// changes if the [assetType] changes, and [_assetTypeChanged] handles the
   /// error message in that situation.
   ///
-  void initializeAnEmptyAssetList(AssetType assetType) {
+  void _initializeAnEmptyAssetList(AssetType assetType) {
     if (assetType == AssetType.stock) {
-      stockAssetDropdownItems = [];
-      currentlySelectedAssetDropdownElement =
+      _stockAssetDropdownItems = [];
+      _currentlySelectedAssetDropdownElement =
           'Apologies, the list somehow failed to load.';
-      currentlySelectedAssetId = null;
+      _currentlySelectedAssetId = null;
     }
     if (assetType == AssetType.crypto) {
-      cryptoAssetDropdownItems = [];
+      _cryptoAssetDropdownItems = [];
     }
     if (assetType == AssetType.cash) {
-      cashAssetDropdownItems = [];
+      _cashAssetDropdownItems = [];
     }
   }
 
@@ -462,10 +465,10 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   ///
   /// [AssetDropdown] accepts a list of strings which it converts into
   /// [DropdownMenuItem]s for the user to search and identify which asset they
-  /// wish to track. This method takes a Map result from an API and converts it
+  /// wish to track. This method takes a [Map] result from an API and converts it
   /// into that list.
   ///
-  List<String> parseAssetDataIntoDropdownStrings(
+  List<String> _parseAssetDataIntoDropdownStrings(
     List<AssetDataItem> assetIdDataMapList,
   ) {
     List<String> assetDropdownStrings = [];
@@ -481,63 +484,63 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// The data source lists are hardcoded constants that describe the user's
   /// choices for inputting the quantity of the asset to track.
   /// It returns the appropriate data source depending on the current
-  /// [assetType]. For an example, see any of the corresponding properties
-  /// like [AddNewAssetScreen.stockDataSourcesList].
+  /// [_assetType]. For an example, see any of the corresponding properties
+  /// like [AddNewAssetScreen._stockDataSourcesList].
   ///
-  Set<String> getDataSourcesDropdownValues() {
-    switch (assetType) {
+  Set<String> _getDataSourcesDropdownValues() {
+    switch (_assetType) {
       case AssetType.stock:
-        return AddNewAssetScreen.stockDataSourcesList;
+        return AddNewAssetScreen._stockDataSourcesList;
       case AssetType.crypto:
-        return AddNewAssetScreen.cryptoDataSourcesList;
+        return AddNewAssetScreen._cryptoDataSourcesList;
       case AssetType.cash:
-        return AddNewAssetScreen.cashDataSourcesList;
+        return AddNewAssetScreen._cashDataSourcesList;
     }
   }
 
-  /// Resets the data source and assets when [assetType] changes.
+  /// Resets the data source and assets when [_assetType] changes.
   ///
-  /// Changes the [DataSourceDropdown], and the [currentlySelectedAssetDropdownElement] in
-  /// [AssetDropdown] to reflect the fact that the user changed the [assetType]
+  /// Changes the [DataSourceDropdown], and the [_currentlySelectedAssetDropdownElement] in
+  /// [AssetDropdown] to reflect the fact that the user changed the [_assetType]
   /// using [AssetTypeSelection].
   ///
-  void assetTypeChanged(int currentAssetSelection) async {
+  void _assetTypeChanged(int currentAssetSelection) async {
     setState(
       () {
-        assetType = determineAssetTypeFromSelection(currentAssetSelection);
+        _assetType = _determineAssetTypeFromSelection(currentAssetSelection);
 
         List<AssetDropdownItem> currentAssetList =
-            chooseAssetDropdownItemListBasedOnAssetType();
-        setCurrentAsset(currentAssetList);
+            _chooseAssetDropdownItemListBasedOnAssetType();
+        _initCurrentAsset(currentAssetList);
 
-        dataSourceDropdownValues = getDataSourcesDropdownValues();
-        currentDataSource = dataSourceDropdownValues.first;
+        _dataSourceDropdownValues = _getDataSourcesDropdownValues();
+        _currentDataSource = _dataSourceDropdownValues.first;
         // TODO make the app remember the last asset selected from a category after changing categories
 
-        dataSourceChanged(currentDataSource);
+        _dataSourceChanged(_currentDataSource);
       },
     );
   }
 
-  void setCurrentAsset(List<AssetDropdownItem> currentAssetList) {
+  void _initCurrentAsset(List<AssetDropdownItem> currentAssetList) {
     if (currentAssetList.isNotEmpty) {
-      currentlySelectedAssetDropdownElement =
+      _currentlySelectedAssetDropdownElement =
           currentAssetList[0].assetDropdownString;
-      setCurrentlySelectedAssetId();
+      _setCurrentlySelectedAssetId();
     }
     if (currentAssetList.isEmpty) {
-      currentlySelectedAssetDropdownElement =
+      _currentlySelectedAssetDropdownElement =
           'Apologies, the list somehow failed to load.';
-      currentlySelectedAssetId = null;
+      _currentlySelectedAssetId = null;
     }
   }
 
-  void setCurrentlySelectedAssetId() {
-    String assetName = getNameFromAssetDropdownValue(
-      currentlySelectedAssetDropdownElement,
-      assetType,
+  void _setCurrentlySelectedAssetId() {
+    String assetName = _getNameFromAssetDropdownValue(
+      _currentlySelectedAssetDropdownElement,
+      _assetType,
     );
-    currentlySelectedAssetId = getAssetIdFromName(assetName, assetType);
+    _currentlySelectedAssetId = _getAssetIdFromName(assetName, _assetType);
   }
 
   /// Triggered by the onChange listener in [DataSourceDropdown].
@@ -545,12 +548,12 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Sets the current data source to a passed in String that comes from the
   /// current user-selected value in [DataSourceDropdown].
   ///
-  void dataSourceChanged(String dataSource) {
+  void _dataSourceChanged(String dataSource) {
     setState(() {
-      currentDataSource = dataSource;
-      updateDataSourceScanability();
-      updateDataSourceKeyboardType();
-      updateDataSourceLabel();
+      _currentDataSource = dataSource;
+      _updateDataSourceScanability();
+      _updateDataSourceKeyboardType();
+      _updateDataSourceLabel();
     });
   }
 
@@ -559,7 +562,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// This is primarily for the legibility of code within [AssetTypeSelection]
   /// and other relevant widgets, as well as the API service and Asset files.
   ///
-  AssetType determineAssetTypeFromSelection(int assetSelection) {
+  AssetType _determineAssetTypeFromSelection(int assetSelection) {
     switch (assetSelection) {
       case 0:
         return AssetType.stock;
@@ -576,52 +579,52 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Triggered by the onChange listener by a callback function occuring within
   /// [AssetDropdown].
   ///
-  /// Sets the [currentlySelectedAssetDropdownElement] when the user changes it.
+  /// Sets the [_currentlySelectedAssetDropdownElement] when the user changes it.
   ///
-  void assetDropdownChanged(String currentAssetName) {
+  void _assetDropdownChanged(String currentAssetName) {
     setState(() {
-      currentlySelectedAssetDropdownElement = currentAssetName;
-      currentlySelectedAssetId =
-          getAssetIdFromName(currentAssetName, assetType);
-      setCurrentlySelectedAssetId();
+      _currentlySelectedAssetDropdownElement = currentAssetName;
+      _currentlySelectedAssetId =
+          _getAssetIdFromName(currentAssetName, _assetType);
+      _setCurrentlySelectedAssetId();
     });
   }
 
-  /// Updates [currentDataSource]'s onscreen keyboard type.
+  /// Updates [_currentDataSource]'s onscreen keyboard type.
   ///
   /// Sets the keyboard type to whichever is most appropriate for the type of
   /// data to be entered. Numeric keyboard to entere a quantity, and disables
   /// it entirely if it's a blockchain address or a QR code.
   ///
-  void updateDataSourceKeyboardType() {
-    if (currentDataSource.endsWith('API') ||
-        currentDataSource.endsWith('Address')) {
-      dataSourceTextFieldKeyboard = TextInputType
+  void _updateDataSourceKeyboardType() {
+    if (_currentDataSource.endsWith('API') ||
+        _currentDataSource.endsWith('Address')) {
+      _dataSourceTextFieldKeyboard = TextInputType
           .none; // Nobody is going to want to type in an entire blockchain
       // address by hand on a phone, so this disables the keyboard for that use
       return;
     }
-    if (currentDataSource.endsWith('Qty') ||
-        currentDataSource.endsWith('Agent')) {
-      dataSourceTextFieldKeyboard =
+    if (_currentDataSource.endsWith('Qty') ||
+        _currentDataSource.endsWith('Agent')) {
+      _dataSourceTextFieldKeyboard =
           const TextInputType.numberWithOptions(decimal: true);
     }
   }
 
-  /// Sets scannability property related to the [currentDataSource].
+  /// Sets scannability property related to the [_currentDataSource].
   ///
-  /// Sets [dataSourceScannable] to indicate whether an option to scan a QR
+  /// Sets [_dataSourceScannable] to indicate whether an option to scan a QR
   /// code should exist given the type of data source.
   ///
-  void updateDataSourceScanability() {
-    if (currentDataSource.endsWith('API') ||
-        currentDataSource.endsWith('Address')) {
-      dataSourceScannable = true;
+  void _updateDataSourceScanability() {
+    if (_currentDataSource.endsWith('API') ||
+        _currentDataSource.endsWith('Address')) {
+      _dataSourceScannable = true;
       return;
     }
-    if (currentDataSource.endsWith('Qty') ||
-        currentDataSource.endsWith('Agent')) {
-      dataSourceScannable = false;
+    if (_currentDataSource.endsWith('Qty') ||
+        _currentDataSource.endsWith('Agent')) {
+      _dataSourceScannable = false;
     }
   }
 
@@ -630,18 +633,18 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Provides a [String] used by [DataSourceLabel] to inform the user what kind
   /// of data source is currently selected by [DataSourceDropdown].
   ///
-  void updateDataSourceLabel() {
-    if (currentDataSource.endsWith('API')) {
-      currentDataSourceLabel = 'Enter Read-Only API Key: ';
+  void _updateDataSourceLabel() {
+    if (_currentDataSource.endsWith('API')) {
+      _currentDataSourceLabel = 'Enter Read-Only API Key: ';
       return;
     }
-    if (currentDataSource.endsWith('Address')) {
-      currentDataSourceLabel = 'Enter blockchain address: ';
+    if (_currentDataSource.endsWith('Address')) {
+      _currentDataSourceLabel = 'Enter blockchain address: ';
       return;
     }
-    if (currentDataSource.endsWith('Qty') ||
-        currentDataSource.endsWith('Agent')) {
-      currentDataSourceLabel = 'Enter quantity manually: ';
+    if (_currentDataSource.endsWith('Qty') ||
+        _currentDataSource.endsWith('Agent')) {
+      _currentDataSourceLabel = 'Enter quantity manually: ';
       return;
     }
     throw UnsupportedError(
@@ -656,7 +659,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// This is likely for a blockchain address or an exchange API that is too
   /// long to key in by hand.
   ///
-  Future<void> qrIconPressed() async {
+  Future<void> _qrIconPressed() async {
     String qrCode = await FlutterBarcodeScanner.scanBarcode(
       '#ff6666',
       'Cancel',
@@ -666,7 +669,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
 
     if (!mounted) return;
     setState(() {
-      qrCodeResult = qrCode;
+      _qrCodeResult = qrCode;
     });
   }
 
@@ -679,43 +682,45 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// back to [MainScreen] by "popping" it along with the context.
   ///
   Future<void> onAcceptButtonPressed() async {
-    if (dataSourceInputController.text.isNotEmpty) {
-      toggleProgressIndicator();
-      Asset asset = assetType.createAsset(
-        assetFieldData: currentlySelectedAssetDropdownElement,
-        assetId: currentlySelectedAssetId!,
-        dataSource: currentDataSource,
-        dataSourceField: dataSourceInputController.text,
+    if (_dataSourceInputController.text.isNotEmpty) {
+      _toggleProgressIndicator();
+      Asset asset = _assetType.createAsset(
+        assetFieldData: _currentlySelectedAssetDropdownElement,
+        assetId: _currentlySelectedAssetId!,
+        dataSource: _currentDataSource,
+        dataSourceField: _dataSourceInputController.text,
       );
 
-      AssetCard newAssetCard = await createNewAssetCard(asset);
-      toggleProgressIndicator();
-      popContextWithCard(newAssetCard);
+      AssetCard newAssetCard = await _createNewAssetCard(asset);
+      _toggleProgressIndicator();
+      _popContextWithCard(newAssetCard);
     }
   }
 
-  void toggleProgressIndicator() {
+  void _toggleProgressIndicator() {
     setState(() {
-      progressIndicatorVisible = !progressIndicatorVisible;
+      _progressIndicatorVisible = !_progressIndicatorVisible;
     });
   }
 
-  Future<AssetCard> createNewAssetCard(Asset asset) async {
-    double price = await retrievePrice(asset);
+  Future<AssetCard> _createNewAssetCard(
+    Asset asset,
+  ) async {
+    double price = await _retrievePrice(asset);
     String marketCapString =
-        await asset.getMarketCapString(vsTicker: currentVsTicker);
+        await asset.getMarketCapString(vsTicker: _currentVsTicker);
 
     AssetCard newAssetCard = AssetCard(
       key: UniqueKey(),
       asset: asset,
       price: price,
       marketCapString: marketCapString,
-      vsTicker: currentVsTicker,
+      vsTicker: _currentVsTicker,
     );
     return newAssetCard;
   }
 
-  Future<double> retrievePrice(Asset asset) async {
+  Future<double> _retrievePrice(Asset asset) async {
     return await asset.getPrice(vsTicker: 'usd');
   }
 
@@ -724,7 +729,7 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// Destroys [AddNewAssetScreen] and sends the relevant data back to the
   /// parent, [MainScreen] for processing.
   ///
-  Future<void> popContextWithCard(AssetCard newAssetCard) async {
+  Future<void> _popContextWithCard(AssetCard newAssetCard) async {
     Navigator.pop(
       context,
       newAssetCard,
@@ -737,14 +742,14 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
   /// [AddNewAssetScreen] itself, therefore the already existing list need only
   /// be referenced by [AssetDropdown].
   ///
-  List<AssetDropdownItem> chooseAssetDropdownItemListBasedOnAssetType() {
-    switch (assetType) {
+  List<AssetDropdownItem> _chooseAssetDropdownItemListBasedOnAssetType() {
+    switch (_assetType) {
       case AssetType.stock:
-        return stockAssetDropdownItems;
+        return _stockAssetDropdownItems;
       case AssetType.crypto:
-        return cryptoAssetDropdownItems;
+        return _cryptoAssetDropdownItems;
       case AssetType.cash:
-        return cashAssetDropdownItems;
+        return _cashAssetDropdownItems;
     }
   }
 
@@ -758,36 +763,36 @@ class _AddNewAssetScreenState extends State<AddNewAssetScreen> {
           centerTitle: true,
         ),
         body: Center(
-          child: progressIndicatorVisible
+          child: _progressIndicatorVisible
               ? const CircularProgressIndicator.adaptive(
                   strokeWidth: 10.0,
                 )
               : Column(
                   children: [
                     AssetTypeSelection(
-                      assetTypeChangedCallback: assetTypeChanged,
+                      assetTypeChangedCallback: _assetTypeChanged,
                     ),
                     DataSourceDropdown(
-                      currentDataSource: currentDataSource,
-                      dataSourceDropdownValues: dataSourceDropdownValues,
-                      dataSourceChangedCallback: dataSourceChanged,
+                      currentDataSource: _currentDataSource,
+                      dataSourceDropdownValues: _dataSourceDropdownValues,
+                      dataSourceChangedCallback: _dataSourceChanged,
                     ),
                     AssetDropdown(
-                      currentAssetName: currentlySelectedAssetDropdownElement,
-                      assetType: assetType,
-                      assetDropdownChangedCallback: assetDropdownChanged,
+                      currentAssetName: _currentlySelectedAssetDropdownElement,
+                      assetType: _assetType,
+                      assetDropdownChangedCallback: _assetDropdownChanged,
                       assetTickerAndNameList:
-                          convertListOfAssetDropdownItemsToListOfStrings(
-                        chooseAssetDropdownItemListBasedOnAssetType(),
+                          _convertListOfAssetDropdownItemsToListOfStrings(
+                        _chooseAssetDropdownItemListBasedOnAssetType(),
                       ),
                     ),
-                    DataSourceLabel(dataSourceLabel: currentDataSourceLabel),
+                    DataSourceLabel(dataSourceLabel: _currentDataSourceLabel),
                     DataSourceTextField(
-                      dataSourceScannable: dataSourceScannable,
-                      qrIconPressedCallback: qrIconPressed,
-                      qrCodeResult: qrCodeResult,
-                      dataSourceTextFieldKeyboard: dataSourceTextFieldKeyboard,
-                      dataSourceInputController: dataSourceInputController,
+                      dataSourceScannable: _dataSourceScannable,
+                      qrIconPressedCallback: _qrIconPressed,
+                      qrCodeResult: _qrCodeResult,
+                      dataSourceTextFieldKeyboard: _dataSourceTextFieldKeyboard,
+                      dataSourceInputController: _dataSourceInputController,
                     ),
                     AcceptCancelButton(
                       acceptPushedCallback: onAcceptButtonPressed,
