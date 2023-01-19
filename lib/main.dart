@@ -469,6 +469,41 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
+  int _sortTotalValue(AssetCard a, AssetCard b) {
+    return _sort(
+      a,
+      b,
+    );
+  }
+
+  int _sortMarketCap(AssetCard a, AssetCard b) {
+    return _sort(
+      a,
+      b,
+    );
+  }
+
+  int _sortPrice(AssetCard a, AssetCard b) {
+    return _sort(
+      a,
+      b,
+    );
+  }
+
+  int _sortQuantity(AssetCard a, AssetCard b) {
+    return _sort(
+      a,
+      b,
+    );
+  }
+
+  int _sortName(AssetCard a, AssetCard b) {
+    return _sort(
+      b,
+      a,
+    );
+  }
+
   Map<SortType, dynamic> _getSortTypeToFunctionMap() {
     return {
       SortType.totalValue: _sortTotalValue,
@@ -479,39 +514,17 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     };
   }
 
-  int _sortTotalValue(AssetCard a, AssetCard b) {
-    return _ascending
-        ? a.totalValue.compareTo(b.totalValue)
-        : b.totalValue.compareTo(a.totalValue);
-  }
-
-  int _sortMarketCap(AssetCard a, AssetCard b) {
-    return _ascending
-        ? a.asset.marketCap.compareTo(b.asset.marketCap)
-        : b.asset.marketCap.compareTo(a.asset.marketCap);
-  }
-
-  int _sortPrice(AssetCard a, AssetCard b) {
-    return _ascending ? a.price.compareTo(b.price) : b.price.compareTo(a.price);
-  }
-
-  int _sortQuantity(AssetCard a, AssetCard b) {
-    return _ascending
-        ? a.asset.quantity.compareTo(b.asset.quantity)
-        : b.asset.quantity.compareTo(a.asset.quantity);
-  }
-
-  int _sortName(AssetCard a, AssetCard b) {
-    return _ascending
-        ? b.asset.name.compareTo(a.asset.name)
-        : a.asset.name.compareTo(b.asset.name);
-  }
-
-  void setSortType(SortType newSortType) {
-    setState(() {
-      _sortType = newSortType;
-    });
-    _saveSortType();
+  int _sort(AssetCard a, AssetCard b) {
+    Map<SortType, Function(AssetCard)> propertyValues = {
+      SortType.totalValue: (card) => card.totalValue,
+      SortType.marketCap: (card) => card.asset.marketCap,
+      SortType.price: (card) => card.price,
+      SortType.quantity: (card) => card.asset.quantity,
+      SortType.name: (card) => card.asset.name
+    };
+    dynamic value1 = propertyValues[_sortType]!(a);
+    dynamic value2 = propertyValues[_sortType]!(b);
+    return _ascending ? value1.compareTo(value2) : value2.compareTo(value1);
   }
 
   void toggleSortDirectionAscending() {
@@ -542,6 +555,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
+  void _setSortType(SortType newSortType) {
+    setState(() {
+      _sortType = newSortType;
+    });
+    _saveSortType();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -562,7 +582,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         actions: [
           SortAppBarIcon(
             sortCallback: _sortAssetCards,
-            setSortTypeCallback: setSortType,
+            setSortTypeCallback: _setSortType,
             currentSortType: _sortType,
           ),
           RefreshAppBarIcon(
@@ -655,8 +675,6 @@ class SortAppBarIcon extends StatefulWidget {
 enum SortType { totalValue, marketCap, price, quantity, name }
 
 class _SortAppBarIconState extends State<SortAppBarIcon> {
-  // TODO persist sortSelection and grab it on app's initialization
-
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
