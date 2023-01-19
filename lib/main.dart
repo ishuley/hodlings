@@ -384,6 +384,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       for (String cryptoId in cryptoIdList) {
         for (AssetCard assetCard in _assetCardsList) {
           if (cryptoId == assetCard.asset.assetId) {
+            // TODO create a constructor teardown for these
             double newPrice = _extractNewPriceFromCryptoData(
               assetCard,
               cryptoData,

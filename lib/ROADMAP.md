@@ -1,5 +1,5 @@
 
-0.5) Figure out which functions and variables should be set to private and refactor accordingly.
+0.5) Finish making identifiers private in add_new_asset_screen.dart
 0.7) Scrape extended hours data from somewhere, make that work since it's a paid endpoint at IEXCloud.
 1) Add toggle sort ascending button
 2) "Add to existing entry, or create new?" when user tries to create an asset that's already represented.
