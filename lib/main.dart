@@ -22,47 +22,47 @@ class HODLings extends StatefulWidget {
 }
 
 class _HODLingsState extends State<HODLings> {
-  ThemeMode currentTheme = ThemeMode.system;
-  String currentThemeDescription = 'System theme';
+  ThemeMode _currentTheme = ThemeMode.system;
+  String _currentThemeDescription = 'System theme';
 
   @override
   void initState() {
     super.initState();
-    initTheme();
+    _initTheme();
   }
 
-  Future<void> initTheme() async {
+  Future<void> _initTheme() async {
     final prefs = await SharedPreferences.getInstance();
     final String? storedTheme = prefs.getString(
       'lastTheme',
     );
     if (storedTheme != null) {
-      setTheme(
+      _setTheme(
         storedTheme,
       );
     }
   }
 
-  void setTheme(String newTheme) {
+  void _setTheme(String newTheme) {
     setState(() {
-      currentTheme = getThemeFromChoice(
+      _currentTheme = _getThemeFromChoice(
         newTheme,
       );
-      currentThemeDescription = newTheme;
+      _currentThemeDescription = newTheme;
     });
   }
 
-  void onThemeChanged(String chosenTheme) async {
-    setTheme(chosenTheme);
+  void _onThemeChanged(String chosenTheme) async {
+    _setTheme(chosenTheme);
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setString(
       'lastTheme',
-      currentThemeDescription,
+      _currentThemeDescription,
     );
   }
 
-  ThemeMode getThemeFromChoice(
+  ThemeMode _getThemeFromChoice(
     String themeChoice,
   ) {
     switch (themeChoice) {
@@ -80,12 +80,12 @@ class _HODLingsState extends State<HODLings> {
     return MaterialApp(
       routes: {
         '/': (context) => MainScreen(
-              onThemeChangedCallback: onThemeChanged,
-              currentThemeDescription: currentThemeDescription,
+              onThemeChangedCallback: _onThemeChanged,
+              currentThemeDescription: _currentThemeDescription,
             ),
       },
       title: 'HODLings',
-      themeMode: currentTheme,
+      themeMode: _currentTheme,
       theme: Themes.lightTheme,
       darkTheme: Themes.darkTheme,
     );
@@ -107,22 +107,22 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
-  double netWorth = 0;
-  String vsTicker = 'USD';
-  List<AssetCard> assetCardsList = [];
-  bool ascending = false;
-  SortType sortType = SortType.totalValue;
+  double _netWorth = 0;
+  final String _vsTicker = 'USD';
+  List<AssetCard> _assetCardsList = [];
+  bool _ascending = false;
+  SortType _sortType = SortType.totalValue;
 
   @override
   void initState() {
     super.initState();
-    readAssetCardListState();
+    _readAssetCardListState();
     WidgetsBinding.instance.addObserver(
       this,
     );
-    initSortTypeFromPrefs();
-    sortAssetCards();
-    refreshAssetCards();
+    _initSortTypeFromPrefs();
+    _sortAssetCards();
+    _refreshAssetCards();
   }
 
   @override
@@ -139,13 +139,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         state == AppLifecycleState.inactive;
 
     if (appHasBeenClosed) {
-      saveAssetCardsListState();
+      _saveAssetCardsListState();
     }
   }
 
   @override
   void dispose() {
-    saveAssetCardsListState();
+    _saveAssetCardsListState();
     WidgetsBinding.instance.removeObserver(
       this,
     );
@@ -157,13 +157,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     await prefs.setString(
       'lastSortType',
-      getSortTypeStringFromEnum(),
+      _getSortTypeStringFromEnum(),
     );
-    await prefs.setBool('isAscending', ascending);
+    await prefs.setBool('isAscending', _ascending);
   }
 
-  String getSortTypeStringFromEnum() {
-    switch (sortType) {
+  String _getSortTypeStringFromEnum() {
+    switch (_sortType) {
       case SortType.totalValue:
         return 'totalValue';
       case SortType.quantity:
@@ -177,7 +177,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> initSortTypeFromPrefs() async {
+  Future<void> _initSortTypeFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final String? sortTypeString = prefs.getString(
       'lastSortType',
@@ -186,44 +186,44 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       'isAscending',
     );
     if (sortTypeString != null) {
-      sortType = _getSortTypeFromString(sortTypeString);
+      _sortType = _getSortTypeFromString(sortTypeString);
     }
     if (isAscending != null) {
-      ascending = isAscending;
+      _ascending = isAscending;
     }
   }
 
-  void readAssetCardListState() async {
+  void _readAssetCardListState() async {
     List<AssetCard> newAssetCardList =
         await AssetCardListStorage().readAssetCardsData();
     setState(() {
-      assetCardsList = newAssetCardList;
-      updateNetWorth();
+      _assetCardsList = newAssetCardList;
+      _updateNetWorth();
     });
   }
 
-  void updateNetWorth() {
-    netWorth = 0;
-    for (AssetCard assetCard in assetCardsList) {
-      incrementNetWorth(
+  void _updateNetWorth() {
+    _netWorth = 0;
+    for (AssetCard assetCard in _assetCardsList) {
+      _incrementNetWorth(
         assetCard.totalValue,
       );
     }
   }
 
-  void saveAssetCardsListState() async {
+  void _saveAssetCardsListState() async {
     await AssetCardListStorage().writeAssetCardsData(
-      assetCardsList,
+      _assetCardsList,
     );
   }
 
-  void onNetWorthButtonPressed() {
+  void _onNetWorthButtonPressed() {
     setState(() {
       // TODO Make this listener update the vsTicker appropriately to the next available vsCurrency when pressed.
     });
   }
 
-  Future<void> addNewAssetScreen() async {
+  Future<void> _addNewAssetScreen() async {
     final AssetCard? newAssetCard = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -232,87 +232,87 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
     if (newAssetCard != null) {
       setState(() {
-        incrementNetWorth(
+        _incrementNetWorth(
           newAssetCard.totalValue,
         );
-        addToAssetList(
+        _addToAssetList(
           newAssetCard,
         );
       });
-      sortAssetCards();
-      saveAssetCardsListState();
+      _sortAssetCards();
+      _saveAssetCardsListState();
       _saveSortType();
     }
   }
 
-  void incrementNetWorth(
+  void _incrementNetWorth(
     double incrementAmount,
   ) {
-    netWorth = netWorth + incrementAmount;
+    _netWorth = _netWorth + incrementAmount;
   }
 
-  void decrementNetWorth(
+  void _decrementNetWorth(
     double decrementAmount,
   ) {
-    netWorth = netWorth - decrementAmount;
+    _netWorth = _netWorth - decrementAmount;
   }
 
-  void addToAssetList(
+  void _addToAssetList(
     AssetCard? newAssetCard,
   ) {
-    assetCardsList.add(
+    _assetCardsList.add(
       newAssetCard!,
     );
   }
 
-  void deleteAssetCard(int index) {
+  void _deleteAssetCard(int index) {
     setState(() {
-      decrementNetWorth(
-        assetCardsList[index].totalValue,
+      _decrementNetWorth(
+        _assetCardsList[index].totalValue,
       );
-      assetCardsList.removeAt(
+      _assetCardsList.removeAt(
         index,
       );
     });
   }
 
-  void editQuantity(int index, double newQty) async {
-    double difference = newQty - assetCardsList[index].asset.quantity;
+  void _editQuantity(int index, double newQty) async {
+    double difference = newQty - _assetCardsList[index].asset.quantity;
     setState(() {
-      incrementNetWorth(
-        difference * assetCardsList[index].price,
+      _incrementNetWorth(
+        difference * _assetCardsList[index].price,
       );
-      assetCardsList[index].asset.quantity += difference;
-      assetCardsList[index].asset.dataSourceField =
-          assetCardsList[index].asset.quantity.toString();
+      _assetCardsList[index].asset.quantity += difference;
+      _assetCardsList[index].asset.dataSourceField =
+          _assetCardsList[index].asset.quantity.toString();
     });
-    saveAssetCardsListState();
+    _saveAssetCardsListState();
   }
 
-  Future<void> refreshAssetCards() async {
+  Future<void> _refreshAssetCards() async {
     /// Crypto assets refreshed seperately because CoinGecko lets us save on
     /// API calls by getting all the updated data with one call, whereas the
     /// other APIs do not.
-    List<AssetCard> newAssetCardsList = await getRefreshedCryptoCardList();
-    newAssetCardsList.addAll(await getRefreshedNonCryptoAssetCardList());
+    List<AssetCard> newAssetCardsList = await _getRefreshedCryptoCardList();
+    newAssetCardsList.addAll(await _getRefreshedNonCryptoAssetCardList());
 
     setState(() {
-      assetCardsList = newAssetCardsList;
-      updateNetWorth();
+      _assetCardsList = newAssetCardsList;
+      _updateNetWorth();
     });
-    sortAssetCards();
+    _sortAssetCards();
   }
 
-  Future<List<AssetCard>> getRefreshedNonCryptoAssetCardList() async {
+  Future<List<AssetCard>> _getRefreshedNonCryptoAssetCardList() async {
     List<AssetCard> newAssetCardsList = [];
     // double extendedHoursPrice = 0;
-    for (AssetCard card in assetCardsList) {
+    for (AssetCard card in _assetCardsList) {
       if (card.asset.assetType != AssetType.crypto) {
         double newPrice = await card.asset.getPrice(
-          vsTicker: vsTicker,
+          vsTicker: _vsTicker,
         );
         String newMarketCapString = await card.asset.getMarketCapString(
-          vsTicker: vsTicker,
+          vsTicker: _vsTicker,
         );
         // if (card.asset.assetType == AssetType.stock) {
         //   Stock asset = card.asset as Stock;
@@ -323,7 +323,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           newPrice = card.price;
         }
         newAssetCardsList.add(
-          await refreshAnAssetCard(
+          await _refreshAnAssetCard(
             asset: card.asset,
             newPrice: newPrice,
             newMarketCapString: newMarketCapString,
@@ -335,25 +335,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return newAssetCardsList;
   }
 
-  Future<List<AssetCard>> getRefreshedCryptoCardList() async {
-    List<AssetCard> cryptoCards = separateCryptoCardsListFromOldAssetCardList();
-    List<String> cryptoIdList = extractCryptoIdList(cryptoCards);
+  Future<List<AssetCard>> _getRefreshedCryptoCardList() async {
+    List<AssetCard> cryptoCards =
+        _separateCryptoCardsListFromOldAssetCardList();
+    List<String> cryptoIdList = _extractCryptoIdList(cryptoCards);
     Map<String, dynamic> cryptoData = await CryptoAPI().getData(
       ids: cryptoIdList,
-      vsTickers: [vsTicker],
+      vsTickers: [_vsTicker],
     );
 
-    List<AssetCard> newAssetCardsList = await extractNewCryptoCardListFromData(
+    List<AssetCard> newAssetCardsList = await _extractNewCryptoCardListFromData(
       cryptoData,
       cryptoIdList,
     );
     return newAssetCardsList;
   }
 
-  List<AssetCard> separateCryptoCardsListFromOldAssetCardList() {
+  List<AssetCard> _separateCryptoCardsListFromOldAssetCardList() {
     List<AssetCard> cryptoCards = [];
 
-    for (AssetCard card in assetCardsList) {
+    for (AssetCard card in _assetCardsList) {
       if (card.asset.assetType == AssetType.crypto) {
         cryptoCards.add(
           card,
@@ -363,7 +364,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return cryptoCards;
   }
 
-  List<String> extractCryptoIdList(List<AssetCard> cryptoCards) {
+  List<String> _extractCryptoIdList(List<AssetCard> cryptoCards) {
     List<String> cryptoIdList = [];
     for (AssetCard cryptoCard in cryptoCards) {
       cryptoIdList.add(
@@ -373,30 +374,30 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return cryptoIdList;
   }
 
-  Future<List<AssetCard>> extractNewCryptoCardListFromData(
+  Future<List<AssetCard>> _extractNewCryptoCardListFromData(
     Map<String, dynamic> cryptoData,
     List<String> cryptoIdList,
   ) async {
     List<AssetCard> newAssetCardsList = [];
-    String lowerCaseVsTicker = vsTicker.toLowerCase();
+    String lowerCaseVsTicker = _vsTicker.toLowerCase();
     if (cryptoData.isNotEmpty) {
       for (String cryptoId in cryptoIdList) {
-        for (AssetCard assetCard in assetCardsList) {
+        for (AssetCard assetCard in _assetCardsList) {
           if (cryptoId == assetCard.asset.assetId) {
-            double newPrice = extractNewPriceFromCryptoData(
+            double newPrice = _extractNewPriceFromCryptoData(
               assetCard,
               cryptoData,
               cryptoId,
               lowerCaseVsTicker,
             );
-            String newMarketCapString = extractNewMktCapStringFromCryptoData(
+            String newMarketCapString = _extractNewMktCapStringFromCryptoData(
               assetCard,
               cryptoData,
               cryptoId,
               lowerCaseVsTicker,
             );
             newAssetCardsList.add(
-              await refreshAnAssetCard(
+              await _refreshAnAssetCard(
                 asset: assetCard.asset,
                 newPrice: newPrice,
                 newMarketCapString: newMarketCapString,
@@ -409,7 +410,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return newAssetCardsList;
   }
 
-  double extractNewPriceFromCryptoData(
+  double _extractNewPriceFromCryptoData(
     AssetCard assetCard,
     Map<String, dynamic> cryptoData,
     String cryptoId,
@@ -423,7 +424,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return newPrice;
   }
 
-  String extractNewMktCapStringFromCryptoData(
+  String _extractNewMktCapStringFromCryptoData(
     AssetCard assetCard,
     Map<String, dynamic> cryptoData,
     String cryptoId,
@@ -441,7 +442,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return newMarketCapString;
   }
 
-  Future<AssetCard> refreshAnAssetCard({
+  Future<AssetCard> _refreshAnAssetCard({
     required Asset asset,
     required double newPrice,
     required String newMarketCapString,
@@ -450,73 +451,64 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return AssetCard(
       key: UniqueKey(),
       asset: asset,
-      vsTicker: vsTicker,
+      vsTicker: _vsTicker,
       price: newPrice,
       marketCapString: newMarketCapString,
       // extendedHoursPrice: extendedHoursPrice,
     );
   }
 
-  void sortAssetCards() {
-    setState(() {
-      switch (sortType) {
-        case SortType.totalValue:
-          if (ascending == true) {
-            assetCardsList
-                .sort(((a, b) => a.totalValue.compareTo(b.totalValue)));
-          }
-          if (ascending == false) {
-            assetCardsList
-                .sort(((b, a) => a.totalValue.compareTo(b.totalValue)));
-          }
-          break;
-        case SortType.marketCap:
-          if (ascending == true) {
-            assetCardsList.sort(
-              ((a, b) => a.asset.marketCap.compareTo(b.asset.marketCap)),
-            );
-          }
-          if (ascending == false) {
-            assetCardsList.sort(
-              ((b, a) => a.asset.marketCap.compareTo(b.asset.marketCap)),
-            );
-          }
-          break;
-        case SortType.price:
-          if (ascending == true) {
-            assetCardsList.sort(((a, b) => a.price.compareTo(b.price)));
-          }
-          if (ascending == false) {
-            assetCardsList.sort(((b, a) => a.price.compareTo(b.price)));
-          }
-          break;
-        case SortType.quantity:
-          if (ascending == true) {
-            assetCardsList
-                .sort(((a, b) => a.asset.quantity.compareTo(b.asset.quantity)));
-          }
-          if (ascending == false) {
-            assetCardsList
-                .sort(((b, a) => a.asset.quantity.compareTo(b.asset.quantity)));
-          }
-          break;
-        case SortType.name:
-          if (ascending == true) {
-            assetCardsList
-                .sort(((b, a) => a.asset.name.compareTo(b.asset.name)));
-          }
-          if (ascending == false) {
-            assetCardsList
-                .sort(((a, b) => a.asset.name.compareTo(b.asset.name)));
-          }
-          break;
-      }
-    });
+  void _sortAssetCards() {
+    setState(
+      () {
+        _assetCardsList.sort(
+          ((a, b) => _getSortTypeToFunctionMap()[_sortType](a, b)),
+        );
+      },
+    );
+  }
+
+  Map<SortType, dynamic> _getSortTypeToFunctionMap() {
+    return {
+      SortType.totalValue: _sortTotalValue,
+      SortType.marketCap: _sortMarketCap,
+      SortType.price: _sortPrice,
+      SortType.quantity: _sortQuantity,
+      SortType.name: _sortName,
+    };
+  }
+
+  int _sortTotalValue(AssetCard a, AssetCard b) {
+    return _ascending
+        ? a.totalValue.compareTo(b.totalValue)
+        : b.totalValue.compareTo(a.totalValue);
+  }
+
+  int _sortMarketCap(AssetCard a, AssetCard b) {
+    return _ascending
+        ? a.asset.marketCap.compareTo(b.asset.marketCap)
+        : b.asset.marketCap.compareTo(a.asset.marketCap);
+  }
+
+  int _sortPrice(AssetCard a, AssetCard b) {
+    return _ascending ? a.price.compareTo(b.price) : b.price.compareTo(a.price);
+  }
+
+  int _sortQuantity(AssetCard a, AssetCard b) {
+    return _ascending
+        ? a.asset.quantity.compareTo(b.asset.quantity)
+        : b.asset.quantity.compareTo(a.asset.quantity);
+  }
+
+  int _sortName(AssetCard a, AssetCard b) {
+    return _ascending
+        ? b.asset.name.compareTo(a.asset.name)
+        : a.asset.name.compareTo(b.asset.name);
   }
 
   void setSortType(SortType newSortType) {
     setState(() {
-      sortType = newSortType;
+      _sortType = newSortType;
     });
     _saveSortType();
   }
@@ -524,12 +516,14 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void toggleSortDirectionAscending() {
     setState(
       () {
-        ascending = !ascending;
+        _ascending = !_ascending;
       },
     );
   }
 
-  SortType _getSortTypeFromString(String sortTypeString) {
+  SortType _getSortTypeFromString(
+    String sortTypeString,
+  ) {
     switch (sortTypeString) {
       case 'totalValue':
         return SortType.totalValue;
@@ -566,12 +560,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ).appBarTheme.iconTheme,
         actions: [
           SortAppBarIcon(
-            sortCallback: sortAssetCards,
+            sortCallback: _sortAssetCards,
             setSortTypeCallback: setSortType,
-            currentSortType: sortType,
+            currentSortType: _sortType,
           ),
           RefreshAppBarIcon(
-            onRefreshedCallback: refreshAssetCards,
+            onRefreshedCallback: _refreshAssetCards,
           ),
         ],
       ),
@@ -587,22 +581,22 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                 '###,###,###,###,###,###',
                 'en_US',
               ).format(
-                netWorth,
+                _netWorth,
               ),
-              vsTicker: vsTicker,
-              onNetWorthClickCallback: onNetWorthButtonPressed,
+              vsTicker: _vsTicker,
+              onNetWorthClickCallback: _onNetWorthButtonPressed,
             ),
             Expanded(
               child: AssetCardDisplay(
                 key: UniqueKey(),
-                assetList: assetCardsList,
-                deleteAssetCardCallback: deleteAssetCard,
-                editAssetCardQuantityCallback: editQuantity,
-                onRefreshedCallback: refreshAssetCards,
+                assetList: _assetCardsList,
+                deleteAssetCardCallback: _deleteAssetCard,
+                editAssetCardQuantityCallback: _editQuantity,
+                onRefreshedCallback: _refreshAssetCards,
               ),
             ),
             AddNewAssetButton(
-              addNewAssetCallback: addNewAssetScreen,
+              addNewAssetCallback: _addNewAssetScreen,
             ),
           ],
         ),
