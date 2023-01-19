@@ -21,15 +21,15 @@ class AssetCardDisplay extends StatefulWidget {
 
 class _AssetCardDisplayState extends State<AssetCardDisplay> {
   Offset _tapPosition = Offset.zero;
-  int tappedCardIndex = 0;
-  late ContextMenuSelection contextChoice;
-  late TextEditingController editQtyController;
-  double? newQty;
+  int _tappedCardIndex = 0;
+  late ContextMenuSelection _contextChoice;
+  late TextEditingController _editQtyController;
+  double? _newQty;
 
   @override
   void initState() {
     super.initState();
-    editQtyController = TextEditingController();
+    _editQtyController = TextEditingController();
   }
 
   @override
@@ -71,7 +71,7 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
   }
 
   void _storeIndex(int index) {
-    tappedCardIndex = index;
+    _tappedCardIndex = index;
   }
 
   void _showContextMenu(BuildContext context) async {
@@ -81,7 +81,7 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
     ContextMenuSelection? userChoice =
         await _showLongpressMenu(context, overlay);
     if (userChoice != null) {
-      contextChoice = userChoice;
+      _contextChoice = userChoice;
     }
     if (userChoice == ContextMenuSelection.edit) {
       await getNewQuantityFromUser();
@@ -100,17 +100,17 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
           ),
           content: TextField(
             onEditingComplete: (() =>
-                Navigator.of(context).pop(editQtyController.text)),
+                Navigator.of(context).pop(_editQtyController.text)),
             autofocus: true,
             decoration: const InputDecoration(
               hintText: 'New quantity',
             ),
-            controller: editQtyController,
+            controller: _editQtyController,
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(editQtyController.text);
+                Navigator.of(context).pop(_editQtyController.text);
               },
               child: const Text(
                 'Accept',
@@ -129,7 +129,7 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
       },
     );
     if (inputQty.isNotEmpty) {
-      newQty = double.parse(inputQty);
+      _newQty = double.parse(inputQty);
     }
   }
 
@@ -163,11 +163,11 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
   }
 
   void _executeChosenAction() {
-    if (contextChoice == ContextMenuSelection.delete) {
-      widget.deleteAssetCardCallback(tappedCardIndex);
+    if (_contextChoice == ContextMenuSelection.delete) {
+      widget.deleteAssetCardCallback(_tappedCardIndex);
     }
-    if (newQty != null) {
-      widget.editAssetCardQuantityCallback(tappedCardIndex, newQty!);
+    if (_newQty != null) {
+      widget.editAssetCardQuantityCallback(_tappedCardIndex, _newQty!);
     }
   }
 }

@@ -15,13 +15,13 @@ class ThemeChoiceDropdown extends StatefulWidget {
 }
 
 class _ThemeChoiceDropdownState extends State<ThemeChoiceDropdown> {
-  late String currentThemeChoice;
+  late String _currentThemeChoice;
 
   @override
   Widget build(
     BuildContext context,
   ) {
-    currentThemeChoice = widget.currentThemeDescription;
+    _currentThemeChoice = widget.currentThemeDescription;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         8.0,
@@ -49,12 +49,12 @@ class _ThemeChoiceDropdownState extends State<ThemeChoiceDropdown> {
           onChanged: ((
             String? selectedTheme,
           ) {
-            currentThemeChoice = selectedTheme!;
+            _currentThemeChoice = selectedTheme!;
             widget.onThemeChangedCallback(
-              currentThemeChoice,
+              _currentThemeChoice,
             );
           }),
-          value: currentThemeChoice,
+          value: _currentThemeChoice,
           items: const [
             'System theme',
             'Dark theme',

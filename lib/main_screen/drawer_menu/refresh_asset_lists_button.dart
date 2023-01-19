@@ -18,7 +18,7 @@ class _RefreshAssetListsButtonState extends State<RefreshAssetListsButton> {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
         child: TextButton(
-          onPressed: onPressed,
+          onPressed: _onPressed,
           child: Text(
             'Refresh Asset List (For newly released instruments)',
             style: Theme.of(context).textTheme.labelSmall!,
@@ -28,7 +28,7 @@ class _RefreshAssetListsButtonState extends State<RefreshAssetListsButton> {
     );
   }
 
-  void onPressed() async {
+  void _onPressed() async {
     for (AssetType assetType in AssetType.values) {
       await AssetStorage().deleteAssetDataFile(assetType);
       await AssetStorage().deleteAssetListFile(assetType);

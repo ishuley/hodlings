@@ -638,7 +638,6 @@ class _RefreshAppBarIconState extends State<RefreshAppBarIcon> {
 class SortAppBarIcon extends StatefulWidget {
   final void Function() sortCallback;
   final void Function(SortType) setSortTypeCallback;
-
   final SortType currentSortType;
 
   const SortAppBarIcon({
