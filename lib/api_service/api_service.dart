@@ -23,7 +23,7 @@ abstract class AssetAPI {
 class CryptoAPI implements AssetAPI {
   @override
   Future<List<AssetDataItem>> getListOfAssets() async {
-    List<AssetDataItem> cryptoDatum = [];
+    List<AssetDataItem> cryptoDataList = [];
     Uri url = Uri.https(
       coinGeckoUrl,
       '/api/v3/coins/list',
@@ -36,7 +36,7 @@ class CryptoAPI implements AssetAPI {
     if (response.statusCode == 200) {
       List<dynamic> jsonResponse = jsonDecode(response.body);
       for (Map<String, dynamic> cryptoData in jsonResponse) {
-        cryptoDatum.add(
+        cryptoDataList.add(
           AssetDataItem(
             cryptoData['id'],
             cryptoData['name'],
@@ -45,7 +45,7 @@ class CryptoAPI implements AssetAPI {
         );
       }
     }
-    return cryptoDatum;
+    return cryptoDataList;
   }
 
   Future<Map<String, dynamic>> getData({

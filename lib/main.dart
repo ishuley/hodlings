@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hodlings/api_service/api_service.dart';
+import 'package:hodlings/main_screen/app_bar/refresh_icon.dart';
+import 'package:hodlings/main_screen/app_bar/sort_by_icon.dart';
 import 'package:hodlings/main_screen/asset.dart';
-import 'package:hodlings/main_screen/drawer_menu/drawer_menu.dart';
+import 'package:hodlings/main_screen/app_bar/drawer_menu/drawer_menu.dart';
 import 'package:hodlings/main_screen/add_new_asset_button.dart';
 import 'package:hodlings/main_screen/asset_card.dart';
 import 'package:hodlings/main_screen/asset_card_display.dart';
@@ -621,108 +623,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class RefreshAppBarIcon extends StatefulWidget {
-  final void Function() onRefreshedCallback;
-
-  const RefreshAppBarIcon({
-    super.key,
-    required this.onRefreshedCallback,
-  });
-
-  @override
-  State<RefreshAppBarIcon> createState() => _RefreshAppBarIconState();
-}
-
-class _RefreshAppBarIconState extends State<RefreshAppBarIcon> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(
-        12,
-      ),
-      child: InkWell(
-        onTap: () => widget.onRefreshedCallback(),
-        splashColor: Colors.purple,
-        child: const Icon(
-          Icons.refresh_outlined,
-        ),
-      ),
-    );
-  }
-}
-
-class SortAppBarIcon extends StatefulWidget {
-  final void Function() sortCallback;
-  final void Function(SortType) setSortTypeCallback;
-  final SortType currentSortType;
-
-  const SortAppBarIcon({
-    super.key,
-    required this.sortCallback,
-    required this.setSortTypeCallback,
-    required this.currentSortType,
-  });
-
-  @override
-  State<SortAppBarIcon> createState() => _SortAppBarIconState();
-}
-
-enum SortType { totalValue, marketCap, price, quantity, name }
-
-class _SortAppBarIconState extends State<SortAppBarIcon> {
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton(
-      onSelected: (SortType newSelection) {
-        setState(
-          () {
-            widget.setSortTypeCallback(newSelection);
-            widget.sortCallback();
-          },
-        );
-      },
-      splashRadius: 22,
-      position: PopupMenuPosition.under,
-      initialValue: widget.currentSortType,
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<SortType>>[
-        const PopupMenuItem<SortType>(
-          value: SortType.totalValue,
-          child: Text(
-            'Total Value',
-          ),
-        ),
-        const PopupMenuItem<SortType>(
-          value: SortType.marketCap,
-          child: Text(
-            'Market Cap',
-          ),
-        ),
-        const PopupMenuItem<SortType>(
-          value: SortType.price,
-          child: Text(
-            'Price',
-          ),
-        ),
-        const PopupMenuItem<SortType>(
-          value: SortType.quantity,
-          child: Text(
-            'Quantity',
-          ),
-        ),
-        const PopupMenuItem<SortType>(
-          value: SortType.name,
-          child: Text(
-            'Name',
-          ),
-        ),
-      ],
-      icon: const Icon(
-        Icons.sort,
       ),
     );
   }
