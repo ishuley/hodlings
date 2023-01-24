@@ -1,3 +1,6 @@
+0.1) learn RiverPod and refactor for state management
+
+0.4) learn and use automated testing and CI/CD
 
 0.7) Scrape extended hours data from somewhere, make that work since it's a paid endpoint at IEXCloud.
 1) Add toggle sort ascending button
@@ -24,7 +27,6 @@ Provide option to toggle chart on or off, add to settings, persist it.
 14) Add the ability to back up settings to the cloud (which should be
 persistent already).
 15) Add API support for exchanges and brokers where possible.
-16) Add support for NFTs and scrape GameStops marketplace to support it,
-if necessary and permissible.
+16) Add support for NFTs and scrape GameStop's marketplace to support it, if necessary and permissible.
 17) Add precious metal support.
 18) Add more themes

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Themes that describe the colors and stylings of visual elements that
 /// compose the graphical interface through which the human interacts with the
-///  app.
+///  app. Accessed through [Theme.of(context)]
 class Themes {
   static final darkTheme = ThemeData(
     selectedRowColor: Colors.grey[850], // for sort by context menu
