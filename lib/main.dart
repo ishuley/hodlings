@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hodlings/api_service/api_service.dart';
 import 'package:hodlings/main_screen/app_bar/refresh_icon.dart';
 import 'package:hodlings/main_screen/app_bar/sort_by_icon.dart';
@@ -15,7 +14,7 @@ import 'add_new_asset_screen/add_new_asset_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(const ProviderScope(child: HODLings()));
+void main() => runApp(const HODLings());
 
 class HODLings extends StatefulWidget {
   const HODLings({super.key});
@@ -24,10 +23,6 @@ class HODLings extends StatefulWidget {
   State<HODLings> createState() => _HODLingsState();
 }
 
-/// This class exists to initialize the last used theme, and to allow the
-///  entire app to be rebuilt when the state changes, so that the theme can be
-/// changed dynamically. Stores the state and methods that get passed into
-/// [MainScreen] and then, [DrawerMenu] through the respective callbacks.
 class _HODLingsState extends State<HODLings> {
   ThemeMode _currentTheme = ThemeMode.system;
   String _currentThemeDescription = 'System theme';
@@ -99,8 +94,6 @@ class _HODLingsState extends State<HODLings> {
   }
 }
 
-/// Accepts the theme related function callbacks from [_HODLingsState] and
-/// builds the main screen.
 class MainScreen extends StatefulWidget {
   final ValueChanged<String> onThemeChangedCallback;
   final String currentThemeDescription;
@@ -115,11 +108,6 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-/// Stores the current net worth, vsTicker, list of asset cards, sort type,
-/// and sort direction as well as the corresponding helper functions which
-/// get passed into or called by the widgets that display their data.
-///
-///
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   double _netWorth = 0;
   final String _vsTicker = 'USD';
