@@ -3,23 +3,27 @@ import 'package:hodlings/main_screen/app_bar/drawer_menu/theme_choice_dropdown.d
 import 'refresh_asset_lists_button.dart';
 
 class DrawerMenu extends StatelessWidget {
-  final ValueChanged<String> onThemeChangedCallback;
-  final String currentThemeDescription;
-
   const DrawerMenu({
     super.key,
-    required this.onThemeChangedCallback,
-    required this.currentThemeDescription,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Drawer(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(
+        context,
+      ).scaffoldBackgroundColor,
       child: ListView(
         children: [
           const Padding(
-            padding: EdgeInsets.fromLTRB(10, 20, 0, 10),
+            padding: EdgeInsets.fromLTRB(
+              10,
+              20,
+              0,
+              10,
+            ),
             child: Text(
               'Theme:',
               style: TextStyle(
@@ -27,10 +31,7 @@ class DrawerMenu extends StatelessWidget {
               ),
             ),
           ),
-          ThemeChoiceDropdown(
-            onThemeChangedCallback: onThemeChangedCallback,
-            currentThemeDescription: currentThemeDescription,
-          ),
+          const ThemeChoiceDropdown(),
           const Divider(
             height: 20,
           ),

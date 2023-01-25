@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:hodlings/main_screen/asset_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodlings/main.dart';
 
-class AssetCardDisplay extends StatefulWidget {
-  final List<AssetCard> assetList;
+class AssetCardDisplay extends ConsumerStatefulWidget {
   final Function(int) deleteAssetCardCallback;
   final Function(int, double) editAssetCardQuantityCallback;
   final Future<void> Function() onRefreshedCallback;
 
   const AssetCardDisplay({
     super.key,
-    required this.assetList,
     required this.deleteAssetCardCallback,
     required this.editAssetCardQuantityCallback,
     required this.onRefreshedCallback,
   });
 
   @override
-  State<AssetCardDisplay> createState() => _AssetCardDisplayState();
+  ConsumerState<AssetCardDisplay> createState() => _AssetCardDisplayState();
 }
 
-class _AssetCardDisplayState extends State<AssetCardDisplay> {
+class _AssetCardDisplayState extends ConsumerState<AssetCardDisplay> {
   Offset _tapPosition = Offset.zero;
   int _tappedCardIndex = 0;
   late ContextMenuSelection _contextChoice;
@@ -34,11 +33,11 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.assetList.isNotEmpty) {
+    if (ref.watch(assetCardsListProvider).isNotEmpty) {
       return RefreshIndicator(
         onRefresh: widget.onRefreshedCallback,
         child: ListView.builder(
-          itemCount: widget.assetList.length,
+          itemCount: ref.watch(assetCardsListProvider).length,
           itemBuilder: (BuildContext newContext, int index) {
             return GestureDetector(
               onTapDown: (details) {
@@ -49,7 +48,7 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
                 _showContextMenu(context);
               },
               child: Card(
-                child: widget.assetList[index],
+                child: ref.watch(assetCardsListProvider)[index],
               ),
             );
           },
