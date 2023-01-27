@@ -8,7 +8,7 @@ final currentThemeNotifierProvider =
 );
 
 class CurrentThemeNotifier extends StateNotifier<ThemeMode> {
-  CurrentThemeNotifier() : super(ThemeMode.system);
+  CurrentThemeNotifier() : super(ThemeMode.dark);
 
   Future<SharedPreferences> getSharedPrefs() async {
     return await SharedPreferences.getInstance();
@@ -19,7 +19,7 @@ class CurrentThemeNotifier extends StateNotifier<ThemeMode> {
     await persistCurrentTheme(chosenThemeString);
   }
 
-  void readLastThemeFromPrefs() async {
+  void setLastThemeFromPrefs() async {
     final SharedPreferences prefs = await getSharedPrefs();
     String? newState = prefs.getString('lastTheme');
     if (newState != null) {

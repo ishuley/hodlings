@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 ///  app. Accessed through [Theme.of(context)]
 class Themes {
   static final darkTheme = ThemeData(
-    selectedRowColor: Colors.grey[850], // for sort by context menu
     scaffoldBackgroundColor: Colors.grey[850],
     colorScheme: const ColorScheme.dark(),
     primaryColor: Colors.grey[850],
@@ -28,7 +27,6 @@ class Themes {
     ),
 
     /// toggleableActiveColor is for [AssetTypeSelection]
-    toggleableActiveColor: Colors.black54,
     iconTheme: const IconThemeData(
       color: Colors.white,
       size: 30,
@@ -46,7 +44,6 @@ class Themes {
   );
 
   static final lightTheme = ThemeData(
-    selectedRowColor: Colors.white,
     scaffoldBackgroundColor: Colors.grey.shade500,
     colorScheme: const ColorScheme.light(),
     primaryColor: Colors.grey.shade400,
@@ -69,7 +66,6 @@ class Themes {
     ),
 
     /// toggleableActiveColor is for [AssetTypeSelection]
-    toggleableActiveColor: Colors.grey.shade500,
     iconTheme: const IconThemeData(
       color: Colors.black,
       size: 30,

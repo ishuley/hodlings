@@ -1,4 +1,3 @@
-0.1) learn RiverPod and refactor for state management
 
 0.4) learn and use automated testing and CI/CD
 

@@ -26,7 +26,6 @@ class _AssetTypeSelectionState extends State<AssetTypeSelection> {
       child: Center(
         child: CupertinoSlidingSegmentedControl(
           backgroundColor: Theme.of(context).primaryColor,
-          thumbColor: Theme.of(context).toggleableActiveColor,
           groupValue: _assetSelection,
           onValueChanged: (int? choice) {
             widget.assetTypeChangedCallback(choice!);

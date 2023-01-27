@@ -1,39 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodlings/main_screen/app_bar/sort_type_notifier.dart';
+import 'package:hodlings/main_screen/asset_display/asset_card_list_notifier.dart';
+import 'package:hodlings/main_screen/net_worth_display/net_worth_notifier.dart';
 
 enum SortType { totalValue, marketCap, price, quantity, name }
 
-class SortAppBarIcon extends StatefulWidget {
-  final void Function() sortCallback;
-  final void Function(SortType) setSortTypeCallback;
-  final SortType currentSortType;
-
+class SortAppBarIcon extends ConsumerStatefulWidget {
   const SortAppBarIcon({
     super.key,
-    required this.sortCallback,
-    required this.setSortTypeCallback,
-    required this.currentSortType,
   });
 
   @override
-  State<SortAppBarIcon> createState() => _SortAppBarIconState();
+  ConsumerState<SortAppBarIcon> createState() => _SortAppBarIconState();
 }
 
-class _SortAppBarIconState extends State<SortAppBarIcon> {
+class _SortAppBarIconState extends ConsumerState<SortAppBarIcon> {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
-      color: Theme.of(context).selectedRowColor,
-      onSelected: (SortType newSelection) {
-        setState(
-          () {
-            widget.setSortTypeCallback(newSelection);
-            widget.sortCallback();
-          },
-        );
+      onSelected: (SortType selectedSortType) {
+        ref
+            .read(sortTypeNotifierProvider.notifier)
+            .setSortType(selectedSortType);
+
+        ref.read(assetCardsListNotifierProvider.notifier).sortAssetCards();
+        ref.read(netWorthNotifierProvider.notifier).updateNetWorth();
       },
       splashRadius: 22,
       position: PopupMenuPosition.under,
-      initialValue: widget.currentSortType,
+      initialValue: ref.watch(sortTypeNotifierProvider),
       itemBuilder: (BuildContext context) => <PopupMenuEntry<SortType>>[
         const PopupMenuItem<SortType>(
           value: SortType.totalValue,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hodlings/theme_notifier.dart';
+import 'package:hodlings/themes/theme_notifier.dart';
 
 class ThemeChoiceDropdown extends ConsumerStatefulWidget {
   const ThemeChoiceDropdown({
