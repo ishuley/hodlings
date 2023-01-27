@@ -1,7 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
-import 'asset.dart';
+import 'package:hodlings/main_screen/asset.dart';
 import 'package:intl/intl.dart';
 
 enum MarketStatus { premarket, afterhours, open, closed }

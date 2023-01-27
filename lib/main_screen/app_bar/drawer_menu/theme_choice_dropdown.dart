@@ -1,41 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodlings/themes/theme_notifier.dart';
 
-class ThemeChoiceDropdown extends StatefulWidget {
-  final ValueChanged<String> onThemeChangedCallback;
-  final String currentThemeDescription;
-
+class ThemeChoiceDropdown extends ConsumerStatefulWidget {
   const ThemeChoiceDropdown({
     super.key,
-    required this.onThemeChangedCallback,
-    required this.currentThemeDescription,
   });
 
   @override
-  State<ThemeChoiceDropdown> createState() => _ThemeChoiceDropdownState();
+  ConsumerState<ThemeChoiceDropdown> createState() =>
+      _ThemeChoiceDropdownState();
 }
 
-class _ThemeChoiceDropdownState extends State<ThemeChoiceDropdown> {
-  late String _currentThemeChoice;
+getStringFromThemeMode(ThemeMode themeMode) {
+  switch (themeMode) {
+    case ThemeMode.dark:
+      return 'Dark theme';
+    case ThemeMode.light:
+      return 'Light theme';
+    default:
+      return 'System theme';
+  }
+}
 
+class _ThemeChoiceDropdownState extends ConsumerState<ThemeChoiceDropdown> {
   @override
   Widget build(
     BuildContext context,
   ) {
-    _currentThemeChoice = widget.currentThemeDescription;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        8.0,
-        0,
-        8,
-        0,
-      ),
+      padding: const EdgeInsets.fromLTRB(8, 0, 0, 8),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(
-          10,
-          0,
-          0,
-          0,
-        ),
+        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
         decoration: BoxDecoration(
           color: Theme.of(
             context,
@@ -46,15 +42,15 @@ class _ThemeChoiceDropdownState extends State<ThemeChoiceDropdown> {
           dropdownColor: Theme.of(
             context,
           ).primaryColor,
-          onChanged: ((
-            String? selectedTheme,
-          ) {
-            _currentThemeChoice = selectedTheme!;
-            widget.onThemeChangedCallback(
-              _currentThemeChoice,
-            );
+          onChanged: ((String? selectedTheme) {
+            if (selectedTheme != null) {
+              ref
+                  .read(currentThemeNotifierProvider.notifier)
+                  .changeTheme(selectedTheme);
+            }
           }),
-          value: _currentThemeChoice,
+          value:
+              getStringFromThemeMode(ref.watch(currentThemeNotifierProvider)),
           items: const [
             'System theme',
             'Dark theme',

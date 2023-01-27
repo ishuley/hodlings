@@ -1,25 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:hodlings/main_screen/asset_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hodlings/main_screen/asset_display/asset_card_list_notifier.dart';
 
-class AssetCardDisplay extends StatefulWidget {
-  final List<AssetCard> assetList;
-  final Function(int) deleteAssetCardCallback;
-  final Function(int, double) editAssetCardQuantityCallback;
-  final Future<void> Function() onRefreshedCallback;
-
+class AssetCardDisplay extends ConsumerStatefulWidget {
   const AssetCardDisplay({
     super.key,
-    required this.assetList,
-    required this.deleteAssetCardCallback,
-    required this.editAssetCardQuantityCallback,
-    required this.onRefreshedCallback,
   });
 
   @override
-  State<AssetCardDisplay> createState() => _AssetCardDisplayState();
+  ConsumerState<AssetCardDisplay> createState() => _AssetCardDisplayState();
 }
 
-class _AssetCardDisplayState extends State<AssetCardDisplay> {
+class _AssetCardDisplayState extends ConsumerState<AssetCardDisplay> {
   Offset _tapPosition = Offset.zero;
   int _tappedCardIndex = 0;
   late ContextMenuSelection _contextChoice;
@@ -30,15 +22,18 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
   void initState() {
     super.initState();
     _editQtyController = TextEditingController();
+    ref
+        .read(assetCardsListNotifierProvider.notifier)
+        .refreshAssetCardsDisplay();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.assetList.isNotEmpty) {
+    if (ref.watch(assetCardsListNotifierProvider).isNotEmpty) {
       return RefreshIndicator(
-        onRefresh: widget.onRefreshedCallback,
+        onRefresh: onRefresh,
         child: ListView.builder(
-          itemCount: widget.assetList.length,
+          itemCount: ref.watch(assetCardsListNotifierProvider).length,
           itemBuilder: (BuildContext newContext, int index) {
             return GestureDetector(
               onTapDown: (details) {
@@ -49,7 +44,7 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
                 _showContextMenu(context);
               },
               child: Card(
-                child: widget.assetList[index],
+                child: ref.watch(assetCardsListNotifierProvider)[index],
               ),
             );
           },
@@ -76,7 +71,7 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
 
   void _showContextMenu(BuildContext context) async {
     final RenderObject? overlay =
-        Overlay.of(context)?.context.findRenderObject();
+        Overlay.of(context).context.findRenderObject();
 
     ContextMenuSelection? userChoice =
         await _showLongpressMenu(context, overlay);
@@ -84,12 +79,12 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
       _contextChoice = userChoice;
     }
     if (userChoice == ContextMenuSelection.edit) {
-      await getNewQuantityFromUser();
+      await _getNewQuantityFromUser();
     }
     _executeChosenAction();
   }
 
-  Future<void> getNewQuantityFromUser() async {
+  Future<void> _getNewQuantityFromUser() async {
     String inputQty;
     inputQty = await showDialog(
       context: context,
@@ -164,11 +159,21 @@ class _AssetCardDisplayState extends State<AssetCardDisplay> {
 
   void _executeChosenAction() {
     if (_contextChoice == ContextMenuSelection.delete) {
-      widget.deleteAssetCardCallback(_tappedCardIndex);
+      ref
+          .read(assetCardsListNotifierProvider.notifier)
+          .deleteAssetCard(_tappedCardIndex);
     }
     if (_newQty != null) {
-      widget.editAssetCardQuantityCallback(_tappedCardIndex, _newQty!);
+      ref
+          .read(assetCardsListNotifierProvider.notifier)
+          .editQuantity(_tappedCardIndex, _newQty!);
     }
+  }
+
+  Future<void> onRefresh() async {
+    ref
+        .read(assetCardsListNotifierProvider.notifier)
+        .refreshAssetCardsDisplay();
   }
 }
 
