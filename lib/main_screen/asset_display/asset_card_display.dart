@@ -22,9 +22,6 @@ class _AssetCardDisplayState extends ConsumerState<AssetCardDisplay> {
   void initState() {
     super.initState();
     _editQtyController = TextEditingController();
-    ref
-        .read(assetCardsListNotifierProvider.notifier)
-        .refreshAssetCardsDisplay();
   }
 
   @override
