@@ -70,7 +70,7 @@ class AssetCardsListNotifier extends StateNotifier<List<AssetCard>> {
     List<AssetCard> newAssetCardsList = await _getRefreshedCryptoCardList();
     newAssetCardsList.addAll(await _getRefreshedNonCryptoAssetCardList());
     state = newAssetCardsList;
-    ref.read(assetCardsListNotifierProvider.notifier).sortAssetCards();
+    sortAssetCards();
     ref.read(netWorthNotifierProvider.notifier).updateNetWorth();
   }
 

@@ -1,6 +1,5 @@
-
+0.1) Move Widget out of AssetCard List notifier, and replace with serialized object used from persistance to better align the app with the MVC design pattern
 0.4) learn and use automated testing and CI/CD
-
 0.7) Scrape extended hours data from somewhere, make that work since it's a paid endpoint at IEXCloud.
 1) Add toggle sort ascending button
 2) "Add to existing entry, or create new?" when user tries to create an asset that's already represented.
